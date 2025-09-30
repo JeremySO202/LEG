@@ -17,7 +17,7 @@
 
 ## Tipos de Instrucciones
 
-### Formatos (32 bits)  ---> Hay que ver cuáles dejamos
+### Formatos (32 bits) 
 
 - R: X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
 - B: OFFSET(18) | RS2(4) | OPC(6) | RS1(4)
@@ -25,25 +25,63 @@
 - I: IMM(18) | RS1(4) | OPC(6) | RD(4)
 - V: 
 
+### OPCODES
 
+| Mnemónico | OPCODE |
+|---|---|
+| NOP | 000000 |
+| SMA | 000001 |
+| SMAI | 000010 |
+| RTA | 000011 |
+| RTAI | 000100 |
+| MUL | 000101 |
+| MULI | 000110 |
+| Y | 000111 |
+| O | 001000 |
+| OEX | 001001 |
+| ROTD | 001010 |
+| ROTI | 001011 |
+| NO | 001100 |
+| MOV | 001101 |
+| ROL | 001110 |
+| MODP | 001111 |
+| MIX | 010000 |
+| MULA | 010001 |
+| CRG | 010010 |
+| GRD | 010011 |
+| RIG | 010100 |
+| RIM | 010101 |
+| RIP | 010110 |
+| RIN | 010111 |
+
+| NOP | 011000 |
+| NOP | 011001 |
+| NOP | 011010 |
+| NOP | 011011 |
+| NOP | 011100 |
+| NOP | 011101 |
+| NOP | 011110 |
+| NOP | 011111 |
+| NOP | 100000 |
 
 ### Instrucciones aritméticas / lógicas  
 
-| Mnemónico | Semántica | Lat. | Tipo | Enc |
+| Mnemónico | Semántica | Lat. | Tipo | Encodificación |
 |---|---|---|---|---|
-| NOP | no-op | 1 | R | 0000000000000 0000 0000 000000 0000 |
-| SMA rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| SMAI rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| RTA rd,rs1,rs2 | rd ← rs1 - rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| RTAI rd,rs1,rs2 | rd ← rs1 - rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| MUL rd,rs1,rs2 | rd ← rs1 * rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| MULI rd,rs1,rs2 | rd ← rs1 * rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| Y/O/OEX rd,rs1,rs2 | bitwise | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| ROTD rd,rs,sh | rotr64(rs, sh[0..63]) | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| ROTI rd,rs,sh | rotl64(rs, sh[0..63]) | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| NO rd, rs| rd ← ~rs | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| RET | pc ← x15 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
-| MOV rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
+| NOP | no-op | 1 | R | x[12:0] 0000 0000 000000 0000 |
+| SMA rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 000001 rd[3:0] |
+| SMAI rd,rs1, imm | rd ← rs1 + imm | 1 | I | imm[17:0] rs1[3:0] 000010 rd[3:0] |
+| RTA rd,rs1,rs2 | rd ← rs1 - rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 000011 rd[3:0] |
+| RTAI rd,rs1,imm | rd ← rs1 - imm | 1 | I | imm[17:0] rs1[3:0] 000100 rd[3:0] |
+| MUL rd,rs1,rs2 | rd ← rs1 * rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 000101 rd[3:0] |
+| MULI rd,rs1,imm | rd ← rs1 * imm | 1 | I | imm[17:0] rs1[3:0] 000110 rd[3:0] |
+| Y rd,rs1,rs2 | rd ← rs1 & rs2  | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 000111 rd[3:0] |
+| O rd,rs1,rs2 | rd ← rs1 or rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 001000 rd[3:0] |
+| OEX rd,rs1,rs2 | rd ← rs1 ^ rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 001001 rd[3:0] |
+| ROTD rd,rs,imm | rd ← rotr64(rs, imm) | 1 | I | imm[17:0] rs1[3:0] 001010 rd[3:0] |
+| ROTI rd,rs,imm | rd ← rotl64(rs, imm) | 1 | I | imm[17:0] rs1[3:0] 001011 rd[3:0] |
+| NO rd, rs| rd ← ~rs | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 001100 rd[3:0] |
+| MOV rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 001101 rd[3:0] |
 
 ### Instrucciones de Hash (≥3, requeridas)
 
@@ -65,10 +103,7 @@
 
 | Mnemónico | Semántica | Nota |
 |---|---|---|
-| VSETK kidx, imm64 | bóveda.K[kidx] ← imm64 | carga segura |
-| VSETIV i, imm64 | bóveda.IV[i] ← imm64 (i∈{0:A..3:D}) | carga segura |
-| HINIT i | H[i] ← bóveda.IV[i] (no expone IV) | no GPR |
-| HKLOAD rd,rs,kidx | rd ← rs ^ bóveda.K[kidx] | no filtra K en claro |
+
 
 ### Instrucciones de salto / branch
 
@@ -80,7 +115,6 @@
 | RIN rd,off | rd←pc+4; pc+=off | 1 |
 
 
-## Encodificación de instrucciones
 
 
 
