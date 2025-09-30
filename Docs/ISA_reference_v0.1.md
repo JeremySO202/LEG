@@ -54,50 +54,40 @@
 | RIP | 010110 |
 | RIN | 010111 |
 
-| NOP | 011000 |
-| NOP | 011001 |
-| NOP | 011010 |
-| NOP | 011011 |
-| NOP | 011100 |
-| NOP | 011101 |
-| NOP | 011110 |
-| NOP | 011111 |
-| NOP | 100000 |
-
 ### Instrucciones aritméticas / lógicas  
 
-| Mnemónico | Semántica | Lat. | Tipo | Encodificación |
-|---|---|---|---|---|
+| Mnemónico | Semántica |  Tipo | Encodificación |
+|---|---|---|---|
 | NOP | no-op | 1 | R | x[12:0] 0000 0000 000000 0000 |
-| SMA rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 000001 rd[3:0] |
-| SMAI rd,rs1, imm | rd ← rs1 + imm | 1 | I | imm[17:0] rs1[3:0] 000010 rd[3:0] |
-| RTA rd,rs1,rs2 | rd ← rs1 - rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 000011 rd[3:0] |
-| RTAI rd,rs1,imm | rd ← rs1 - imm | 1 | I | imm[17:0] rs1[3:0] 000100 rd[3:0] |
-| MUL rd,rs1,rs2 | rd ← rs1 * rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 000101 rd[3:0] |
-| MULI rd,rs1,imm | rd ← rs1 * imm | 1 | I | imm[17:0] rs1[3:0] 000110 rd[3:0] |
-| Y rd,rs1,rs2 | rd ← rs1 & rs2  | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 000111 rd[3:0] |
-| O rd,rs1,rs2 | rd ← rs1 or rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 001000 rd[3:0] |
-| OEX rd,rs1,rs2 | rd ← rs1 ^ rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 001001 rd[3:0] |
-| ROTD rd,rs,imm | rd ← rotr64(rs, imm) | 1 | I | imm[17:0] rs1[3:0] 001010 rd[3:0] |
-| ROTI rd,rs,imm | rd ← rotl64(rs, imm) | 1 | I | imm[17:0] rs1[3:0] 001011 rd[3:0] |
-| NO rd, rs| rd ← ~rs | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 001100 rd[3:0] |
-| MOV rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | x[12:0] rs2[3:0] rs1[3:0] 001101 rd[3:0] |
+| SMA rd,rs1,rs2 | rd ← rs1 + rs2 | R | x[12:0] rs2[3:0] rs1[3:0] 000001 rd[3:0] |
+| SMAI rd,rs1, imm | rd ← rs1 + imm  | I | imm[17:0] rs1[3:0] 000010 rd[3:0] |
+| RTA rd,rs1,rs2 | rd ← rs1 - rs2 | R | x[12:0] rs2[3:0] rs1[3:0] 000011 rd[3:0] |
+| RTAI rd,rs1,imm | rd ← rs1 - imm |  I | imm[17:0] rs1[3:0] 000100 rd[3:0] |
+| MUL rd,rs1,rs2 | rd ← rs1 * rs2 |  R | x[12:0] rs2[3:0] rs1[3:0] 000101 rd[3:0] |
+| MULI rd,rs1,imm | rd ← rs1 * imm | I | imm[17:0] rs1[3:0] 000110 rd[3:0] |
+| Y rd,rs1,rs2 | rd ← rs1 & rs2  | R | x[12:0] rs2[3:0] rs1[3:0] 000111 rd[3:0] |
+| O rd,rs1,rs2 | rd ← rs1 or rs2 |  R | x[12:0] rs2[3:0] rs1[3:0] 001000 rd[3:0] |
+| OEX rd,rs1,rs2 | rd ← rs1 ^ rs2 |  R | x[12:0] rs2[3:0] rs1[3:0] 001001 rd[3:0] |
+| ROTD rd,rs,imm | rd ← rotr64(rs, imm) | I | imm[17:0] rs1[3:0] 001010 rd[3:0] |
+| ROTI rd,rs,imm | rd ← rotl64(rs, imm) |  I | imm[17:0] rs1[3:0] 001011 rd[3:0] |
+| NO rd, rs| rd ← ~rs |  R | x[12:0] 0000 rs1[3:0] 001100 rd[3:0] |
+| MOV rd,rs1 | rd ← rs1 | R | x[12:0] 0000 rs1[3:0] 001101 rd[3:0] |
 
 ### Instrucciones de Hash (≥3, requeridas)
 
-| Mnemónico | Semántica | Lat. | 
-|---|---|---|
-| ROL rd,rs | rd ← (x << r) | (x >> (64 - r)) | 2 |
-| MODP rd,rs | rd ← rs mod 0xFFFFFFFB | 2 |
-| MIX rd,ra,rb,rc | rd ← (ra & rb) | (~ra & rc) | 1 |
-| MULA rd,ra,rb,rc | rd ← (ra & rb) | (~ra & rc) | 1 | 
+| Mnemónico | Semántica | Tipo | Encodificación |
+|---|---|---|---|
+| ROL rd,rs1,imm | rd ← (rs1 << imm) or (rs1 >> (64 - imm)) | I | imm[17:0] rs1[3:0] 001110 rd[3:0] |
+| MODP rd,rs1 | rd ← rs1 mod 0xFFFFFFFB | I | imm[17:0] rs1[3:0] 001111 rd[3:0] |
+| MIX rd,ra,rb,rc | rd ← (ra & rb) or (~ra & rc) | R | x[12:0] rs2[3:0] rs1[3:0] 010000 rd[3:0]  A este tengo que pensarlo como ponerlo|
+| MULA rd,ra,rb,rc | rd ← (ra & rb) or (~ra & rc) | I | imm[17:0] rs1[3:0] 010001 rd[3:0] a este también|
 
 ### Instrucciones de acceso a memoria / manejo de datos
 
-| Mnemónico | Semántica | Lat. |
-|---|---|---|
-| CRG rd,offs(base) | rd ← M64[base+offs] | 2 |
-| GRD rs,offs(base) | M64[base+offs] ← rs | 2 |
+| Mnemónico | Semántica | Tipo | Encodificación | 
+|---|---|---|---|
+| CRG rd,offs(base) | rd ← M64[base+offs] | M |  imm[17:0] rs1[3:0] 010010 rd[3:0] |
+| GRD rs,offs(base) | M64[base+offs] ← rs | M | imm[17:0] rs2[3:0] 010011 rs1[3:0] |
 
 ### Instrucciones de acceso a bóveda *
 
@@ -107,12 +97,12 @@
 
 ### Instrucciones de salto / branch
 
-| Mnemónico | Semántica | Nota |
-|---|---|---|
-| RIG rs1,rs2,off | if(rs1==rs2) pc+=off | 1 |
-| RIM rs1,rs2,off | if(rs1>=rs2) pc+=off | 1 |
-| RIP rs1,rs2,off | if(rs1<=rs2) pc+=off | 1 |
-| RIN rd,off | rd←pc+4; pc+=off | 1 |
+| Mnemónico | Semántica | Tipo | Encodificación |
+|---|---|---|---|
+| RIG rs1,rs2,off | if(rs1==rs2) pc+=off | B | imm[17:0] rs2[3:0] 010100 rs1[3:0] |
+| RIM rs1,rs2,off | if(rs1>=rs2) pc+=off | B | imm[17:0] rs2[3:0] 010101 rs1[3:0] |
+| RIP rs1,rs2,off | if(rs1<=rs2) pc+=off | B |imm[17:0] rs2[3:0] 010110 rs1[3:0] |
+| RIN rd,off | rd←pc+4; pc+=off | B | imm[17:0] 0000 010111 rd[3:0] |
 
 
 

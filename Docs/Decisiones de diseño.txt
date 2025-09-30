@@ -68,3 +68,15 @@ Branch
 - BGE 
 - BLE
 - B o JAL -> ver diferencia
+
+
+OPCODES LIBRES
+| NOP | 011000 |
+| NOP | 011001 |
+| NOP | 011010 |
+| NOP | 011011 |
+| NOP | 011100 |
+| NOP | 011101 |
+| NOP | 011110 |
+| NOP | 011111 |
+| NOP | 100000 |
