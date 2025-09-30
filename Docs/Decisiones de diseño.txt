@@ -1,0 +1,45 @@
+Tenemos 2 memorias, una de 32 bits para abaratar costos y otra de 64 bits por el algoritmo de hasheo
+
+Tenemos 32 registros, porque de todos modos tenemos que usar 5 bits para direccionamiento, entonces 
+si queremos más de 16 se desperdicia
+
+Ver qué tenemos que hacer extra para tener número con signo o sin signo, ver si queremos dos Instrucciones
+o si usamos flags
+
+Trabajamos solo con unsigned porque no ocupamos el signed de ningúno
+
+Trabajamos sin operaciones con acceso a memoria, por seguridad? Solo registro con registro para 
+simplificar el direccionamiento y la cantidad de bits por instrucciones
+
+No hay operaciones con inmediatos, porque tenemos el mov
+Mejor luego vemos si nos alcanza el tiempo para agregar todos
+
+Instrucciones que queremos:
+
+Aritméticas / lógicas (todas con registro y con inmediato):
+- ADD
+- SUB
+- MUL 
+- Shift left y right
+- XOR
+- AND
+- OR
+- NOT -> le preguntamos luego a Jeremy cómo se hace de otra manera
+- NOP
+
+Memorias
+- STORE
+- LOAD
+- STORE boveda
+- LOAD boveda
+
+Hasheo
+- Modulo con el primo
+- Rol 64
+- MUL limitado a 64 bits con un solo operando
+
+Branch
+- BEQ -> ella misma compara datos y establece flags
+- BGE 
+- BLE
+- B o JAL -> ver diferencia
