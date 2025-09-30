@@ -19,20 +19,25 @@
 
 ### Formatos (32 bits)  ---> Hay que ver cuáles dejamos
 
-- R: X(11) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-- B: OFFSET(16) | RS2(4) | OPC(6) | RS1(4)
-- M: OFFSET(16) | BASE(4) | OPC(6) | RS/RD(4)
-- I: IMM(16) | RS1(5) | OPC(6) | RD(5)
+- R: X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+- B: OFFSET(18) | RS2(4) | OPC(6) | RS1(4)
+- M: OFFSET(18) | BASE(4) | OPC(6) | RS/RD(4)
+- I: IMM(18) | RS1(4) | OPC(6) | RD(4)
 - V: 
+
+
 
 ### Instrucciones aritméticas / lógicas  
 
 | Mnemónico | Semántica | Lat. | Tipo | Enc |
 |---|---|---|---|---|
-| NOP | no-op | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
+| NOP | no-op | 1 | R | 0000000000000 0000 0000 000000 0000 |
 | SMA rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
+| SMAI rd,rs1,rs2 | rd ← rs1 + rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
 | RTA rd,rs1,rs2 | rd ← rs1 - rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
+| RTAI rd,rs1,rs2 | rd ← rs1 - rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
 | MUL rd,rs1,rs2 | rd ← rs1 * rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
+| MULI rd,rs1,rs2 | rd ← rs1 * rs2 | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
 | Y/O/OEX rd,rs1,rs2 | bitwise | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
 | ROTD rd,rs,sh | rotr64(rs, sh[0..63]) | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
 | ROTI rd,rs,sh | rotl64(rs, sh[0..63]) | 1 | R | 0000 0000 0000 0000 0000 0000 0000 0000 |
