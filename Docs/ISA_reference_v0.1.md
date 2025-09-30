@@ -1,7 +1,6 @@
-# Hoja de referencia LEG
+# Hoja de referencia LEG - Versión 0.1
 
-
-## Registros  ---> Hay que ver cuantos queremos, 
+## Registros  ---> Hay que ver cuantos queremos
 
 | Nombre   | Uso                                              |
 |----------|--------------------------------------------------|
@@ -72,7 +71,11 @@
 | HINIT i | H[i] ← bóveda.IV[i] (no expone IV) | no GPR |
 | HKLOAD rd,rs,kidx | rd ← rs ^ bóveda.K[kidx] | no filtra K en claro |
 
+### Instrucciones de llamada al sistema
 
+No tenemos, porque LEG está orientado a empotrados?
+
+## Encodificación de instrucciones
 
 
 
