@@ -8,7 +8,7 @@ se puede poner en una tabla y ponerla ahí abajo
 Hay que agregar la parte del excel para que se vea más lindo
 ¿Si lo hacemos en overleaf tal vez queda más lindo, no se puede? -> hacerlo si hay tiempo 
 
-## ARITHMETIC INSTRUCTIONS 
+### ARITHMETIC INSTRUCTIONS 
 
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
@@ -28,7 +28,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 | NO - <small>bitwise not| 001100 |  R | rd ← ~rs 
 | MOV - <small>mover | 001101 | R | rd ← rs1 
 
-## HASH INSTRUCTIONS
+### HASH INSTRUCTIONS
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
@@ -38,20 +38,20 @@ Hay que agregar la parte del excel para que se vea más lindo
 | MULA - <small>nombre | 010001 | I | rd ← (ra & rb) or (~ra & rc)  
 
 
-## MEMORY ACCESS/ DATA HANDLING INSTRUCTIONS
+### MEMORY ACCESS/ DATA HANDLING INSTRUCTIONS
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
 | CRG - <small>nombre | 010010 | M |  rd ← M64[base+offs]
 | GRD - <small>nombre | 010011 | M | M64[base+offs] ← rs
 
-## VAULT INTERACTION INSTRUCTIONS
+### VAULT INTERACTION INSTRUCTIONS
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
 
 
-## BRANCH/JUMP INSTRUCTIONS
+### BRANCH/JUMP INSTRUCTIONS
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
@@ -64,7 +64,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 <hr style="margin:0; border:3px solid white;">
 
 
-## CORE INSTRUCTION FORMATS
+### CORE INSTRUCTION FORMATS
 |TYPE| 31-11|11-4|3-5|2-4|1-5|
 |---|---|---|---|---|---|
 | R: |X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
