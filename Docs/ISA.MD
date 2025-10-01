@@ -71,12 +71,12 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 
 ### CORE INSTRUCTION FORMATS
-|TYPE| 31-11|11-4|3-5|2-4|1-5|
+|TYPE| 31-18|17-14|13-10|9-4|3-0|
 |---|---|---|---|---|---|
 | R: |X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-| B: |OFFSET(18) | RS2(4) | OPC(6) | RS1(4)
-| M: |OFFSET(18) | BASE(4) | OPC(6) | RS/RD(4)
-| I: |IMM(18) | RS1(4) | OPC(6) | RD(4)
+| B: |OFFSET(18) | |RS2(4) | OPC(6) | RS1(4)
+| M: |OFFSET(18) | |BASE(4) | OPC(6) | RS/RD(4)
+| I: |IMM(18) | |RS1(4) | OPC(6) | RD(4)
 | V: |
 
 <hr style="margin:0; border:3px solid white;">
