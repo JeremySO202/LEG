@@ -61,7 +61,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 | RIN - <small>nombre | 010111 | B | rd←pc+4; pc+=off
 
 
-<hr style="margin:0; border:2px solid white;">
+<hr style="margin:0; border:3px solid white;">
 
 
 ## CORE INSTRUCTION FORMATS
@@ -73,7 +73,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 | I: |IMM(18) | RS1(4) | OPC(6) | RD(4)
 | V: |
 
-<hr style="margin:0; border:2px solid white;">
+<hr style="margin:0; border:3px solid white;">
  
 ## REGISTER NAME, CALLING, USE
 
@@ -89,7 +89,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 | L15 |(Zero) | Número cero     |
 
 
-<hr style="margin:0; border:2px solid white;">
+<hr style="margin:0; border:3px solid white;">
 
 
 ## ADDITIONAL INFORMATION 
