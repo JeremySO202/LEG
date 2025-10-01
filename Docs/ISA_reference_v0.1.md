@@ -19,7 +19,7 @@
 
 ### Formatos (32 bits) 
 
-- R: X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+- R: X(14) | RS2(4) | RS1(4) | OPC(6) | RD(4)
 - B: OFFSET(18) | RS2(4) | OPC(6) | RS1(4)
 - M: OFFSET(18) | BASE(4) | OPC(6) | RS/RD(4)
 - I: IMM(18) | RS1(4) | OPC(6) | RD(4)
@@ -103,12 +103,4 @@
 | RIM rs1,rs2,off | if(rs1>=rs2) pc+=off | B | imm[17:0] rs2[3:0] 010101 rs1[3:0] |
 | RIP rs1,rs2,off | if(rs1<=rs2) pc+=off | B |imm[17:0] rs2[3:0] 010110 rs1[3:0] |
 | RIN rd,off | rd←pc+4; pc+=off | B | imm[17:0] 0000 010111 rd[3:0] |
-
-
-
-
-
-
-
-
 
