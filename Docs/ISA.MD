@@ -28,6 +28,8 @@ Hay que agregar la parte del excel para que se vea más lindo
 | NO - <small>bitwise not| 001100 |  R | rd ← ~rs 
 | MOV - <small>mover | 001101 | R | rd ← rs1 
 
+---
+
 ### HASH INSTRUCTIONS
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
@@ -37,6 +39,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 | MIX - <small>nombre | 010000 | R |  rd ← (ra & rb) or (~ra & rc)  
 | MULA - <small>nombre | 010001 | I | rd ← (ra & rb) or (~ra & rc)  
 
+---
 
 ### MEMORY ACCESS/ DATA HANDLING INSTRUCTIONS
 
@@ -45,11 +48,14 @@ Hay que agregar la parte del excel para que se vea más lindo
 | CRG - <small>nombre | 010010 | M |  rd ← M64[base+offs]
 | GRD - <small>nombre | 010011 | M | M64[base+offs] ← rs
 
+---
+
 ### VAULT INTERACTION INSTRUCTIONS
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
 
+---
 
 ### BRANCH/JUMP INSTRUCTIONS
 
@@ -75,7 +81,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 <hr style="margin:0; border:3px solid white;">
  
-## REGISTER NAME, CALLING, USE
+### REGISTER NAME, CALLING, USE
 
 | NAME   | CALLING | USE                                              |
 |----------| -----|--------------------------------------------------|
@@ -92,7 +98,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 <hr style="margin:0; border:3px solid white;">
 
 
-## ADDITIONAL INFORMATION 
+### ADDITIONAL INFORMATION 
 
 AGREGAR ACÁ LO DEL BIG ENDIAN
 Y DEMÁS INFORMACIÓN QUE sea necesaria
