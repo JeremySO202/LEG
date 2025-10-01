@@ -1,0 +1,31 @@
+Las instrucciones cargadas son:
+crg
+grd
+mov
+rig
+rta
+rtai
+sma
+smai
+y
+muli
+mul
+------------------------------
+Faltan:
+1- mix
+2-modp
+3-mula 
+4-no
+5-nop
+6-oex
+7-rim
+8-rin
+9-rip
+10-rol
+11-rotd
+12-roti
+-------------------------------
+
+Revisar rl forwarding porque no sé si se está aplicando bien.
+Y si no es el caso hay que ver los comentarios que se están imprimiendo en consola
+
