@@ -68,32 +68,169 @@ def extract_bytes(line):
         if data[0] == 'NOP':
             return "0"*32
         
-        if len(data) != 4:
-            raise ValueError("Invalid number of parameters for R-type instruction: "+ line)
+        elif data[0] == 'SMA':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for SMA instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in SMA instruction: "+ line)
         
-        if data[1] in regs and data[2] in regs and data[3] in regs:
-            opcode = instruction_parameter[0]
-            rd = regs[data[1]]
-            rs1 = regs[data[2]]
-            rs2 = regs[data[3]]
-            return "0"*14 + rs2 + rs1 + opcode + rd
+        elif data[0] == 'RTA':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for RTA instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in RTA instruction: "+ line)
+        
+        elif data[0] == 'RTAI':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for RTAI instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in RTAI instruction: "+ line)
+        
+        elif data[0] == 'MUL':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for MUL instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in MUL instruction: "+ line)
+        
+        elif data[0] == 'Y':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for Y instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in Y instruction: "+ line)
+        
+        elif data[0] == 'O':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for O instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in O instruction: "+ line)
+        
+        elif data[0] == 'OEX':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for OEX instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in OEX instruction: "+ line)
+        
+        elif data[0] == 'NO':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for NO instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in NO instruction: "+ line)
+        
+        elif data[0] == 'MOV':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for MOV instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3] in regs:
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                rs2 = regs[data[3]]
+                return "0"*14 + rs2 + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register in MOV instruction: "+ line)
+        
         else:
-            raise ValueError("Invalid register in line: "+ line)
-        
+            raise ValueError("Unknown R-type instruction: "+ data[0])
+               
     if instruction_parameter[1] == 'I':
-
-        if len(data) != 4:
-            raise ValueError("Invalid number of parameters for I-type instruction: "+ line)
-
-        if data[1] in regs and data[2] in regs and data[3].isdigit():
-            opcode = instruction_parameter[0]
-            rd = regs[data[1]]
-            rs1 = regs[data[2]]
-            imm = format(int(data[3]), '018b')
-            return  imm + rs1 + opcode + rd
+        
+        if data[0] == 'SMAI':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for SMAI instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3].isdigit():
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                imm = format(int(data[3]), '018b')
+                return imm + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register or immediate value in SMAI instruction: "+ line)
+        
+        elif data[0] == 'MULI':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for MULI instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3].isdigit():
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                imm = format(int(data[3]), '018b')
+                return imm + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register or immediate value in MULI instruction: "+ line)
+        
+        elif data[0] == 'ROTD':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for ROTD instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3].isdigit():
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                imm = format(int(data[3]), '018b')
+                return imm + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register or immediate value in ROTD instruction: "+ line)
+        
+        elif data[0] == 'ROTI':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for ROTI instruction: "+ line)
+            if data[1] in regs and data[2] in regs and data[3].isdigit():
+                opcode = instruction_parameter[0]
+                rd = regs[data[1]]
+                rs1 = regs[data[2]]
+                imm = format(int(data[3]), '018b')
+                return imm + rs1 + opcode + rd
+            else:
+                raise ValueError("Invalid register or immediate value in ROTI instruction: "+ line)
+        
         else:
-            raise ValueError("Invalid register or immediate value in line: "+ line)
-
+            raise ValueError("Unknown I-type instruction: "+ data[0])
 
 def assembler(file_path, output_file):
     """Main function to assemble the code from the given file path."""
