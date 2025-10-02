@@ -15,6 +15,17 @@ opcodes = {
     'SMA': ["000001", "R"],
     'SMAI': ["000010", "I"],
     'RTA': ["000011", "R"],
+    'RTAI': ["000100", "R"],
+    'MUL': ["000101", "R"],
+    'MULI': ["000110", "I"],
+    'Y': ["000111", "R"],
+    'O': ["001000", "R"],
+    'OEX': ["001001", "R"],
+    'ROTD': ["001010", "I"],
+    'ROTI': ["001011", "I"],
+    'NO': ["001100", "R"],
+    'MOV': ["001101", "R"]
+
 }
 
 regs = {
@@ -65,7 +76,7 @@ def extract_bytes(line):
             rd = regs[data[1]]
             rs1 = regs[data[2]]
             rs2 = regs[data[3]]
-            return "0"*13 + rs2 + rs1 + opcode + rd
+            return "0"*14 + rs2 + rs1 + opcode + rd
         else:
             raise ValueError("Invalid register in line: "+ line)
         
