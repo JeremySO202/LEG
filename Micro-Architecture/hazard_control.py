@@ -15,6 +15,7 @@ class HazardControl:
         self.procesador.clear_pipeline()
         self.procesador.PC -= instruction.offset + 1  # Penalización por mal predicción
         
+    
     def check_forwarding(self, current_instruction):
         """Verifica y aplica forwarding para instrucciones que usan registros."""
         if not isinstance(current_instruction, (Add, Sub, Or, And, MUL)):
@@ -31,26 +32,40 @@ class HazardControl:
         # Forwarding desde ALU
         if self.procesador.regALU.instruccion:
             alu_inst = self.procesador.regALU.instruccion
+
+            #caso1: RAW para el primer registro
+            #ADD R1, R2, R3
+            #SUB R4, R1, R5
             if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
-                print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro1}.")
+
                 current_instruction.procesador.regRF.data[0] = self.procesador.regALU.data
                 forwarding_applied = True
+                print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro1}.")
+
+            #caso2: RAW para el segundo registro
+            #ADD R1, R2, R3
+            #SUB R4, R5, R1
             if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
-                print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro2}.")
                 current_instruction.procesador.regRF.data[1] = self.procesador.regALU.data
                 forwarding_applied = True
+                print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro2}.")
 
         # Forwarding desde MEM
         if self.procesador.regDM.instruccion:
             dm_inst = self.procesador.regDM.instruccion
+
+            #aquí debo meterle un stall
+
             if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
-                print(f"Forwarding desde MEM a DECODE para registro {current_instruction.registro1}.")
                 current_instruction.procesador.regRF.data[0] = self.procesador.RF.registros[dm_inst.destino]
+                
                 forwarding_applied = True
+                print(f"Forwarding desde MEM a DECODE para registro {current_instruction.registro1}.")
+
             if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
-                print(f"Forwarding desde MEM a DECODE para registro {current_instruction.registro2}.")
                 current_instruction.procesador.regRF.data[1] = self.procesador.RF.registros[dm_inst.destino]
                 forwarding_applied = True
+                print(f"Forwarding desde MEM a DECODE para registro {current_instruction.registro2}.")
 
         # Mensaje si no hubo forwarding
         if not forwarding_applied:
@@ -58,7 +73,7 @@ class HazardControl:
 
     def forward_from_execute(self, destino, resultado):
         """Envía el resultado de ALU al registro correspondiente."""
-        print(f"Forwarding directo desde EXECUTE al destino R{destino}")
+    
         # Actualiza el valor en el archivo de registros
         self.procesador.RF.registros[destino] = resultado
 

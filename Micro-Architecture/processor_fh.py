@@ -53,7 +53,8 @@ class ProcesadorFullHazard:
 
             execute = False
             # WRITEBACK
-            print("Etapa WRITEBACK")
+            print("----------------------")
+            print(f"Etapa WRITEBACK {self.PC-4} ")
             if self.regDM.instruccion is not None:
                 execute = True
                 self.regDM.instruccion.ejecutar()
@@ -65,7 +66,8 @@ class ProcesadorFullHazard:
                 self.pipeline_locations[4] = ""
 
             # MEMORY
-            print("Etapa MEMORY")
+            print("----------------------")
+            print(f"Etapa MEMORY {self.PC-3} ")
             if self.regALU.instruccion is not None:
                 execute = True
                 self.regALU.instruccion.ejecutar()
@@ -77,7 +79,8 @@ class ProcesadorFullHazard:
                 self.pipeline_locations[3] = ""
 
             # EXECUTE
-            print("Etapa EXECUTE")
+            print("----------------------")
+            print(f"Etapa EXECUTE{self.PC-2}")
             if self.regRF.instruccion is not None:
                 execute = True
                 if isinstance(self.regRF.instruccion, BranchEqual):
@@ -97,7 +100,8 @@ class ProcesadorFullHazard:
                 self.pipeline_locations[2] = ""
 
             # DECODE
-            print("Etapa DECODE")
+            print("----------------------")
+            print(f"Etapa DECODE{self.PC-1}")
             if self.regIM.instruccion is not None:
                 execute = True
                 # Verificar forwarding antes de ejecutar la instrucción
@@ -131,7 +135,8 @@ class ProcesadorFullHazard:
                 self.pipeline_locations[1] = ""
 
             # FETCH
-            print("Etapa FETCH")
+            print("----------------------")
+            print(f"Etapa FETCH {self.PC}")
             if self.PC < len(self.IM.instrucciones):
                 execute = True
                 print(f"Cargando instrucción {self.PC}")
@@ -142,7 +147,8 @@ class ProcesadorFullHazard:
                 print("No hay más instrucciones")
                 self.pipeline_locations[0] = ""
 
-            print("#####################################")
+            print("___________________________________________")
+            print("_________________FIN CICLO_________________")
 
             # Calcular métricas de desempeño
             elapsed_time = self.time  # Tiempo total en segundos
@@ -155,7 +161,7 @@ class ProcesadorFullHazard:
 
             # Debugging: Verificar cálculos
             print(f"Total Cycles: {self.total_cycles}, Instructions Completed: {self.instructions_completed}, Elapsed Time: {elapsed_time}, Clock Rate: {clock_rate:.2e} GHz")
-
+            print("___________________________________________")
             self.time += 20
 
             # Simulación: ralentizar ejecución para observar cambios
