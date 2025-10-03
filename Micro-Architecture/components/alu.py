@@ -12,6 +12,16 @@ class ALU:
         elif op == 3:
             return A | B
         elif op == 4:
-            return A * B
+            return A * B # Multiplicación
+        elif op == 5:
+            return A << B # Desplazamiento a la izquierda lógico
+            #deberia limitarse a 32 bits?
+        elif op == 6:
+            return A >> B # Desplazamiento a la derecha lógico
+        elif op == 7:
+            return A ^ B # XOR
+        elif op == 8:
+            return ~A # NOT
+        
         else:
             raise ValueError("Operación no reconocida")

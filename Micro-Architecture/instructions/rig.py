@@ -32,10 +32,6 @@ class BranchEqual:
             self.procesador.PC += self.offset - 1
             self.procesador.clear_pipeline()
 
-
-
-
-
     def ejecutar(self):
         if self.ejecucion:
             fase = self.ejecucion.pop(0)

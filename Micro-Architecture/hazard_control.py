@@ -85,6 +85,7 @@ class HazardControl:
         if not forwarding_applied:
             print(f"No hubo necesidad de aplicar forwarding desde EXECUTE para el destino R{destino}.")
 
+
 class BranchPredictor:
     def __init__(self, default_prediction=False):
         """

@@ -10,20 +10,23 @@ smai
 y
 muli
 mul
+------------------------
+Probar:
+rim
+rip
+rotd
+roti
+rin
+oex
+no
 ------------------------------
 Faltan:
 1- mix
 2-modp
 3-mula 
-4-no
-5-nop
-6-oex
-7-rim
-8-rin
-9-rip
 10-rol
-11-rotd
-12-roti
+
+5-nop
 -------------------------------
 
 Revisar rl forwarding porque no sé si se está aplicando bien.
