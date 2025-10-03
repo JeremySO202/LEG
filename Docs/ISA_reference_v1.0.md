@@ -21,7 +21,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 | MUL - <small>multiplicación | 000101 |  R |  rd ← rs1 * rs2 
 | MULI - <small>multiplicación inmediato | 000110 | I | rd ← rs1 * imm 
 | Y - <small>and | 000111 | R | rd ← rs1 & rs2 
-| O - <small>or | 001000 |  R | rd ← rs1 or rs2 
+| O - <small>or | 001000 |  R | rd ← rs1 \| rs2 
 | OEX - <small>xor | 001001 |  R | rd ← rs1 ^ rs2 
 | ROTD - <small>rota derecha| 001010 | I |  rd ← rotr64(rs, imm) 
 | ROTI - <small>rota izquierda| 001011 |  I | rd ← rotl64(rs, imm) 
@@ -36,10 +36,8 @@ Hay que agregar la parte del excel para que se vea más lindo
 |---|---|---|---|
 | ROL - <small> rol64 | 001110 | I |  rd ← (rs1 << imm) or (rs1 >> (64 - imm))
 | MODP - <small>modulo primo | 001111 | I | rd ← rs1 mod 0xFFFFFFFB 
-| MIX - <small> mix no lineal | 010000 | R |  rd ← (ra & rb) or (~ra & rc)  
-| MULA - <small>multiplicacion 64 | 010001 | I | rd ← (ra & rb) or (~ra & rc)  
-
-
+| MIX - <small> mix no lineal | 010000 | H |  rd ← (rs1 & rs2) \| (~rs1 & rs3)  
+| MULA - <small>multiplicacion aurea | 010001 | I | rd ← (rs1 * 0x9e3779b97f4a7c15)  
 
 ### MEMORY ACCESS/ DATA HANDLING INSTRUCTIONS
 
@@ -71,13 +69,15 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 
 ### CORE INSTRUCTION FORMATS
-|TYPE| 31-18|17-14|13-10|9-4|3-0|
-|---|---|---|---|---|---|
-| R |X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-| B |OFFSET(18) | |RS2(4) | OPC(6) | RS1(4)
-| M |OFFSET(18) | |BASE(4) | OPC(6) | RS/RD(4)
-| I |IMM(18) | |RS1(4) | OPC(6) | RD(4)
+|TYPE| 31-22|21-18|17-14|13-10|9-4|3-0|
+|---|---|---|---|---|---|---|
+| R ||X(14) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+| B |||OFFSET(18)  |RS2(4) | OPC(6) | RS1(4)
+| M |||OFFSET(18)  |BASE(4) | OPC(6) | RS/RD(4)
+| I |||IMM(18)  |RS1(4) | OPC(6) | RD(4)
+| H |X(10) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
 | V |
+
 
 <hr style="margin:0; border:3px solid white;">
  
@@ -87,7 +87,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 |----------| -----|--------------------------------------------------|
 | L0       | | Argumento / Valor de retorno / Variable temporal |
 | L1-L2    || Argumento / Variable temporal                    |
-| L3-L7    || Variables preservadas                            |
+| L3-L7    | (G0-G4) | Variables preservadas                            |
 | L8-L11 |(P0-P3) | Variable temporal                          |
 | L12 |(SP) | Puntero a la pila de memoria                     |
 | L13 |(LR) | Puntero de link / Dirección de retorno           |
