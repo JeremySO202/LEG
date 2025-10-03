@@ -22,6 +22,7 @@ class ALU:
             return A ^ B # XOR
         elif op == 8:
             return ~A # NOT
-        
+        elif op == 9:
+            return A % B
         else:
             raise ValueError("Operación no reconocida")
