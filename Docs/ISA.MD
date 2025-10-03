@@ -34,10 +34,10 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
-| ROL - <small>nombre | 001110 | I |  rd ← (rs1 << imm) or (rs1 >> (64 - imm))
-| MODP - <small>nombre | 001111 | I | rd ← rs1 mod 0xFFFFFFFB 
-| MIX - <small>nombre | 010000 | R |  rd ← (ra & rb) or (~ra & rc)  
-| MULA - <small>nombre | 010001 | I | rd ← (ra & rb) or (~ra & rc)  
+| ROL - <small> rol64 | 001110 | I |  rd ← (rs1 << imm) or (rs1 >> (64 - imm))
+| MODP - <small>modulo primo | 001111 | I | rd ← rs1 mod 0xFFFFFFFB 
+| MIX - <small> mix no lineal | 010000 | R |  rd ← (ra & rb) or (~ra & rc)  
+| MULA - <small>multiplicacion 64 | 010001 | I | rd ← (ra & rb) or (~ra & rc)  
 
 
 
@@ -45,8 +45,8 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
-| CRG - <small>nombre | 010010 | M |  rd ← M64[base+offs]
-| GRD - <small>nombre | 010011 | M | M64[base+offs] ← rs
+| CRG - <small>cargar | 010010 | M |  rd ← M64[base+offs]
+| GRD - <small>guardar | 010011 | M | M64[base+offs] ← rs
 
 
 
@@ -61,10 +61,10 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
-| RIG - <small>nombre | 010100 | B |  if(rs1==rs2) pc+=off
-| RIM - <small>nombre | 010101 | B | if(rs1>=rs2) pc+=off
-| RIP - <small>nombre | 010110 | B |  if(rs1<=rs2) pc+=off 
-| RIN - <small>nombre | 010111 | B | rd←pc+4; pc+=off
+| RIG - <small>rama igual | 010100 | B |  if(rs1==rs2) pc+=off
+| RIM - <small>rama igual o mayor | 010101 | B | if(rs1>=rs2) pc+=off
+| RIP - <small>rama igual o más pequeño | 010110 | B |  if(rs1<=rs2) pc+=off 
+| RIN - <small>rama incondicional | 010111 | B | rd←pc+4; pc+=off
 
 
 <hr style="margin:0; border:3px solid white;">
@@ -73,11 +73,11 @@ Hay que agregar la parte del excel para que se vea más lindo
 ### CORE INSTRUCTION FORMATS
 |TYPE| 31-18|17-14|13-10|9-4|3-0|
 |---|---|---|---|---|---|
-| R: |X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-| B: |OFFSET(18) | |RS2(4) | OPC(6) | RS1(4)
-| M: |OFFSET(18) | |BASE(4) | OPC(6) | RS/RD(4)
-| I: |IMM(18) | |RS1(4) | OPC(6) | RD(4)
-| V: |
+| R |X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+| B |OFFSET(18) | |RS2(4) | OPC(6) | RS1(4)
+| M |OFFSET(18) | |BASE(4) | OPC(6) | RS/RD(4)
+| I |IMM(18) | |RS1(4) | OPC(6) | RD(4)
+| V |
 
 <hr style="margin:0; border:3px solid white;">
  
