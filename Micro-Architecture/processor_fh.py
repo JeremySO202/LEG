@@ -11,12 +11,13 @@ from instructions.rta import Sub
 from instructions.y import And
 from instructions.o import Or
 from instructions.mul import MUL
+from instructions.smai import Addi
 
 
 class ProcesadorFullHazard:
     def __init__(self, interval=1):
         self.PC = 0
-        self.Check = ""
+        self.forw_data = ""
         self.forw_reg = 0
         self.IM = memoriaInstrucciones()
         self.regIM = Registro()
@@ -90,7 +91,7 @@ class ProcesadorFullHazard:
                 # Aplicar forwarding ANTES de ejecutar si es necesario
                 if isinstance(self.regRF.instruccion, (Add, Sub, Or, And, MUL)) and needs_forwarding:
                     print(f"Aplicando forwarding en EXECUTE")
-                    print(f"Valor a forwardear: {self.Check}")
+                    print(f"Valor a forwardear: {self.forw_data}")
                     
                     # Asegurarse de que regRF.data existe
                     if self.regRF.data is None:
@@ -99,10 +100,26 @@ class ProcesadorFullHazard:
                     # Aplicar el forwarding al registro correspondiente
                     if self.forw_reg == 1:
                         print(f"Forwarding al registro1 (índice 0 de regRF.data)")
-                        self.regRF.data[0] = self.Check
+                        self.regRF.data[0] = self.forw_data
                     elif self.forw_reg == 2:
                         print(f"Forwarding al registro2 (índice 1 de regRF.data)")
-                        self.regRF.data[1] = self.Check
+                        self.regRF.data[1] = self.forw_data
+                    
+                    print(f"regRF.data después del forwarding: {self.regRF.data}")
+                    needs_forwarding = False  # Reset flag
+                    
+                elif isinstance(self.regRF.instruccion, (Addi)) and needs_forwarding:
+                    print(f"Aplicando forwarding en EXECUTE para Addi")
+                    print(f"Valor a forwardear: {self.forw_data}")
+                    
+                    # Asegurarse de que regRF.data existe
+                    if self.regRF.data is None:
+                        self.regRF.data = None
+                    
+                    # Aplicar el forwarding al registro correspondiente
+                    if self.forw_reg == 1:
+                        print(f"Forwarding al registro1 (regRF.data)")
+                        self.regRF.data = self.forw_data
                     
                     print(f"regRF.data después del forwarding: {self.regRF.data}")
                     needs_forwarding = False  # Reset flag
@@ -124,16 +141,22 @@ class ProcesadorFullHazard:
                 execute = True
                 
                 # Detectar si hay hazard y necesitamos forwarding
-                if self.hazard_control.try_check(self.regIM.instruccion):
+                if self.hazard_control.reg_forw(self.regIM.instruccion):
                     print("Se detectó un hazard - Forwarding necesario")
                     needs_forwarding = True
                 else:
                     print("No se detectó un hazard")
                     needs_forwarding = False
 
-                # Inicializar regRF.data si es necesario
-                if self.regRF.data is None:
-                    self.regRF.data = [None, None]
+                if isinstance(self.regIM.instruccion, (Add, Sub, Or, And, MUL)):
+                    # Instrucciones tipo R: lista de 2 elementos
+                    if self.regRF.data is None:
+                        self.regRF.data = [None, None]
+
+                elif isinstance(self.regIM.instruccion, Addi):
+                    # Instrucciones tipo I: valor escalar
+                    if self.regRF.data is None:
+                        self.regRF.data = None
 
                 # Ejecutar la instrucción (instruccion1 - lectura de registros)
                 self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
@@ -152,6 +175,7 @@ class ProcesadorFullHazard:
                 print(f"Cargando instrucción {self.PC}")
                 self.pipeline_locations[0] = f"Instrucción {self.PC}"
                 self.regIM.instruccion = self.IM.instrucciones[self.PC]
+                print(f"Instrucción cargada: {self.regIM.instruccion.__class__.__name__}")
                 self.PC += 1
             else:
                 print("No hay más instrucciones")

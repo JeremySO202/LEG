@@ -29,6 +29,7 @@ Faltan:
 5-nop
 -------------------------------
 
-Revisar rl forwarding porque no sé si se está aplicando bien.
-Y si no es el caso hay que ver los comentarios que se están imprimiendo en consola
-
+EL forwarding de reg ya está funcionando correctamente.
+Falta el forwarding de mem a reg 
+revisar la instrucción no
+revisar el mov

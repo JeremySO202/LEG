@@ -4,6 +4,7 @@ from instructions.rta import Sub
 from instructions.y import And
 from instructions.o import Or
 from instructions.mul import MUL
+from instructions.smai import Addi
 
 class HazardControl:
     
@@ -16,8 +17,8 @@ class HazardControl:
         self.procesador.clear_pipeline()
         self.procesador.PC -= instruction.offset + 1  # Penalización por mal predicción
         
-    def try_check(self, current_instruction):
-        if not isinstance(current_instruction, (Add, Sub, Or, And, MUL)):
+    def reg_forw(self, current_instruction):
+        if not isinstance(current_instruction, (Add, Sub, Or, And, MUL, Addi)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return
 
@@ -34,14 +35,46 @@ class HazardControl:
         if self.procesador.regALU.instruccion:
             if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
 
-                current_instruction.procesador.Check = self.procesador.regALU.data
+                current_instruction.procesador.forw_data = self.procesador.regALU.data
                 current_instruction.procesador.forw_reg = 1
                 forwarding_applied = True
                 return True
 
 
             if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
-                current_instruction.procesador.Check = self.procesador.regALU.data
+                current_instruction.procesador.forw_data = self.procesador.regALU.data
+                current_instruction.procesador.forw_reg = 2
+                forwarding_applied = True
+                return True
+
+        if not forwarding_applied:
+            print("No hubo necesidad de aplicar forwarding para esta instrucción.")
+            return False
+
+    #------------------------------------------------------------------------------ 
+    #este es el forwarding de memoria a decode
+        
+    def memreg_forw(self, current_instruction):
+        if not isinstance(current_instruction, (Add, Sub, Or, And, MUL, Addi)):
+            print("No se aplica forwarding: instrucción no es de un tipo soportado.")
+            return
+        if current_instruction.procesador.regRF.data is None:
+            current_instruction.procesador.regRF.data = [None, None]
+        forwarding_applied = False
+
+        #si es true entonces voy a guardar en una variable temporal la instrucción que está en execute
+        dm_inst = self.procesador.regDM.instruccion
+        if self.procesador.regDM.instruccion:
+            if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+
+                current_instruction.procesador.forw_data = self.procesador.regALU.data
+                current_instruction.procesador.forw_reg = 1
+                forwarding_applied = True
+                return True
+
+
+            if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
+                current_instruction.procesador.forw_data = self.procesador.regALU.data
                 current_instruction.procesador.forw_reg = 2
                 forwarding_applied = True
                 return True

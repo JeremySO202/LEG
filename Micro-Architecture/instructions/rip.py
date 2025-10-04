@@ -7,16 +7,16 @@ class RIP:
         self.offset = _offset
         self.procesador = _procesador
 
-        self.ejecucion = [self.instruccion1, self.instruccion2]
+        self.ejecucion = [self.etapa1, self.etapa2]
 
-    def instruccion1(self):
+    def etapa1(self):
         print(f"Obteniendo valores de registros {self.registro1} y {self.registro2}")
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
         print(f"Valores obtenidos: {self.procesador.regRF.data}")
 
-    def instruccion2(self):
+    def etapa2(self):
         print("Comparando registros")
         valor1 = self.procesador.regRF.data[0]
         valor2 = self.procesador.regRF.data[1]

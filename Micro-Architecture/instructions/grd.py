@@ -7,21 +7,21 @@ class StoreWord:
         self.fuente = _fuente
         self.procesador = _procesador
 
-        self.ejecucion = [self.instruccion1, self.instruccion2, self.instruccion3]
+        self.ejecucion = [self.etapa1, self.etapa2, self.etapa3]
 
-    def instruccion1(self):
+    def etapa1(self):
         print("Obteniendo de registro "+str(self.fuente))
         self.procesador.regRF.data = self.procesador.RF.registros[self.fuente]
         print(self.procesador.regRF.data)
 
-    def instruccion2(self):
+    def etapa2(self):
         print("Obteniendo nueva direccion de memoria")
         self.procesador.regALU.data = [None] * 2
         self.procesador.regALU.data[0] = self.procesador.ALU.operar(self.destino, self.inmediato, 0)
         self.procesador.regALU.data[1] = self.procesador.regRF.data
         print(self.procesador.regALU.data)
 
-    def instruccion3(self):
+    def etapa3(self):
         print("Almacenando en direccion de memoria " + str(self.procesador.regALU.data[0]))
         self.procesador.DM.datos[self.procesador.regALU.data[0]] = self.procesador.regALU.data[1]
         print(self.procesador.regALU.data[1])
