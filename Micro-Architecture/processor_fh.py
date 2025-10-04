@@ -16,6 +16,8 @@ from instructions.mul import MUL
 class ProcesadorFullHazard:
     def __init__(self, interval=1):
         self.PC = 0
+        self.Check = ""
+        self.forw_reg = 0
         self.IM = memoriaInstrucciones()
         self.regIM = Registro()
         self.RF = archivoRegistros()
@@ -25,13 +27,13 @@ class ProcesadorFullHazard:
         self.DM = memoriaDatos()
         self.regDM = Registro()
         self.hazard_control = HazardControl(self)
-        self.branch_predictor = BranchPredictor(default_prediction=True)  # Instancia de BranchPredictor
+        self.branch_predictor = BranchPredictor(default_prediction=True)
 
         self.time = 1
         self.interval = interval
-        self.total_cycles = 0  # Contador de ciclos totales
-        self.instructions_completed = 0  # Contador de instrucciones completadas
-        self.pipeline_locations = ["", "", "", "", ""]  # Inicializa las ubicaciones del pipeline
+        self.total_cycles = 0
+        self.instructions_completed = 0
+        self.pipeline_locations = ["", "", "", "", ""]
 
 
     def cargarInstrucciones(self, instruccion):
@@ -41,15 +43,16 @@ class ProcesadorFullHazard:
         """Limpia las etapas DECODE y EXECUTE del pipeline tras un salto."""
         print("Limpiando pipeline tras el salto.")
         time.sleep(0.1)
-        self.regIM.clear()  # Anular instrucción en DECODE
-        self.regRF.clear()  # Anular instrucción en EXECUTE
+        self.regIM.clear()
+        self.regRF.clear()
 
     def iniciarEjecucion(self):
+        needs_forwarding = False
+        start_time = time.time()
         execute = True
-        start_time = time.time()  # Marca de tiempo inicial
-
+        
         while execute:
-            self.total_cycles += 1  # Incrementar ciclos totales en cada iteración
+            self.total_cycles += 1
 
             execute = False
             # WRITEBACK
@@ -60,7 +63,7 @@ class ProcesadorFullHazard:
                 self.regDM.instruccion.ejecutar()
                 self.pipeline_locations[4] = "Instrucción escribiendo"
                 self.regDM.clear()
-                self.instructions_completed += 1  # Incrementar instrucciones completadas
+                self.instructions_completed += 1
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[4] = ""
@@ -80,18 +83,33 @@ class ProcesadorFullHazard:
 
             # EXECUTE
             print("----------------------")
-            print(f"Etapa EXECUTE{self.PC-2}")
+            print(f"Etapa EXECUTE {self.PC-2}")
             if self.regRF.instruccion is not None:
                 execute = True
-                if isinstance(self.regRF.instruccion, BranchEqual):
-                    self.manejar_branch(self.regRF.instruccion)
-                else:
-                    self.regRF.instruccion.ejecutar()
-                # Enviar resultado al HazardControl
-                if isinstance(self.regRF.instruccion, (Add, Sub, Or, And, MUL)):
-                    destino = self.regRF.instruccion.destino
-                    resultado = self.regALU.data  # Resultado de la ALU
-                    self.hazard_control.forward_from_execute(destino, resultado)
+                
+                # Aplicar forwarding ANTES de ejecutar si es necesario
+                if isinstance(self.regRF.instruccion, (Add, Sub, Or, And, MUL)) and needs_forwarding:
+                    print(f"Aplicando forwarding en EXECUTE")
+                    print(f"Valor a forwardear: {self.Check}")
+                    
+                    # Asegurarse de que regRF.data existe
+                    if self.regRF.data is None:
+                        self.regRF.data = [None, None]
+                    
+                    # Aplicar el forwarding al registro correspondiente
+                    if self.forw_reg == 1:
+                        print(f"Forwarding al registro1 (índice 0 de regRF.data)")
+                        self.regRF.data[0] = self.Check
+                    elif self.forw_reg == 2:
+                        print(f"Forwarding al registro2 (índice 1 de regRF.data)")
+                        self.regRF.data[1] = self.Check
+                    
+                    print(f"regRF.data después del forwarding: {self.regRF.data}")
+                    needs_forwarding = False  # Reset flag
+                
+                # Ahora ejecutar la instrucción (instruccion2 usará los valores correctos)
+                self.regRF.instruccion.ejecutar()
+
                 self.pipeline_locations[2] = "Instrucción ejecutando"
                 self.regALU.instruccion = self.regRF.instruccion
                 self.regRF.clear()
@@ -101,31 +119,23 @@ class ProcesadorFullHazard:
 
             # DECODE
             print("----------------------")
-            print(f"Etapa DECODE{self.PC-1}")
+            print(f"Etapa DECODE {self.PC-1}")
             if self.regIM.instruccion is not None:
                 execute = True
-                # Verificar forwarding antes de ejecutar la instrucción
-                self.hazard_control.check_forwarding(self.regIM.instruccion)
+                
+                # Detectar si hay hazard y necesitamos forwarding
+                if self.hazard_control.try_check(self.regIM.instruccion):
+                    print("Se detectó un hazard - Forwarding necesario")
+                    needs_forwarding = True
+                else:
+                    print("No se detectó un hazard")
+                    needs_forwarding = False
 
+                # Inicializar regRF.data si es necesario
                 if self.regRF.data is None:
                     self.regRF.data = [None, None]
 
-                # Inicializar registros si no se forwardeó nada
-                if isinstance(self.regIM.instruccion, (Add, Sub, Or, And, MUL)):
-                    if not self.regIM.instruccion.procesador.regRF.data:
-                        self.regIM.instruccion.procesador.regRF.data = [
-                            self.RF.registros[self.regIM.instruccion.registro1],
-                            self.RF.registros[self.regIM.instruccion.registro2],
-                        ]
-
-                if isinstance(self.regIM.instruccion, BranchEqual):
-                    instruction_id = id(self.regIM.instruccion)
-                    # Obtener la predicción del salto
-                    predicted_taken = self.branch_predictor.predict(instruction_id)
-                    if predicted_taken:
-                        print(f"Predicción del salto: {predicted_taken}")
-                        self.PC += self.regIM.instruccion.offset
-
+                # Ejecutar la instrucción (instruccion1 - lectura de registros)
                 self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
                 self.regIM.instruccion.ejecutar()
                 self.regRF.instruccion = self.regIM.instruccion
@@ -151,39 +161,31 @@ class ProcesadorFullHazard:
             print("_________________FIN CICLO_________________")
 
             # Calcular métricas de desempeño
-            elapsed_time = self.time  # Tiempo total en segundos
-            if elapsed_time > 0:  # Evitar división por cero
+            elapsed_time = self.time
+            if elapsed_time > 0:
                 cpi = self.total_cycles / max(1, self.instructions_completed)
                 ipc = self.instructions_completed / max(1, self.total_cycles)
-                clock_rate = self.total_cycles / (elapsed_time * 1e9)  # Clock Rate en GHz
+                clock_rate = self.total_cycles / (elapsed_time * 1e9)
             else:
                 cpi, ipc, clock_rate = 0, 0, 0
 
-            # Debugging: Verificar cálculos
             print(f"Total Cycles: {self.total_cycles}, Instructions Completed: {self.instructions_completed}, Elapsed Time: {elapsed_time}, Clock Rate: {clock_rate:.2e} GHz")
             print("___________________________________________")
             self.time += 20
 
-            # Simulación: ralentizar ejecución para observar cambios
             time.sleep(self.interval)
 
     def manejar_branch(self, branch_instruction):
         """Manejo del BranchEqual dentro del procesador."""
-        # Ejecutar la instrucción normalmente
         branch_instruction.ejecutar()
 
-        # Determinar el resultado real
         actual_taken = self.regALU.data == 0
         print(f"Resultado real del salto: {actual_taken}")
 
-        # Obtener la predicción del salto
         instruction_id = id(branch_instruction)
         predicted_taken = self.branch_predictor.predict(instruction_id)
 
-        # Verificar si la predicción fue incorrecta
         if predicted_taken != actual_taken:
             self.hazard_control.handle_misprediction(branch_instruction)
 
-        # Actualizar el predictor
         self.branch_predictor.update(instruction_id, actual_taken)
-

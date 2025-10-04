@@ -6,6 +6,7 @@ from instructions.o import Or
 from instructions.mul import MUL
 
 class HazardControl:
+    
     def __init__(self, procesador):
         self.procesador = procesador
 
@@ -15,6 +16,42 @@ class HazardControl:
         self.procesador.clear_pipeline()
         self.procesador.PC -= instruction.offset + 1  # Penalización por mal predicción
         
+    def try_check(self, current_instruction):
+        if not isinstance(current_instruction, (Add, Sub, Or, And, MUL)):
+            print("No se aplica forwarding: instrucción no es de un tipo soportado.")
+            return
+
+        # Asegurarse de que regRF.data sea una lista inicializada
+        if current_instruction.procesador.regRF.data is None:
+            current_instruction.procesador.regRF.data = [None, None]
+
+        # Bandera para detectar si hubo forwarding
+        forwarding_applied = False
+
+        #si es true entonces voy a guardar en una variable temporal la instrucción que está en execute
+        alu_inst = self.procesador.regALU.instruccion
+
+        if self.procesador.regALU.instruccion:
+            if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
+
+                current_instruction.procesador.Check = self.procesador.regALU.data
+                current_instruction.procesador.forw_reg = 1
+                forwarding_applied = True
+                return True
+
+
+            if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
+                current_instruction.procesador.Check = self.procesador.regALU.data
+                current_instruction.procesador.forw_reg = 2
+                forwarding_applied = True
+                return True
+
+        if not forwarding_applied:
+            print("No hubo necesidad de aplicar forwarding para esta instrucción.")
+            return False
+
+
+
     
     def check_forwarding(self, current_instruction):
         """Verifica y aplica forwarding para instrucciones que usan registros."""
@@ -28,6 +65,9 @@ class HazardControl:
 
         # Bandera para detectar si hubo forwarding
         forwarding_applied = False
+
+#guardar en una variable temporal la instrucción a la que le voy a ahcer el forwarding y con lo que opera la alu no es con lo del regustro sino con lo que tengo en esa variable 
+
 
         # Forwarding desde ALU
         if self.procesador.regALU.instruccion:
