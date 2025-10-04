@@ -15,6 +15,27 @@ class HazardControl:
         self.procesador.clear_pipeline()
         self.procesador.PC -= instruction.offset + 1  # Penalización por mal predicción
         
+    def check_hazard(self, current_instruction):
+        # Asegurarse de que regRF.data sea una lista inicializada
+        if current_instruction.procesador.regRF.data is None:
+            current_instruction.procesador.regRF.data = [None, None]
+
+        # Forwarding desde ALU
+        if self.procesador.regALU.instruccion:
+            alu_inst = self.procesador.regALU.instruccion
+            if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
+                return True
+            if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
+                return True
+
+        # Forwarding desde MEM
+        if self.procesador.regDM.instruccion:
+            dm_inst = self.procesador.regDM.instruccion
+            if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+                return True
+            if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
+                return True
+        
     def check_forwarding(self, current_instruction):
         """Verifica y aplica forwarding para instrucciones que usan registros."""
         if not isinstance(current_instruction, (Add, Sub, Or, And, MUL)):
@@ -58,7 +79,7 @@ class HazardControl:
 
     def forward_from_execute(self, destino, resultado):
         """Envía el resultado de ALU al registro correspondiente."""
-        print(f"Forwarding directo desde EXECUTE al destino R{destino}")
+       
         # Actualiza el valor en el archivo de registros
         self.procesador.RF.registros[destino] = resultado
 

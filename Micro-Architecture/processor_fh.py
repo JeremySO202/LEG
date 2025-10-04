@@ -102,6 +102,11 @@ class ProcesadorFullHazard:
                 execute = True
                 # Verificar forwarding antes de ejecutar la instrucción
                 self.hazard_control.check_forwarding(self.regIM.instruccion)
+                need_halt = self.hazard_control.check_hazard(self.regIM.instruccion)
+                
+                if need_halt:
+                    #self.regRF.instruccion = nop
+                    break
 
                 if self.regRF.data is None:
                     self.regRF.data = [None, None]
@@ -142,7 +147,7 @@ class ProcesadorFullHazard:
                 print("No hay más instrucciones")
                 self.pipeline_locations[0] = ""
 
-            print("#####################################")
+            print("_________________________________________________")
 
             # Calcular métricas de desempeño
             elapsed_time = self.time  # Tiempo total en segundos
@@ -155,6 +160,8 @@ class ProcesadorFullHazard:
 
             # Debugging: Verificar cálculos
             print(f"Total Cycles: {self.total_cycles}, Instructions Completed: {self.instructions_completed}, Elapsed Time: {elapsed_time}, Clock Rate: {clock_rate:.2e} GHz")
+            
+            print("_________________________________________________")
 
             self.time += 20
 
