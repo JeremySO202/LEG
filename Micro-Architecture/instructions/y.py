@@ -7,21 +7,21 @@ class And:
         self.registro2 = _registro2
         self.procesador = _procesador
 
-        self.ejecucion = [self.instruccion1, self.instruccion2, self.instruccion3]
+        self.ejecucion = [self.etapa1, self.etapa2, self.etapa3]
 
-    def instruccion1(self):
+    def etapa1(self):
         print("Obteniendo de registros "+str(self.registro1)+" y " + str(self.registro2))
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
         print(self.procesador.regRF.data)
 
-    def instruccion2(self):
+    def etapa2(self):
         print("Aplicando AND en registros")
         self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 2)
         print(self.procesador.regALU.data)
 
-    def instruccion3(self):
+    def etapa3(self):
         print("Guardando resultado en registros")
         self.procesador.RF.registros[self.destino] = self.procesador.regALU.data
         print(str(self.procesador.RF.registros[self.destino]) + " en: " + str(self.destino))

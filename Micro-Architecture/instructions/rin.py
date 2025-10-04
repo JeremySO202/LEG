@@ -6,9 +6,9 @@ class RIN:
         self.offset = _offset
         self.procesador = _procesador
 
-        self.ejecucion = [self.instruccion1]
+        self.ejecucion = [self.etapa1]
 
-    def instruccion1(self):
+    def etapa1(self):
 
         self.procesador.RF.registros[self.destino] = self.procesador.PC + 4
         print(f"Guardando {self.procesador.PC + 4} en registro {self.destino}")
