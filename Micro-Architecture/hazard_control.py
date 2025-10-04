@@ -1,10 +1,11 @@
 
-from instructions.sma import Add
+from instructions.sma import Sma
 from instructions.rta import Sub
 from instructions.y import And
 from instructions.o import Or
 from instructions.mul import MUL
-from instructions.smai import Addi
+from instructions.smai import Smai
+from instructions.rtai import Rtai
 
 class HazardControl:
     
@@ -18,7 +19,7 @@ class HazardControl:
         self.procesador.PC -= instruction.offset + 1  # Penalización por mal predicción
         
     def reg_forw(self, current_instruction):
-        if not isinstance(current_instruction, (Add, Sub, Or, And, MUL, Addi)):
+        if not isinstance(current_instruction, (Sma, Sub, Or, And, MUL, Smai, Rtai)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return
 
@@ -55,7 +56,7 @@ class HazardControl:
     #este es el forwarding de memoria a decode
         
     def memreg_forw(self, current_instruction):
-        if not isinstance(current_instruction, (Add, Sub, Or, And, MUL, Addi)):
+        if not isinstance(current_instruction, (Sma, Sub, Or, And, MUL, Smai)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return
         if current_instruction.procesador.regRF.data is None:
@@ -88,7 +89,7 @@ class HazardControl:
     
     def check_forwarding(self, current_instruction):
         """Verifica y aplica forwarding para instrucciones que usan registros."""
-        if not isinstance(current_instruction, (Add, Sub, Or, And, MUL)):
+        if not isinstance(current_instruction, (Sma, Sub, Or, And, MUL)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return
 
@@ -159,7 +160,7 @@ class HazardControl:
 
         # Si hay instrucciones esperando este valor, lo forwardea a ellas
         inst = self.procesador.regRF.instruccion
-        if isinstance(inst, (Add, Sub, Or, And, MUL)):
+        if isinstance(inst, (Sma, Sub, Or, And, MUL)):
             if inst.registro1 == destino and self.procesador.regRF.data[0] is None:
                 print(f"Forwarding R{destino} a registro1 en DECODE.")
                 self.procesador.regRF.data[0] = resultado

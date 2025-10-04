@@ -6,12 +6,13 @@ from components.register_file import archivoRegistros
 from components.register import Registro
 from instructions.rig import BranchEqual  
 from hazard_control import HazardControl, BranchPredictor
-from instructions.sma import Add
+from instructions.sma import Sma
 from instructions.rta import Sub
-from instructions.y import And
+from instructions.y import Y
 from instructions.o import Or
 from instructions.mul import MUL
-from instructions.smai import Addi
+from instructions.smai import Smai
+from instructions.rtai import Rtai
 
 
 class ProcesadorFullHazard:
@@ -88,12 +89,10 @@ class ProcesadorFullHazard:
             if self.regRF.instruccion is not None:
                 execute = True
                 
-                # Aplicar forwarding ANTES de ejecutar si es necesario
-                if isinstance(self.regRF.instruccion, (Add, Sub, Or, And, MUL)) and needs_forwarding:
+                if isinstance(self.regRF.instruccion, (Sma, Sub, Or, Y, MUL)) and needs_forwarding:
                     print(f"Aplicando forwarding en EXECUTE")
                     print(f"Valor a forwardear: {self.forw_data}")
                     
-                    # Asegurarse de que regRF.data existe
                     if self.regRF.data is None:
                         self.regRF.data = [None, None]
                     
@@ -107,9 +106,9 @@ class ProcesadorFullHazard:
                     
                     print(f"regRF.data después del forwarding: {self.regRF.data}")
                     needs_forwarding = False  # Reset flag
-                    
-                elif isinstance(self.regRF.instruccion, (Addi)) and needs_forwarding:
-                    print(f"Aplicando forwarding en EXECUTE para Addi")
+
+                elif isinstance(self.regRF.instruccion, (Smai, Rtai)) and needs_forwarding:
+                    print(f"Aplicando forwarding en EXECUTE ")
                     print(f"Valor a forwardear: {self.forw_data}")
                     
                     # Asegurarse de que regRF.data existe
@@ -148,12 +147,12 @@ class ProcesadorFullHazard:
                     print("No se detectó un hazard")
                     needs_forwarding = False
 
-                if isinstance(self.regIM.instruccion, (Add, Sub, Or, And, MUL)):
+                if isinstance(self.regIM.instruccion, (Sma, Sub, Or, Y, MUL)):
                     # Instrucciones tipo R: lista de 2 elementos
                     if self.regRF.data is None:
                         self.regRF.data = [None, None]
 
-                elif isinstance(self.regIM.instruccion, Addi):
+                elif isinstance(self.regIM.instruccion, Smai):
                     # Instrucciones tipo I: valor escalar
                     if self.regRF.data is None:
                         self.regRF.data = None

@@ -1,34 +1,36 @@
-#suma
-class Add:
+# suma
+class Sma:
     def __init__(self, _destino, _registro1, _registro2, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
         self.registro2 = _registro2
         self.procesador = _procesador
-
-        self.ejecucion = [self.etapa1, self.etapa2, self.etapa3]
-
-    def etapa1(self):
-        print("Obteniendo de registros "+str(self.registro1)+" y " + str(self.registro2))
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+    
+    def decode(self):
+        print(f"Leyendo registros R{self.registro1} y R{self.registro2}")
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
-        print(self.procesador.regRF.data)
-
-    def etapa2(self):
-        print("Sumando registros")
+        print(f"Valores leídos: {self.procesador.regRF.data}")
+    
+    def execute(self):
+        print(f"Sumando valores")
         self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 0)
-        print(self.procesador.regALU.data)
-
-    def etapa3(self):
-        print("Guardando resultado en registros")
-        self.procesador.RF.registros[self.destino] = self.procesador.regALU.data
-        print(str(self.procesador.RF.registros[self.destino]) + " en: " + str(self.destino))
-
+        print(f"Resultado ALU: {self.procesador.regALU.data}")
+    
+    def memory(self):
+        print(f"Sin operación de memoria para Sma")
+        self.procesador.regDM.data = self.procesador.regALU.data
+    
+    def writeback(self):
+        print(f"Escribiendo resultado en R{self.destino}")
+        self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
+        print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
        
     def ejecutar(self):
         if self.ejecucion:
             fase = self.ejecucion.pop(0)
             fase()
         else:
-            print("No hay más fases para ejecutar en Add.")
+            print("No hay más fases para ejecutar en Sma.")

@@ -4,7 +4,7 @@ from instructions.grd import StoreWord
 from instructions.sma import Add
 from instructions.smai import Addi
 from instructions.rta import Sub
-from instructions.rtai import Subi
+from instructions.rtai import Rtai
 from instructions.y import And
 from instructions.o import Or
 from instructions.mov import Mov
@@ -31,6 +31,6 @@ if __name__ == "__main__":
     #procesador.cargarInstrucciones(StoreWord(1,-3,4,procesador))
     
     procesador.cargarInstrucciones(Add(2, 0, 1, procesador))  # R2 = R0 + R1
-    procesador.cargarInstrucciones(Addi(3, 2, 1, procesador))  # R3 = R2 + R1
+    procesador.cargarInstrucciones(Rtai(3, 2, 1, procesador))
 
     procesador.iniciarEjecucion()
