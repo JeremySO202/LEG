@@ -20,7 +20,6 @@ class Nop:
     
     def memory(self):
         print(f"Sin operación de memoria para Sma")
-        self.procesador.regDM.data = self.procesador.regALU.data
     
     def writeback(self):
         print(f"Sin operación de memoria para Nop")

@@ -26,13 +26,14 @@ if __name__ == "__main__":
     procesador.RF.registros[1] = 7
     procesador.RF.registros[9] = 5
     procesador.RF.registros[10] = 10
-
+    procesador.DM.datos[7] = 20
 
     #procesador.cargarInstrucciones(StoreWord(0,-4,4,procesador))
     #procesador.cargarInstrucciones(StoreWord(1,-3,4,procesador))
     
     procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))  # R2 = R0 + R1
     procesador.cargarInstrucciones(Rtai(3, 2, 1, procesador)) # R3 = R2 - R1
+    procesador.cargarInstrucciones(LoadWord(4, 0, 1, procesador))
     procesador.cargarInstrucciones(Mix(11,1,9,3, procesador)) # R11 = (R1 & R9) | (~R1 & R0)         
 
     procesador.iniciarEjecucion()

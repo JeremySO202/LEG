@@ -14,6 +14,9 @@ from instructions.mul import MUL
 from instructions.smai import Smai
 from instructions.rtai import Rtai
 from instructions.mix import Mix
+from instructions.nop import Nop
+from instructions.crg import LoadWord
+from instructions.grd import StoreWord
 
 
 class ProcesadorFullHazard:
@@ -160,13 +163,6 @@ class ProcesadorFullHazard:
             print(f"Etapa DECODE {self.PC-1}")
             if self.regIM.instruccion is not None:
                 execute = True
-
-                
-                #need_halt = self.hazard_control.check_hazard(self.regIM.instruccion)
-                
-                #if need_halt:
-                    #self.regRF.instruccion = nop
-                    #break
                 
                 # Detectar si hay hazard y necesitamos forwarding
                 if self.hazard_control.reg_forw(self.regIM.instruccion):
@@ -193,9 +189,16 @@ class ProcesadorFullHazard:
 
                 # Ejecutar la instrucción (instruccion1 - lectura de registros)
                 self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
-                self.regIM.instruccion.ejecutar()
+                self.regIM.instruccion.ejecutar()   
                 self.regRF.instruccion = self.regIM.instruccion
-                self.regIM.clear()
+                 
+                # Después de terminar el decode de Crg o Grd limpio el pipeline y agrego el nop
+                if isinstance(self.regIM.instruccion, (LoadWord, StoreWord)):
+                    self.clear_pipeline()
+                    self.IM.instrucciones.insert(self.PC, Nop(self))
+                    self.PC -= 1   
+                         
+                self.regIM.clear()                  
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[1] = ""
