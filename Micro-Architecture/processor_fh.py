@@ -91,17 +91,6 @@ class ProcesadorFullHazard:
             print(f"Etapa EXECUTE {self.PC-2}")
             if self.regRF.instruccion is not None:
                 execute = True
-        
-                """if self.hazard_control.second_check(self.regIM.instruccion):
-                    print("Se detectó un hazard - Forwarding necesario")
-                    second_hazard = True
-                else:
-                    print("No se detectó un second hazard")
-                    second_hazard = False
-
-                if second_hazard:
-                    self.hazard_control.second_check(self.regIM.instruccion)"""
-
                         
                 if needs_forwarding:
                     print(f"Recibiendo forwarding en EXECUTE")
@@ -197,7 +186,7 @@ class ProcesadorFullHazard:
                 self.regIM.instruccion.ejecutar()
                 self.regRF.instruccion = self.regIM.instruccion
                 
-                # Después de terminar el decode de Crg o Grd limpio el pipeline y agrego el nop
+                # Después de terminar el decode de Crg o Grd agrego el nop
                 if isinstance(self.regIM.instruccion, (LoadWord, StoreWord)):
                     time.sleep(0.1)
                     self.IM.instrucciones.insert(self.PC, Nop(self))
