@@ -1,15 +1,16 @@
 from instructions.rig import BranchEqual
 from instructions.crg import LoadWord
 from instructions.grd import StoreWord
-from instructions.sma import Add
-from instructions.smai import Addi
-from instructions.rta import Sub
-from instructions.rtai import Subi
-from instructions.y import And
+from instructions.sma import Sma
+from instructions.smai import Smai
+from instructions.rta import Rta
+from instructions.rtai import Rtai
+from instructions.y import Y
 from instructions.o import Or
 from instructions.mov import Mov
 from instructions.mul import MUL
 from instructions.muli import Muli
+from instructions.mix import Mix
 
 from processor_fh import ProcesadorFullHazard
 
@@ -30,7 +31,8 @@ if __name__ == "__main__":
     #procesador.cargarInstrucciones(StoreWord(0,-4,4,procesador))
     #procesador.cargarInstrucciones(StoreWord(1,-3,4,procesador))
     
-    procesador.cargarInstrucciones(Add(2, 0, 1, procesador))  # R2 = R0 + R1
-    procesador.cargarInstrucciones(Addi(3, 2, 1, procesador))  # R3 = R2 + R1
+    procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))  # R2 = R0 + R1
+    procesador.cargarInstrucciones(Rtai(3, 2, 1, procesador)) 
+    procesador.cargarInstrucciones(Mix(11,1,9,0, procesador)) # (A & B) | (~A & C) = 7        
 
     procesador.iniciarEjecucion()

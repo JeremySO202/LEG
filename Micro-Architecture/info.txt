@@ -1,3 +1,16 @@
+Las instrucciones revisadas son: 
+y
+smai
+sma
+rtai
+rta
+roti
+rotd
+
+
+
+
+
 Las instrucciones cargadas son:
 crg
 grd

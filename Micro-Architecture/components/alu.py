@@ -2,7 +2,7 @@ class ALU:
     def __init__(self):
         pass
 
-    def operar(self, A, B, op):
+    def operar(self, A, B, op, C=0):
         if op == 0:
             return A + B
         elif op == 1:
@@ -24,5 +24,7 @@ class ALU:
             return ~A # NOT
         elif op == 9:
             return A % B
+        elif op == 10:
+            return (A & B) | (~A & C);
         else:
             raise ValueError("Operación no reconocida")

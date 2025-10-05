@@ -1,38 +1,40 @@
 #non linear mix
 # uint64_t f = (A & B) | (~A & C);
-class MIX:
+# suma
+class Mix:
     def __init__(self, _destino, _registro1, _registro2, _registro3, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
         self.registro2 = _registro2
         self.registro3 = _registro3
         self.procesador = _procesador
-
-        self.ejecucion = [self.instruccion1, self.instruccion2, self.instruccion3]
-
-    def instruccion1(self):
-        print("Obteniendo de registros "+str(self.registro1)+", " + str(self.registro2) + " y " + str(self.registro3))
-        self.procesador.regRF.data = [None] * 2
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+    
+    def decode(self):
+        print(f"Leyendo registros R{self.registro1}, R{self.registro2} y R{self.registro3}")
+        self.procesador.regRF.data = [None] * 3
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
-        self.procesador.regRF.data[3] = self.procesador.RF.registros[self.registro3]
-        print(self.procesador.regRF.data)
-
-    def instruccion2(self):
-        print("Mezclando registros")
-        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 2)
-        print(self.procesador.regALU.data)
-
-    def instruccion3(self):
-        print("Guardando resultado en registros")
-        self.procesador.RF.registros[self.destino] = self.procesador.regALU.data
-        print(str(self.procesador.RF.registros[self.destino]) + " en: " + str(self.destino))
-
-        
-
+        self.procesador.regRF.data[2] = self.procesador.RF.registros[self.registro3]
+        print(f"Valores leídos: {self.procesador.regRF.data}")
+    
+    def execute(self):
+        print(f"Mezclando valores")
+        self.procesador.regALU.data = self.procesador.ALU.operar(A=self.procesador.regRF.data[0], B=self.procesador.regRF.data[1], op=10, C=self.procesador.regRF.data[2])
+        print(f"Resultado ALU: {self.procesador.regALU.data}")
+    
+    def memory(self):
+        print(f"Sin operación de memoria para Mix")
+        self.procesador.regDM.data = self.procesador.regALU.data
+    
+    def writeback(self):
+        print(f"Escribiendo resultado en R{self.destino}")
+        self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
+        print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
+       
     def ejecutar(self):
         if self.ejecucion:
             fase = self.ejecucion.pop(0)
             fase()
         else:
-            print("No hay más fases para ejecutar en MUL.")
+            print("No hay más fases para ejecutar en Sma.")

@@ -1,38 +1,37 @@
 #rotacion izquierda
 
 class Roti:
-    def __init__(self, _destino, _registro1, _inmediate, _procesador):
+    def __init__(self, _destino, _registro1, _registro2, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
-        self.inmediate = _inmediate
+        self.registro2 = _registro2
         self.procesador = _procesador
-
-        self.ejecucion = [self.etapa1, self.etapa2, self.etapa3]
-
-    def etapa1(self):
-        print("Obteniendo de registro "+str(self.registro1))
-
-        self.procesador.regRF.data = self.procesador.RF.registros[self.registro1]
-        
-        print(self.procesador.regRF.data)
-
-    def etapa2(self):
-        print("Rotando izquierda ")
-        if self.procesador.regRF.data is None:
-            raise ValueError(f"El registro {self.registro1} tiene un valor None y no puede sumarse.")
-        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, self.inmediate, 5)
-        print(self.procesador.regALU.data)
-
-    def etapa3(self):
-        print("Guardando resultado en registros")
-        self.procesador.RF.registros[self.destino] = self.procesador.regALU.data
-        print(str(self.procesador.RF.registros[self.destino]) + " en: " + str(self.destino))
-
-
-
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+    
+    def decode(self):
+        print(f"Leyendo registros R{self.registro1} y R{self.registro2}")
+        self.procesador.regRF.data = [None] * 2
+        self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
+        self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
+        print(f"Valores leídos: {self.procesador.regRF.data}")
+    
+    def execute(self):
+        print(f"Rotando valores a la izquierda")
+        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 5)
+        print(f"Resultado ALU: {self.procesador.regALU.data}")
+    
+    def memory(self):
+        print(f"Sin operación de memoria para Roti")
+        self.procesador.regDM.data = self.procesador.regALU.data
+    
+    def writeback(self):
+        print(f"Escribiendo resultado en R{self.destino}")
+        self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
+        print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
+       
     def ejecutar(self):
         if self.ejecucion:
             fase = self.ejecucion.pop(0)
             fase()
         else:
-            print("No hay más fases para ejecutar en Rotacion Izquierda.")
+            print("No hay más fases para ejecutar en Roti.")
