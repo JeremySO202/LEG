@@ -26,8 +26,6 @@ class StoreWord:
         self.procesador.DM.datos[self.procesador.regALU.data[0]] = self.procesador.regALU.data[1]
         print(self.procesador.regALU.data[1])
 
-
-
     def ejecutar(self):
         if self.ejecucion:
             fase = self.ejecucion.pop(0)

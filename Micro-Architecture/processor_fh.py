@@ -9,12 +9,9 @@ from hazard_control import HazardControl, BranchPredictor
 from instructions.sma import Sma
 from instructions.rta import Rta
 from instructions.y import Y
-from instructions.o import Or
-from instructions.mul import MUL
-from instructions.smai import Smai
-from instructions.rtai import Rtai
-from instructions.mix import Mix
-from instructions.nop import Nop
+from instructions.o import O
+from instructions.mul import Mul
+from instructions.smai import Smai  # Importar Addi y otras instrucciones con inmediato
 from instructions.crg import LoadWord
 from instructions.grd import StoreWord
 
@@ -22,7 +19,7 @@ from instructions.grd import StoreWord
 class ProcesadorFullHazard:
     def __init__(self, interval=1):
         self.PC = 0
-        self.forw_data = ""
+        self.Check = ""
         self.forw_reg = 0
         self.IM = memoriaInstrucciones()
         self.regIM = Registro()
@@ -46,7 +43,6 @@ class ProcesadorFullHazard:
         self.IM.instrucciones.append(instruccion)
 
     def clear_pipeline(self):
-        """Limpia las etapas DECODE y EXECUTE del pipeline tras un salto."""
         print("Limpiando pipeline tras el salto.")
         time.sleep(0.1)
         self.regIM.clear()
@@ -54,6 +50,7 @@ class ProcesadorFullHazard:
 
     def iniciarEjecucion(self):
         needs_forwarding = False
+        second_hazard = False
         start_time = time.time()
         execute = True
         
@@ -92,63 +89,44 @@ class ProcesadorFullHazard:
             print(f"Etapa EXECUTE {self.PC-2}")
             if self.regRF.instruccion is not None:
                 execute = True
-                
-                if isinstance(self.regRF.instruccion, (Sma, Rta, Or, Y, MUL)) and needs_forwarding:
-                    print(f"Aplicando forwarding en EXECUTE")
-                    print(f"Valor a forwardear: {self.forw_data}")
-                    
-                    if self.regRF.data is None:
-                        self.regRF.data = [None, None]
-                    
-                    # Aplicar el forwarding al registro correspondiente
-                    if self.forw_reg == 1:
-                        print(f"Forwarding al registro1 (índice 0 de regRF.data)")
-                        self.regRF.data[0] = self.forw_data
-                    elif self.forw_reg == 2:
-                        print(f"Forwarding al registro2 (índice 1 de regRF.data)")
-                        self.regRF.data[1] = self.forw_data
-                    
-                    print(f"regRF.data después del forwarding: {self.regRF.data}")
-                    needs_forwarding = False  # Reset flag
+        
+                """if self.hazard_control.second_check(self.regIM.instruccion):
+                    print("Se detectó un hazard - Forwarding necesario")
+                    second_hazard = True
+                else:
+                    print("No se detectó un second hazard")
+                    second_hazard = False
 
-                elif isinstance(self.regRF.instruccion, (Smai, Rtai)) and needs_forwarding:
-                    print(f"Aplicando forwarding en EXECUTE ")
-                    print(f"Valor a forwardear: {self.forw_data}")
-                    
-                    # Asegurarse de que regRF.data existe
-                    if self.regRF.data is None:
-                        self.regRF.data = None
-                    
-                    # Aplicar el forwarding al registro correspondiente
-                    if self.forw_reg == 1:
-                        print(f"Forwarding al registro1 (regRF.data)")
-                        self.regRF.data = self.forw_data
-                    
-                    print(f"regRF.data después del forwarding: {self.regRF.data}")
-                    needs_forwarding = False  # Reset flag
-                    
-                if isinstance(self.regRF.instruccion, Mix) and needs_forwarding:
-                    print(f"Aplicando forwarding en EXECUTE")
-                    print(f"Valor a forwardear: {self.forw_data}")
-                    
-                    if self.regRF.data is None:
-                        self.regRF.data = [None, None, None]
-                    
-                    # Aplicar el forwarding al registro correspondiente
-                    if self.forw_reg == 1:
-                        print(f"Forwarding al registro1 (índice 0 de regRF.data)")
-                        self.regRF.data[0] = self.forw_data
-                    elif self.forw_reg == 2:
-                        print(f"Forwarding al registro2 (índice 1 de regRF.data)")
-                        self.regRF.data[1] = self.forw_data
-                    elif self.forw_reg == 3:
-                        print(f"Forwarding al registro3 (índice 2 de regRF.data)")
-                        self.regRF.data[2] = self.forw_data
-                    
-                    print(f"regRF.data después del forwarding: {self.regRF.data}")
-                    needs_forwarding = False  # Reset flag
+                if second_hazard:
+                    self.hazard_control.second_check(self.regIM.instruccion)"""
+
+                        
+                if needs_forwarding:
+                    print(f"Recibiendo forwarding en EXECUTE")
+                    print(f"Valor a recibir: {self.Check}")
                 
-                # Ahora ejecutar la instrucción (instruccion2 usará los valores correctos)
+                    # Para instrucciones de dos registros 
+                    if isinstance(self.regRF.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                        if self.regRF.data is None:
+                            self.regRF.data = [None, None]
+                        
+                        # Aplicar el forwarding al registro correspondiente
+                        if self.forw_reg == 1:
+                            print(f"Forwarding al registro1")
+                            self.regRF.data[0] = self.Check
+                        elif self.forw_reg == 2:
+                            print(f"Forwarding al registro2")
+                            self.regRF.data[1] = self.Check
+                        
+                        print(f"Después del forwarding: {self.regRF.data}")
+                    
+                    #Para instrucciones con inmediatos
+                    elif isinstance(self.regRF.instruccion, Smai):
+                        if self.forw_reg == 1:
+                            self.regRF.data = self.Check
+                            print(f"Después del forwarding: {self.regRF.data}")
+                    
+                    needs_forwarding = False
                 self.regRF.instruccion.ejecutar()
 
                 self.pipeline_locations[2] = "Instrucción ejecutando"
@@ -164,41 +142,38 @@ class ProcesadorFullHazard:
             if self.regIM.instruccion is not None:
                 execute = True
                 
-                # Detectar si hay hazard y necesitamos forwarding
-                if self.hazard_control.reg_forw(self.regIM.instruccion):
-                    print("Se detectó un hazard - Forwarding necesario")
-                    needs_forwarding = True
-                else:
-                    print("No se detectó un hazard")
-                    needs_forwarding = False
+                #para los branches 
+                if isinstance(self.regIM.instruccion, BranchEqual):
+                    instruction_id = id(self.regIM.instruccion)
+                    predicted_taken = self.branch_predictor.predict(instruction_id)
+                    print(f"[Branch detectado - Predicción: {predicted_taken}")
+                    
+                    if predicted_taken:
+                        print(f"[Tomando salto: PC += {self.regIM.instruccion.offset}")
+                        self.PC += self.regIM.instruccion.offset
+                
+                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Smai)):
+                    if self.hazard_control.try_check(self.regIM.instruccion):
+                        print("Se detectó un hazard - Forwarding necesario")
+                        needs_forwarding = True
+                    else:
+                        print("No se detectó un hazard")
+                        needs_forwarding = False
 
-                if isinstance(self.regIM.instruccion, (Sma, Rta, Or, Y, MUL)):
-                    # Instrucciones tipo R: lista de 2 elementos
+
+                #según tipo de instrucción, si no usa registros hay que poner otra validación 
+                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
                     if self.regRF.data is None:
                         self.regRF.data = [None, None]
-                        
-                elif isinstance(self.regIM.instruccion, Mix):
-                    # Instrucciones tipo H: lista de 3 elementos
-                    if self.regRF.data is None:
-                        self.regRF.data = [None, None, None]
-
                 elif isinstance(self.regIM.instruccion, Smai):
-                    # Instrucciones tipo I: valor escalar
                     if self.regRF.data is None:
                         self.regRF.data = None
 
-                # Ejecutar la instrucción (instruccion1 - lectura de registros)
+                # Ejecutar la instrucción (fase decode - lectura de registros)
                 self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
-                self.regIM.instruccion.ejecutar()   
+                self.regIM.instruccion.ejecutar()
                 self.regRF.instruccion = self.regIM.instruccion
-                 
-                # Después de terminar el decode de Crg o Grd limpio el pipeline y agrego el nop
-                if isinstance(self.regIM.instruccion, (LoadWord, StoreWord)):
-                    self.clear_pipeline()
-                    self.IM.instrucciones.insert(self.PC, Nop(self))
-                    self.PC -= 1   
-                         
-                self.regIM.clear()                  
+                self.regIM.clear()
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[1] = ""
@@ -211,7 +186,6 @@ class ProcesadorFullHazard:
                 print(f"Cargando instrucción {self.PC}")
                 self.pipeline_locations[0] = f"Instrucción {self.PC}"
                 self.regIM.instruccion = self.IM.instrucciones[self.PC]
-                print(f"Instrucción cargada: {self.regIM.instruccion.__class__.__name__}")
                 self.PC += 1
             else:
                 print("No hay más instrucciones")
@@ -236,7 +210,6 @@ class ProcesadorFullHazard:
             time.sleep(self.interval)
 
     def manejar_branch(self, branch_instruction):
-        """Manejo del BranchEqual dentro del procesador."""
         branch_instruction.ejecutar()
 
         actual_taken = self.regALU.data == 0
