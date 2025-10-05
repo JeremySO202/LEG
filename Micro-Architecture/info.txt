@@ -1,0 +1,40 @@
+Las instrucciones revisadas son: 
+y
+smai
+sma
+rtai
+rta
+roti
+rotd
+oex
+o 
+rig 
+mul 
+muli 
+crg 
+
+Falta:
+grd 
+mov 
+no 
+rim 
+rin 
+rip 
+
+
+
+
+------------------------------
+Faltan:
+1- mix
+2-modp
+3-mula 
+10-rol
+
+5-nop
+-------------------------------
+
+EL forwarding de reg ya está funcionando correctamente.
+Falta el forwarding de mem a reg 
+revisar la instrucción no
+revisar el mov
