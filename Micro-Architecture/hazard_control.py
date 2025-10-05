@@ -7,6 +7,8 @@ from instructions.smai import Smai
 from instructions.rig import BranchEqual
 from instructions.crg import LoadWord
 from instructions.grd import StoreWord
+from instructions.mix import Mix
+
 class HazardControl:
     
     def __init__(self, procesador):
@@ -19,13 +21,16 @@ class HazardControl:
 
     def try_check(self, current_instruction):
 
-        if not isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Smai, BranchEqual)):
+        if not isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Smai, BranchEqual, Mix)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return False
 
         if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, BranchEqual)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
+        elif isinstance(current_instruction, Mix):
+            if current_instruction.procesador.regRF.data is None:
+                current_instruction.procesador.regRF.data = [None, None, None]
         
         elif isinstance(current_instruction, Smai):
             pass
@@ -51,6 +56,25 @@ class HazardControl:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
+                    return True
+                
+            elif isinstance(current_instruction, Mix):
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
+                    current_instruction.procesador.Check = self.procesador.regALU.data
+                    current_instruction.procesador.forw_reg = 1
+                    print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
+                    return True
+
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
+                    current_instruction.procesador.Check = self.procesador.regALU.data
+                    current_instruction.procesador.forw_reg = 2
+                    print(f"Hazard detectado: R{alu_inst.destino} -> registro2 (R{current_instruction.registro2})")
+                    return True
+                
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro3:
+                    current_instruction.procesador.Check = self.procesador.regALU.data
+                    current_instruction.procesador.forw_reg = 3
+                    print(f"Hazard detectado: R{alu_inst.destino} -> registro3 (R{current_instruction.registro3})")
                     return True
 
         print("No hubo necesidad de aplicar forwarding para esta instrucción.")
@@ -122,6 +146,20 @@ class HazardControl:
             if inst.registro1 == destino and self.procesador.regRF.data is None:
                 print(f"Forwarding R{destino} a registro1 en DECODE.")
                 self.procesador.regRF.data = resultado
+                forwarding_applied = True
+                
+        elif isinstance(inst, Mix):
+            if inst.registro1 == destino and self.procesador.regRF.data[0] is None:
+                print(f"Forwarding R{destino} a registro1 en DECODE.")
+                self.procesador.regRF.data[0] = resultado
+                forwarding_applied = True
+            if inst.registro2 == destino and self.procesador.regRF.data[1] is None:
+                print(f"Forwarding R{destino} a registro2 en DECODE.")
+                self.procesador.regRF.data[1] = resultado
+                forwarding_applied = True
+            if inst.registro3 == destino and self.procesador.regRF.data[2] is None:
+                print(f"Forwarding R{destino} a registro3 en DECODE.")
+                self.procesador.regRF.data[2] = resultado
                 forwarding_applied = True
 
         # Mensaje si no hubo necesidad de aplicar forwarding

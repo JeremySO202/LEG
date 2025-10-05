@@ -14,6 +14,7 @@ from instructions.mul import Mul
 from instructions.smai import Smai  # Importar Addi y otras instrucciones con inmediato
 from instructions.crg import LoadWord
 from instructions.grd import StoreWord
+from instructions.mix import Mix
 
 
 class ProcesadorFullHazard:
@@ -125,6 +126,23 @@ class ProcesadorFullHazard:
                         if self.forw_reg == 1:
                             self.regRF.data = self.Check
                             print(f"Después del forwarding: {self.regRF.data}")
+                            
+                    elif isinstance(self.regRF.instruccion, Mix):
+                        if self.regRF.data is None:
+                            self.regRF.data = [None, None, None]
+                        
+                        # Aplicar el forwarding al registro correspondiente
+                        if self.forw_reg == 1:
+                            print(f"Forwarding al registro1")
+                            self.regRF.data[0] = self.Check
+                        elif self.forw_reg == 2:
+                            print(f"Forwarding al registro2")
+                            self.regRF.data[1] = self.Check
+                        elif self.forw_reg == 3:
+                            print(f"Forwarding al registro3")
+                            self.regRF.data[2] = self.Check
+                        
+                        print(f"Después del forwarding: {self.regRF.data}")
                     
                     needs_forwarding = False
                 self.regRF.instruccion.ejecutar()
@@ -152,7 +170,7 @@ class ProcesadorFullHazard:
                         print(f"[Tomando salto: PC += {self.regIM.instruccion.offset}")
                         self.PC += self.regIM.instruccion.offset
                 
-                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Smai)):
+                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Smai, Mix)):
                     if self.hazard_control.try_check(self.regIM.instruccion):
                         print("Se detectó un hazard - Forwarding necesario")
                         needs_forwarding = True
@@ -168,6 +186,10 @@ class ProcesadorFullHazard:
                 elif isinstance(self.regIM.instruccion, Smai):
                     if self.regRF.data is None:
                         self.regRF.data = None
+                elif isinstance(self.regIM.instruccion, Mix):
+                    # Instrucciones tipo H: lista de 3 elementos
+                    if self.regRF.data is None:
+                        self.regRF.data = [None, None, None]
 
                 # Ejecutar la instrucción (fase decode - lectura de registros)
                 self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
