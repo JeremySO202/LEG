@@ -12,6 +12,8 @@ from instructions.mul import Mul
 from instructions.muli import Muli
 from instructions.mix import Mix
 
+from instr_decoder import Inst_Decoder
+
 from processor_fh import ProcesadorFullHazard
 
 
@@ -28,9 +30,26 @@ if __name__ == "__main__":
     procesador.RF.registros[10] = 10
     procesador.DM.datos[9] = 20
 
+    assembled_code = [
+    "00000000000000000000000000000000", # NOP
+    "00000000000000001100100000010001", # SMA L1 L2 L3
+    "00000000001111111101010000100100", # SMAI L4 L5 255
+    "00000000000000100001110000110110", # RTA L6 L7 L8
+    "00000000000000101110100001011001", # MUL L9 L10 L11
+    "00000000000110010011010001101100", # MULI L12 L13 100
+    "00000000000000000011110001111110", # Y L14 L15 L0
+    "00000000000000001100100010000001", # O L1 L2 L3
+    "00000000000000011001010010010100", # OEX L4 L5 L6
+    "00000000000011001010000010100111", # ROTD L7 L8 50
+    "00000000000001100110100010111001", # ROTI L9 L10 25
+    "00000000000000110111000011001011", # NO L11 L12 L13
+    "00000000000000000011110011011110"  # MOV L14 L15 L0
+]
+    decoder = Inst_Decoder()
+    decoder.load_code(assembled_code, procesador)
 
-    procesador.cargarInstrucciones(LoadWord(5, 2, 1, procesador))  # R5 = 0 + R1
+    """procesador.cargarInstrucciones(LoadWord(5, 2, 1, procesador))  # R5 = 0 + R1
     procesador.cargarInstrucciones(Sma(3, 0, 1, procesador)) # R3 = R2 - R1
     procesador.cargarInstrucciones(Mix(11,1,9,3, procesador)) # R11 = (R1 & R9) | (~R1 & R0) 
 
-    procesador.iniciarEjecucion()
+    procesador.iniciarEjecucion()"""
