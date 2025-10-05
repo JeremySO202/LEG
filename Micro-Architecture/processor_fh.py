@@ -13,6 +13,7 @@ from instructions.o import Or
 from instructions.mul import MUL
 from instructions.smai import Smai
 from instructions.rtai import Rtai
+from instructions.mix import Mix
 
 
 class ProcesadorFullHazard:
@@ -122,6 +123,27 @@ class ProcesadorFullHazard:
                     
                     print(f"regRF.data después del forwarding: {self.regRF.data}")
                     needs_forwarding = False  # Reset flag
+                    
+                if isinstance(self.regRF.instruccion, Mix) and needs_forwarding:
+                    print(f"Aplicando forwarding en EXECUTE")
+                    print(f"Valor a forwardear: {self.forw_data}")
+                    
+                    if self.regRF.data is None:
+                        self.regRF.data = [None, None, None]
+                    
+                    # Aplicar el forwarding al registro correspondiente
+                    if self.forw_reg == 1:
+                        print(f"Forwarding al registro1 (índice 0 de regRF.data)")
+                        self.regRF.data[0] = self.forw_data
+                    elif self.forw_reg == 2:
+                        print(f"Forwarding al registro2 (índice 1 de regRF.data)")
+                        self.regRF.data[1] = self.forw_data
+                    elif self.forw_reg == 3:
+                        print(f"Forwarding al registro3 (índice 2 de regRF.data)")
+                        self.regRF.data[2] = self.forw_data
+                    
+                    print(f"regRF.data después del forwarding: {self.regRF.data}")
+                    needs_forwarding = False  # Reset flag
                 
                 # Ahora ejecutar la instrucción (instruccion2 usará los valores correctos)
                 self.regRF.instruccion.ejecutar()
@@ -158,6 +180,11 @@ class ProcesadorFullHazard:
                     # Instrucciones tipo R: lista de 2 elementos
                     if self.regRF.data is None:
                         self.regRF.data = [None, None]
+                        
+                elif isinstance(self.regIM.instruccion, Mix):
+                    # Instrucciones tipo H: lista de 3 elementos
+                    if self.regRF.data is None:
+                        self.regRF.data = [None, None, None]
 
                 elif isinstance(self.regIM.instruccion, Smai):
                     # Instrucciones tipo I: valor escalar

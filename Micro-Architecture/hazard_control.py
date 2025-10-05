@@ -6,6 +6,7 @@ from instructions.o import Or
 from instructions.mul import MUL
 from instructions.smai import Smai
 from instructions.rtai import Rtai
+from instructions.mix import Mix
 
 class HazardControl:
     
@@ -19,7 +20,7 @@ class HazardControl:
         self.procesador.PC -= instruction.offset + 1  # Penalización por mal predicción
         
     def reg_forw(self, current_instruction):
-        if not isinstance(current_instruction, (Sma, Rta, Or, Y, MUL, Smai, Rtai)):
+        if not isinstance(current_instruction, (Sma, Rta, Or, Y, MUL, Smai, Rtai, Mix)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return
 
@@ -45,6 +46,12 @@ class HazardControl:
             if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
                 current_instruction.procesador.forw_data = self.procesador.regALU.data
                 current_instruction.procesador.forw_reg = 2
+                forwarding_applied = True
+                return True
+            
+            if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro3:
+                current_instruction.procesador.forw_data = self.procesador.regALU.data
+                current_instruction.procesador.forw_reg = 3
                 forwarding_applied = True
                 return True
 
@@ -89,12 +96,14 @@ class HazardControl:
     
     def check_forwarding(self, current_instruction):
         """Verifica y aplica forwarding para instrucciones que usan registros."""
-        if not isinstance(current_instruction, (Sma, Rta, Or, Y, MUL)):
+        if not isinstance(current_instruction, (Sma, Rta, Or, Y, MUL, Mix)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return
 
         # Asegurarse de que regRF.data sea una lista inicializada
         if current_instruction.procesador.regRF.data is None:
+            if isinstance(current_instruction, Mix):
+                current_instruction.procesador.regRF.data = [None, None, None]
             current_instruction.procesador.regRF.data = [None, None]
 
         # Bandera para detectar si hubo forwarding
@@ -123,6 +132,14 @@ class HazardControl:
                 current_instruction.procesador.regRF.data[1] = self.procesador.regALU.data
                 forwarding_applied = True
                 print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro2}.")
+            
+            #caso2: RAW para el tercer registro (Instrucción tipo H)
+            #ADD R1, R2, R3
+            #MIX R4, R5, R6, R1 
+            if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro3:
+                current_instruction.procesador.regRF.data[2] = self.procesador.regALU.data
+                forwarding_applied = True
+                print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro3}.")
 
         # Forwarding desde MEM
         if self.procesador.regDM.instruccion:
@@ -168,6 +185,20 @@ class HazardControl:
             if inst.registro2 == destino and self.procesador.regRF.data[1] is None:
                 print(f"Forwarding R{destino} a registro2 en DECODE.")
                 self.procesador.regRF.data[1] = resultado
+                forwarding_applied = True
+                
+        if isinstance(inst, Mix):
+            if inst.registro1 == destino and self.procesador.regRF.data[0] is None:
+                print(f"Forwarding R{destino} a registro1 en DECODE.")
+                self.procesador.regRF.data[0] = resultado
+                forwarding_applied = True
+            if inst.registro2 == destino and self.procesador.regRF.data[1] is None:
+                print(f"Forwarding R{destino} a registro2 en DECODE.")
+                self.procesador.regRF.data[1] = resultado
+                forwarding_applied = True
+            if inst.registro3 == destino and self.procesador.regRF.data[2] is None:
+                print(f"Forwarding R{destino} a registro3 en DECODE.")
+                self.procesador.regRF.data[2] = resultado
                 forwarding_applied = True
 
         # Mensaje si no hubo necesidad de aplicar forwarding

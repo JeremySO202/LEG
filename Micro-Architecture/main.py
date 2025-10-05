@@ -32,7 +32,7 @@ if __name__ == "__main__":
     #procesador.cargarInstrucciones(StoreWord(1,-3,4,procesador))
     
     procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))  # R2 = R0 + R1
-    procesador.cargarInstrucciones(Rtai(3, 2, 1, procesador)) 
-    procesador.cargarInstrucciones(Mix(11,1,9,0, procesador)) # (A & B) | (~A & C) = 7        
+    procesador.cargarInstrucciones(Rtai(3, 2, 1, procesador)) # R3 = R2 - R1
+    procesador.cargarInstrucciones(Mix(11,1,9,3, procesador)) # R11 = (R1 & R9) | (~R1 & R0)         
 
     procesador.iniciarEjecucion()
