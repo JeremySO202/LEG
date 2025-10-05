@@ -1,52 +1,3 @@
-<<<<<<< HEAD
-Las instrucciones revisadas son: 
-y
-smai
-sma
-rtai
-rta
-roti
-rotd
-
-
-
-
-
-Las instrucciones cargadas son:
-crg
-grd
-mov
-rig
-rta
-rtai
-sma
-smai
-y
-muli
-mul
-------------------------
-Probar:
-rim
-rip
-rotd
-roti
-rin
-oex
-no
-------------------------------
-Faltan:
-1- mix
-2-modp
-3-mula 
-10-rol
-
-5-nop
--------------------------------
-
-EL forwarding de reg ya está funcionando correctamente.
-Falta el forwarding de mem a reg 
-revisar la instrucción no
-=======
 Las instrucciones revisadas son: 
 y
 smai
@@ -86,5 +37,4 @@ Faltan:
 EL forwarding de reg ya está funcionando correctamente.
 Falta el forwarding de mem a reg 
 revisar la instrucción no
->>>>>>> origin/micro-architecture2
 revisar el mov
