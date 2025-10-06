@@ -19,8 +19,7 @@ class HazardControl:
         self.procesador.clear_pipeline()
         self.procesador.PC -= instruction.offset + 1
 
-    def try_check(self, current_instruction):
-
+    def exex_fw(self, current_instruction):
         if not isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Smai, BranchEqual, Mix)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return False
@@ -80,91 +79,69 @@ class HazardControl:
         print("No hubo necesidad de aplicar forwarding para esta instrucción.")
         return False
     
-   
 
+    #tengo que revisar que las instrucciones de dos o más registros si estén funcionanod para esto
 
+    def memreg_forw(self, current_instruction):
 
-    def second_check(self, current_instruction):
-      
-        if self.procesador.regALU.instruccion:
-            alu_inst = self.procesador.regALU.instruccion
+        if not isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Smai, BranchEqual, Mix)):
+            print("No se aplica forwarding: instrucción no es de un tipo soportado.")
+            return False
 
-            # Para instrucciones tipo R
-            if isinstance(current_instruction, (Sma, Rta, O, Y, Mul)):
-                # caso1: RAW para el primer registro
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
-                    current_instruction.procesador.regIM.data[0] = self.procesador.regALU.data
-                    forwarding_applied = True
-                    print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro1}.")
-
-                # caso2: RAW para el segundo registro
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
-                    current_instruction.procesador.regIM.data[1] = self.procesador.regALU.data
-                    forwarding_applied = True
-                    print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro2}.")
-
-            # Para instrucciones tipo I
-            elif isinstance(current_instruction, Smai):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
-                    current_instruction.procesador.regIM.data = self.procesador.regALU.data
-                    forwarding_applied = True
-                    print(f"Forwarding desde ALU a DECODE para registro {current_instruction.registro1}.")
-
-        # Mensaje si no hubo forwarding
-        if not forwarding_applied:
-            print("No hubo necesidad de aplicar forwarding para esta instrucción.")
-
-    def forward_from_execute(self, destino, resultado):
-        """Envía el resultado de ALU al registro correspondiente."""
-    
-        # Actualiza el valor en el archivo de registros
-        self.procesador.RF.registros[destino] = resultado
-
-        # Si no hay instrucción en DECODE, no es necesario imprimir mensajes adicionales
-        if not self.procesador.regRF.instruccion:
-            return
-
-        # Bandera para detectar si hubo forwarding
-        forwarding_applied = False
-
-        # Si hay instrucciones esperando este valor, lo forwardea a ellas
-        inst = self.procesador.regRF.instruccion
+        if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, BranchEqual)):
+            if current_instruction.procesador.regRF.data is None:
+                current_instruction.procesador.regRF.data = [None, None]
+        elif isinstance(current_instruction, Mix):
+            if current_instruction.procesador.regRF.data is None:
+                current_instruction.procesador.regRF.data = [None, None, None]
         
-        # Para instrucciones tipo R
-        if isinstance(inst, (Sma, Rta, O, Y, Mul)):
-            if inst.registro1 == destino and self.procesador.regRF.data[0] is None:
-                print(f"Forwarding R{destino} a registro1 en DECODE.")
-                self.procesador.regRF.data[0] = resultado
-                forwarding_applied = True
-            if inst.registro2 == destino and self.procesador.regRF.data[1] is None:
-                print(f"Forwarding R{destino} a registro2 en DECODE.")
-                self.procesador.regRF.data[1] = resultado
-                forwarding_applied = True
+        elif isinstance(current_instruction, Smai):
+            pass
 
-        # Para instrucciones tipo I
-        elif isinstance(inst, Smai):
-            if inst.registro1 == destino and self.procesador.regRF.data is None:
-                print(f"Forwarding R{destino} a registro1 en DECODE.")
-                self.procesador.regRF.data = resultado
-                forwarding_applied = True
+        dm_inst = self.procesador.regDM.instruccion
+
+        if self.procesador.regDM.instruccion:
+            if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+                    current_instruction.procesador.second_check = self.procesador.regDM.data
+                    current_instruction.procesador.forw_reg2 = 1
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
+                    return True
                 
-        elif isinstance(inst, Mix):
-            if inst.registro1 == destino and self.procesador.regRF.data[0] is None:
-                print(f"Forwarding R{destino} a registro1 en DECODE.")
-                self.procesador.regRF.data[0] = resultado
-                forwarding_applied = True
-            if inst.registro2 == destino and self.procesador.regRF.data[1] is None:
-                print(f"Forwarding R{destino} a registro2 en DECODE.")
-                self.procesador.regRF.data[1] = resultado
-                forwarding_applied = True
-            if inst.registro3 == destino and self.procesador.regRF.data[2] is None:
-                print(f"Forwarding R{destino} a registro3 en DECODE.")
-                self.procesador.regRF.data[2] = resultado
-                forwarding_applied = True
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
+                    current_instruction.procesador.second_check = self.procesador.regDM.data
+                    current_instruction.procesador.forw_reg2 = 2
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro2})")
+                    return True
+            
+            elif isinstance(current_instruction, Smai):
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+                    current_instruction.procesador.second_check = self.procesador.regDM.data
+                    current_instruction.procesador.forw_reg2 = 1
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
+                    return True
+                
+            elif isinstance(current_instruction, Mix):
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+                    current_instruction.procesador.second_check = self.procesador.regDM.data
+                    current_instruction.procesador.forw_reg2 = 1
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
+                    return True
+                
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
+                    current_instruction.procesador.second_check = self.procesador.regDM.data
+                    current_instruction.procesador.forw_reg2 = 2
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro2})")
+                    return True
+                
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro3:
+                    current_instruction.procesador.second_check = self.procesador.regDM.data
+                    current_instruction.procesador.forw_reg2 = 3
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro3})")
+                    return True
 
-        # Mensaje si no hubo necesidad de aplicar forwarding
-        if not forwarding_applied:
-            print(f"No hubo necesidad de aplicar forwarding desde EXECUTE para el destino R{destino}.")
+        print("No hubo necesidad de aplicar forwarding para esta instrucción.")
+        return False
 
 
 class BranchPredictor:

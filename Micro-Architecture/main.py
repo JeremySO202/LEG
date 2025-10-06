@@ -29,8 +29,9 @@ if __name__ == "__main__":
     procesador.DM.datos[9] = 20
 
 
-    procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))  # R2 = R0 + R1
-    procesador.cargarInstrucciones(Smai(3, 2, 1, procesador)) # R3 = R2 - R1
-    procesador.cargarInstrucciones(Mix(11,1,9,3, procesador)) # R11 = (R1 & R9) | (~R1 & R0) 
+    procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))
+    procesador.cargarInstrucciones(Sma(4, 2, 2, procesador))
+    procesador.cargarInstrucciones(Smai(3, 2, 1, procesador))
+    
 
     procesador.iniciarEjecucion()

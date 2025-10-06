@@ -8,7 +8,6 @@ class LoadWord:
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
 
-    
     def decode(self):
         print(f"Leyendo registro base R{self.fuente}")
         self.procesador.regRF.data = self.procesador.RF.registros[self.fuente]

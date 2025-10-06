@@ -1,6 +1,5 @@
 #nop- no operation
 
-# suma
 class Nop:
     def __init__(self, _procesador):
         self.procesador = _procesador
