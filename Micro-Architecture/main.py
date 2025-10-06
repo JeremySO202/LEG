@@ -52,5 +52,9 @@ if __name__ == "__main__":
     procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))
     procesador.cargarInstrucciones(LoadWord(5, 2, 1, procesador))
     procesador.cargarInstrucciones(Smai(3, 9, 1, procesador))
+    
+    #procesador.cargarInstrucciones(StoreWord(9, 0, 1, procesador))
+    #procesador.cargarInstrucciones(Sma(3, 9, 0, procesador))
+    #procesador.cargarInstrucciones(Mov(5, 1, procesador))
 
     procesador.iniciarEjecucion()
