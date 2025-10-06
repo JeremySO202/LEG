@@ -8,33 +8,44 @@ roti
 rotd
 oex
 o 
-rig 
 mul 
 muli 
 crg 
+mov
+grd
+mix
+
 
 Falta:
-grd 
-mov 
+rig
 no 
 rim 
 rin 
 rip 
 
+TENER EN CUENTA QUE CUANDO SE ESCRIBAN EN LOS REGITROS NO SE HAGA ESTO:
+
+    procesador.cargarInstrucciones(StoreWord(9, 0, 1, procesador))
+    procesador.cargarInstrucciones(Sma(3, 9, 0, procesador))
+
+QUE NO SE USEN LOS MISMOS 2 REGISTROS EN LAS INSTRUCCIONES PORQUE VA SALIR MAL LA OPERACION PORQUE SE FORWARDEAN AMBOS 
 
 
 
 ------------------------------
-Faltan:
-1- mix
+NO SE HAN DESARROLLADO:
 2-modp
 3-mula 
 10-rol
-
-5-nop
 -------------------------------
 
-EL forwarding de reg ya está funcionando correctamente.
-Falta el forwarding de mem a reg 
-revisar la instrucción no
-revisar el mov
+HAY QUE HACER:
+-hacer las pruebas para ver si la instrucción de beq está funcionando(creo que hay que hacer algo con la predicción de saltos entonces verificar)
+-hay que terminar de hacer las ultimas instrucciones
+-probar cada una de las instrucciones 
+-falta arreglar lo de los nops para el store word y así
+-se debería de probar un codigo más grande a ver si todo funciona bien
+
+-se debería de corregir los comentarios para que quede más legible 
+-cambiar el nombre de "check" pq está muy confuso 
+
