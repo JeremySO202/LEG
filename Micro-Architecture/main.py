@@ -43,13 +43,9 @@ if __name__ == "__main__":
     "00000000000011001010000010100111", # ROTD L7 L8 50
     "00000000000001100110100010111001", # ROTI L9 L10 25
     "00000000000000110111000011001011", # NO L11 L12 L13
-    "00000000000000000011110011011110"  # MOV L14 L15 L0
-]
+    "00000000000000000011110011011110"]  # MOV L14 L15 L0
+
     decoder = Inst_Decoder()
     decoder.load_code(assembled_code, procesador)
 
-    """procesador.cargarInstrucciones(LoadWord(5, 2, 1, procesador))  # R5 = 0 + R1
-    procesador.cargarInstrucciones(Sma(3, 0, 1, procesador)) # R3 = R2 - R1
-    procesador.cargarInstrucciones(Mix(11,1,9,3, procesador)) # R11 = (R1 & R9) | (~R1 & R0) 
-
-    procesador.iniciarEjecucion()"""
+    procesador.iniciarEjecucion()
