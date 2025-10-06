@@ -15,6 +15,7 @@ from instructions.smai import Smai  # Importar Addi y otras instrucciones con in
 from instructions.crg import LoadWord
 from instructions.grd import StoreWord
 from instructions.mix import Mix
+from instructions.nop import Nop
 
 
 class ProcesadorFullHazard:
@@ -100,7 +101,6 @@ class ProcesadorFullHazard:
             print(f"Etapa EXECUTE {self.PC-2}")
             if self.regRF.instruccion is not None:
                 execute = True
-
                 if needs_forwarding:
                     print(f"Recibiendo forwarding en EXECUTE")
                     print(f"Valor a recibir: {self.Check}")
@@ -221,6 +221,13 @@ class ProcesadorFullHazard:
                 self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
                 self.regIM.instruccion.ejecutar()
                 self.regRF.instruccion = self.regIM.instruccion
+                
+                # Después de terminar el decode de Crg o Grd agrego el nop
+                if isinstance(self.regIM.instruccion, (LoadWord, StoreWord)):
+                    time.sleep(0.1)
+                    self.IM.instrucciones.insert(self.PC, Nop(self))
+ 
+                    
                 self.regIM.clear()
             else:
                 print("No hay instrucción en esta etapa")

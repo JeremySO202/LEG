@@ -18,7 +18,7 @@ class Nop:
         print(f"Resultado ALU: {self.procesador.regALU.data}")
     
     def memory(self):
-        print(f"Sin operación de memoria para Sma")
+        print(f"Sin operación de memoria para Nop")
     
     def writeback(self):
         print(f"Sin operación de memoria para Nop")
