@@ -126,6 +126,9 @@ class Inst_Decoder:
             if mnemonic == "Mov":
                 print(f"{mnemonic} L{rd} #{imm}")
                 return cls(rd, imm, processor)
+            elif mnemonic == "Modp":
+                print(f"{mnemonic} L{rd} L{rs1}")
+                return cls(rd, rs1, processor)
             else:
                 print(f"{mnemonic} L{rd} L{rs1} #{imm}")
                 return cls(rd, rs1, imm, processor)
