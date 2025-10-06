@@ -30,6 +30,7 @@ if __name__ == "__main__":
     procesador.RF.registros[10] = 10
     procesador.DM.datos[9] = 20
 
+    """
     assembled_code = [
     "00000000000000000000000000000000", # NOP
     "00000000000000001100100000010001", # SMA L1 L2 L3
@@ -46,6 +47,10 @@ if __name__ == "__main__":
     "00000000000000000011110011011110"]  # MOV L14 L15 L0
 
     decoder = Inst_Decoder()
-    decoder.load_code(assembled_code, procesador)
+    decoder.load_code(assembled_code, procesador)"""
+    
+    procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))
+    procesador.cargarInstrucciones(LoadWord(5, 2, 1, procesador))
+    procesador.cargarInstrucciones(Smai(3, 9, 1, procesador))
 
     procesador.iniciarEjecucion()
