@@ -1,27 +1,31 @@
 #mov
 
 class Mov:
-    def __init__(self, _destino, _fuente, _procesador):
+    def __init__(self, _destino, _inmediato, _procesador):
         self.destino = _destino
-        self.fuente = _fuente
+        self.inmediato = _inmediato
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):
-        print(f"Leyendo registro fuente R{self.fuente}")
-        self.procesador.regRF.data = self.procesador.RF.registros[self.fuente]
-        print(f" Valor leído: {self.procesador.regRF.data}")
+        print(f"Preparando inmediato: {self.inmediato}")
+        # No necesitamos leer ningún registro, solo pasamos el inmediato
+        self.procesador.regRF.data = self.inmediato
+        print(f" Valor inmediato: {self.procesador.regRF.data}")
     
     def execute(self):
+        print(f"Pasando inmediato a través de ALU")
+        # Pasamos el inmediato sin modificarlo (suma con 0)
         self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, 0, 0)
         print(f" Valor en ALU: {self.procesador.regALU.data}")
     
     def memory(self):
+        print(f"Pasando valor a etapa de memoria")
         self.procesador.regDM.data = self.procesador.regALU.data
         print(f" Valor: {self.procesador.regDM.data}")
     
     def writeback(self):
-        print(f"Escribiendo en R{self.destino}")
+        print(f"Escribiendo inmediato en R{self.destino}")
         self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
         print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
     
