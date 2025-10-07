@@ -171,7 +171,7 @@ class ProcesadorFullHazard:
 
             # DECODE
             print("----------------------")
-            print(f"Etapa DECODE {self.PC-1}")
+            print(f"Etapa DECODE {self.PC-1} {self.regIM.instruccion.__class__.__name__}")
             if self.regIM.instruccion is not None:
                 execute = True
 
@@ -206,29 +206,36 @@ class ProcesadorFullHazard:
                         second_hazard = False
                     
                     
-                #según tipo de instrucción, si no usa registros hay que poner otra validación 
-                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
-                    if self.regRF.data is None:
-                        self.regRF.data = [None, None]
-                elif isinstance(self.regIM.instruccion, Smai):
-                    if self.regRF.data is None:
-                        self.regRF.data = None
-                elif isinstance(self.regIM.instruccion, Mix):
-                    # Instrucciones tipo H: lista de 3 elementos
-                    if self.regRF.data is None:
-                        self.regRF.data = [None, None, None]
+                # Verifica si debe insertar NOP (burbuja)
+                if isinstance(self.regALU.instruccion, LoadWord) and (needs_forwarding or second_hazard):
+                    print("Inserción de NOP por dependencia con LOADWORD")
 
-                self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
-                self.regIM.instruccion.ejecutar()
-                self.regRF.instruccion = self.regIM.instruccion
-                
-                # Después de terminar el decode de Crg o Grd agrego el nop
-                if isinstance(self.regIM.instruccion, (LoadWord, StoreWord)):
+                    # Retroceder el PC para volver a ejecutar la instrucción que estaba en decode
+                    self.PC -= 1
+
+                    # Insertar NOP en la etapa de Decode actual
+                    self.regRF.clear()
+                    self.regIM.instruccion = Nop(self)
+                    self.regRF.instruccion = self.regIM.instruccion
+
+                    # No avanzar esta instrucción al pipeline todavía
                     time.sleep(0.1)
-                    self.IM.instrucciones.insert(self.PC, Nop(self))
- 
-                    
-                self.regIM.clear()
+                else:
+                    # Continuar flujo normal del decode
+                    if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                        if self.regRF.data is None:
+                            self.regRF.data = [None, None]
+                    elif isinstance(self.regIM.instruccion, Smai):
+                        if self.regRF.data is None:
+                            self.regRF.data = None
+                    elif isinstance(self.regIM.instruccion, Mix):
+                        if self.regRF.data is None:
+                            self.regRF.data = [None, None, None]
+
+                    self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
+                    self.regIM.instruccion.ejecutar()
+                    self.regRF.instruccion = self.regIM.instruccion
+                    self.regIM.clear()
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[1] = ""

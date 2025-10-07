@@ -13,9 +13,7 @@ class Nop:
         print(f"Valores leídos: {self.procesador.regRF.data}")
     
     def execute(self):
-        print(f"Sumando valores")
-        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 0)
-        print(f"Resultado ALU: {self.procesador.regALU.data}")
+        print(f"Sin operación de execute para Nop")
     
     def memory(self):
         print(f"Sin operación de memoria para Nop")
