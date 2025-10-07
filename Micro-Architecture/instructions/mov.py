@@ -9,13 +9,11 @@ class Mov:
     
     def decode(self):
         print(f"Preparando inmediato: {self.inmediato}")
-        # No necesitamos leer ningún registro, solo pasamos el inmediato
         self.procesador.regRF.data = self.inmediato
         print(f" Valor inmediato: {self.procesador.regRF.data}")
     
     def execute(self):
         print(f"Pasando inmediato a través de ALU")
-        # Pasamos el inmediato sin modificarlo (suma con 0)
         self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, 0, 0)
         print(f" Valor en ALU: {self.procesador.regALU.data}")
     
