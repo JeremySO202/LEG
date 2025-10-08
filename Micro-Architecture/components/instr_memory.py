@@ -1,3 +1,3 @@
 class memoriaInstrucciones:
     def __init__(self):
-        self.instrucciones  = []
+        self.instrucciones  = [None]*32

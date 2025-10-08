@@ -244,8 +244,6 @@ class ProcesadorFullHazard:
             print("----------------------")
             print(f"Etapa FETCH {self.PC}")
 
-
-
             if self.PC < len(self.IM.instrucciones):
                 execute = True
                 print(f"Cargando instrucción {self.PC}")
