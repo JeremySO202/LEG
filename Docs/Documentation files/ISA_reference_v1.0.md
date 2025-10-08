@@ -99,8 +99,8 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 
 ### ADDITIONAL INFORMATION 
-
 LEG utiliza un formato de endianess BIG ENDIAN
+
 AGREGAR ACÁ LO DEL BIG ENDIAN
 Y DEMÁS INFORMACIÓN QUE sea necesaria
 
