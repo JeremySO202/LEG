@@ -12,6 +12,7 @@ from instructions.mul import Mul
 from instructions.muli import Muli
 from instructions.mix import Mix
 from instructions.mula import Mula
+from instructions.rol import Rol
 
 from instr_decoder import Inst_Decoder
 
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     decoder.load_code(assembled_code, procesador)"""
     
     procesador.cargarInstrucciones(Mula(5, 1, procesador))
+    procesador.cargarInstrucciones(Rol(4, 1, 0, procesador))
     
     #procesador.cargarInstrucciones(StoreWord(9, 0, 1, procesador))
     #procesador.cargarInstrucciones(Sma(3, 9, 0, procesador))

@@ -30,5 +30,7 @@ class ALU:
             mul = A * 0x9e3779b97f4a7c15
             mul &= 0xFFFFFFFFFFFFFFFF 
             return mul
+        elif op == 12:
+            return (A << B) | (A >> (64 - B));
         else:
             raise ValueError("Operación no reconocida")
