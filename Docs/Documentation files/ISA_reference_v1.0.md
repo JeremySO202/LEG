@@ -13,7 +13,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
-| NOP | 000000 | 1 | no-op 
+| NOP | 000000 | - | no-op 
 | SMA - <small>suma | 000001 | R |  rd ← rs1 + rs2 
 | SMAI - <small>suma inmediato| 000010 | I |  rd ← rs1 + imm  
 | RTA - <small>resta| 000011 | R | rd ← rs1 - rs2 
@@ -47,14 +47,6 @@ Hay que agregar la parte del excel para que se vea más lindo
 | GRD - <small>guardar | 010011 | M | M64[base+offs] ← rs
 
 
-
-### VAULT INTERACTION INSTRUCTIONS
-
-| MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
-|---|---|---|---|
-
-
-
 ### BRANCH/JUMP INSTRUCTIONS
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
@@ -64,19 +56,26 @@ Hay que agregar la parte del excel para que se vea más lindo
 | RIP - <small>rama igual o más pequeño | 010110 | B |  if(rs1<=rs2) pc+=off 
 | RIN - <small>rama incondicional | 010111 | B | rd←pc+4; pc+=off
 
+### VAULT INTERACTION INSTRUCTIONS
+
+| MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
+|---|---|---|---|
+
 
 <hr style="margin:0; border:3px solid white;">
 
 
 ### CORE INSTRUCTION FORMATS
-|TYPE| 31| 30-22|21-18|17-14|13-10|9-4|3-0|
-|---|---|---|---|---|---|---|---|
-| R | V(1) ||X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-| B ||||OFFSET(18)  |RS2(4) | OPC(6) | RS1(4)
-| M ||||OFFSET(18)  |BASE(4) | OPC(6) | RS/RD(4)
-| I | V(1) |||IMM(17)  |RS1(4) | OPC(6) | RD(4)
-| H ||X(10) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+|TYPE| 31 |30| 29-22|21-18|17-14|13-10|9-4|3-0|
+|---|---|---|---|---|---|---|---|---|
+| R | VRS2 |VRS1||X(12) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+| B |X|X|||OFFSET(16)  |RS2(4) | OPC(6) | RS1(4)
+| M |X|X|||OFFSET(16)  |BASE(4) | OPC(6) | RS/RD(4)
+| I | VRS |X|||IMM(16)  |RS(4) | OPC(6) | RD(4)
+| H |VRS||X(9) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
 | V |||||||
+
+V(2): Vault register specifier (00: no vault, 01 for rs1 vault register, 10 for rs2 vault register, 11 for rs1 and rs2 vault register)
 
 
 <hr style="margin:0; border:3px solid white;">
