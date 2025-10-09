@@ -26,5 +26,9 @@ class ALU:
             return A % B
         elif op == 10:
             return (A & B) | (~A & C);
+        elif op == 11:
+            mul = A * 0x9e3779b97f4a7c15
+            mul &= 0xFFFFFFFFFFFFFFFF 
+            return mul
         else:
             raise ValueError("Operación no reconocida")

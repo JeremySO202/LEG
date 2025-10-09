@@ -69,14 +69,14 @@ Hay que agregar la parte del excel para que se vea más lindo
 
 
 ### CORE INSTRUCTION FORMATS
-|TYPE| 31-22|21-18|17-14|13-10|9-4|3-0|
-|---|---|---|---|---|---|---|
-| R ||X(14) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-| B |||OFFSET(18)  |RS2(4) | OPC(6) | RS1(4)
-| M |||OFFSET(18)  |BASE(4) | OPC(6) | RS/RD(4)
-| I |||IMM(18)  |RS1(4) | OPC(6) | RD(4)
-| H |X(10) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-| V |
+|TYPE| 31| 30-22|21-18|17-14|13-10|9-4|3-0|
+|---|---|---|---|---|---|---|---|
+| R | V(1) ||X(13) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+| B ||||OFFSET(18)  |RS2(4) | OPC(6) | RS1(4)
+| M ||||OFFSET(18)  |BASE(4) | OPC(6) | RS/RD(4)
+| I | V(1) |||IMM(17)  |RS1(4) | OPC(6) | RD(4)
+| H ||X(10) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+| V |||||||
 
 
 <hr style="margin:0; border:3px solid white;">

@@ -15,18 +15,23 @@ class vault:
             self.hashes[index] = valor
 
     # Lectura controlada (solo por CPU)
-    def compare_llave(self, index):
+    def compare_key(self, index):
         return self.keys[index]
 
     def compare_hash(self, index):
         return self.hashes[index]
     
-#Comparar hash   CHLL rd, rs1, index (Registro para resultado, registro a comparar, indice del hash)
-#Guardar hash    GRDLL rd, rs1, index
-#Comparar llave  CHH
-#Guardar llave   GRDH
+#Guardar hash    GRDH index, rs1
+#Guardar llave   GRDK index, rs1
+# Mix y rol
+#Generar firma   FRM rd, rs1, index (Registro destino, registro con hash, indice de la llave) = (A XOR K)
+#Comparar firma  CHKF rd, rs1, rs2 (registro destino, la calculada, la extraida del doc)
     
     #Login y tenemos contraseña en boveda, me compara la que le doy con la hardcoded en boveda
     # Esto activa un registro interno para comprobar si se logueó o no
     # Si no está logueado, las de modificar no modifican y las de cargar me devuleven 0
+    
+# solo modificar las instrucciones
+# en fetch se ve si tiene permisos
+# modificar forwarding
     

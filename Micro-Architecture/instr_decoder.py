@@ -20,15 +20,15 @@ from instructions.nop import Nop
 class Inst_Decoder:
     
     """ CORE INSTRUCTION FORMATS
-        |TYPE| 31-22|21-18|17-14|13-10|9-4|3-0|
-        |---|---|---|---|---|---|---|
-        | R ||X(14) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-        | B |||OFFSET(18)  |RS2(4) | OPC(6) | RS1(4)
-        | M |||OFFSET(18)  |BASE(4) | OPC(6) | RS/RD(4)
-        | I |||IMM(18)  |RS1(4) | OPC(6) | RD(4)
-        | H |X(10) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-        | V | """
-        
+        |TYPE| 31| 30-22|21-18|17-14|13-10|9-4|3-0|
+        |---|---|---|---|---|---|---|---|
+        | R | V(1) ||X(14) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+        | B ||||OFFSET(18)  |RS2(4) | OPC(6) | RS1(4)
+        | M ||||OFFSET(18)  |BASE(4) | OPC(6) | RS/RD(4)
+        | I ||||IMM(18)  |RS1(4) | OPC(6) | RD(4)
+        | H ||X(10) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+        | V ||||||| """
+                
     def __init__(self):
         #self.processor = _processor
         self.R_instructions = {

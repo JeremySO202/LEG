@@ -11,6 +11,7 @@ from instructions.mov import Mov
 from instructions.mul import Mul
 from instructions.muli import Muli
 from instructions.mix import Mix
+from instructions.mula import Mula
 
 from instr_decoder import Inst_Decoder
 
@@ -25,12 +26,17 @@ if __name__ == "__main__":
     procesador = ProcesadorFullHazard(interval=interval)
 
     procesador.RF.registros[0] = 7
-    procesador.RF.registros[1] = 7
+    procesador.RF.registros[1] = 0x9e3779b97aaa7c19
+    procesador.RF.registros[2] = 7
     procesador.RF.registros[9] = 5
     procesador.RF.registros[10] = 10
     procesador.DM.datos[9] = 20
 
     """
+    Así se cargan las instrucciones con el decoder, hay que cambiar para que assembled code se cargue desde el txt 
+    al decoder
+    El decoder ya carga a memoria las instrucciones decodificadas
+    
     assembled_code = [
     "00000000000000000000000000000000", # NOP
     "00000000000000001100100000010001", # SMA L1 L2 L3
@@ -51,9 +57,6 @@ if __name__ == "__main__":
     
     procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))
     procesador.cargarInstrucciones(LoadWord(5, 2, 0, procesador))
-
-    
-
     procesador.cargarInstrucciones(Smai(3, 9, 1, procesador))
 
     
