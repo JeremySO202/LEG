@@ -16,3 +16,5 @@ class Boveda:
 
     def leer_hash(self, indice):
         return self.hashes_iniciales[indice]
+    
+    #
