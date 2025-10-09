@@ -148,8 +148,6 @@ def extract_bytes(line):
             imm = format(int(data[3]), '016b')
         return "00"+imm + rs + opcode + rd
         
-        
-        
     if instruction_parameter[1] == 'M':
         
         if len(data) != 4:
