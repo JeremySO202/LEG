@@ -55,10 +55,7 @@ if __name__ == "__main__":
     decoder = Inst_Decoder()
     decoder.load_code(assembled_code, procesador)"""
     
-    procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))
-    procesador.cargarInstrucciones(LoadWord(5, 2, 0, procesador))
-    procesador.cargarInstrucciones(Smai(3, 9, 1, procesador))
-
+    procesador.cargarInstrucciones(Mula(5, 1, procesador))
     
     #procesador.cargarInstrucciones(StoreWord(9, 0, 1, procesador))
     #procesador.cargarInstrucciones(Sma(3, 9, 0, procesador))
