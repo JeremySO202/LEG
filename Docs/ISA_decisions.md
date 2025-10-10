@@ -1,5 +1,6 @@
-# De
+# Desiciones de Diseño
 
+LEG utiliza dos memorias, una memoria de datos 
 
 Tenemos 2 memorias, una de 32 bits para abaratar costos y otra de 64 bits por el algoritmo de hasheo
 

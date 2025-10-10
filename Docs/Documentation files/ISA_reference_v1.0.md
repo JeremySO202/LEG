@@ -100,6 +100,5 @@ V(2): Vault register specifier (00: no vault, 01 for rs1 vault register, 10 for 
 ### ADDITIONAL INFORMATION 
 LEG utiliza un formato de endianess BIG ENDIAN
 
-AGREGAR ACÁ LO DEL BIG ENDIAN
 Y DEMÁS INFORMACIÓN QUE sea necesaria
 

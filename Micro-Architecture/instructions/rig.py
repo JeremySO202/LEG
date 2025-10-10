@@ -1,6 +1,6 @@
 #branch equal
 
-class BranchEqual:
+class RIG:
     def __init__(self, _registro1, _registro2, _offset, _procesador):
         self.registro1 = _registro1
         self.registro2 = _registro2

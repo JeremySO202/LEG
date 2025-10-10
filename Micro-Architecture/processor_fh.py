@@ -4,18 +4,37 @@ from components.data_memory import memoriaDatos
 from components.instr_memory import memoriaInstrucciones
 from components.register_file import archivoRegistros
 from components.register import Registro
-from instructions.rig import BranchEqual  
 from hazard_control import HazardControl, BranchPredictor
+#registro-registro
 from instructions.sma import Sma
 from instructions.rta import Rta
 from instructions.y import Y
 from instructions.o import O
 from instructions.mul import Mul
-from instructions.smai import Smai  # Importar Addi y otras instrucciones con inmediato
+from instructions.roti import Roti
+from instructions.rotd import Rotd
+from instructions.rol import Rol
+from instructions.oex import Oex
+#para un inmediato
+from instructions.mov import Mov
+#otras
 from instructions.crg import LoadWord
+from instructions.rig import RIG  
+from instructions.rim import RIM
+from instructions.rin import RIN
+from instructions.rip import RIP
+
 from instructions.grd import StoreWord
 from instructions.mix import Mix
 from instructions.nop import Nop
+#de solo un registro
+from instructions.rtai import Rtai
+from instructions.smai import Smai
+from instructions.muli import Muli
+from instructions.no import No
+from instructions.modp import Modp
+from instructions.mula import Mula
+
 
 
 class ProcesadorFullHazard:
@@ -44,14 +63,7 @@ class ProcesadorFullHazard:
 
 
     def cargarInstrucciones(self, instruccion):
-
         self.IM.instrucciones.append(instruccion)
-        #se hace la verificación de que es un load 
-        #digamos que el load está en la posición [x]
-        #si en la posici+on [x+1] el registro 1 o el registro 2 dependen del destino de la intrucción en la posición [x]
-        #entonces se agrega el nop
-        #si en la posicón [x+2] el registro 1 o 2 dependen del destino de la instrucción en la posición [x]
-        #entonces se agrega el nop
 
     def clear_pipeline(self):
         print("Limpiando pipeline tras el salto.")
@@ -60,7 +72,6 @@ class ProcesadorFullHazard:
         self.regRF.clear()
 
     def iniciarEjecucion(self):
-
         needs_forwarding = False
         second_hazard = False
         start_time = time.time()
@@ -106,7 +117,7 @@ class ProcesadorFullHazard:
                     print(f"Valor a recibir: {self.Check}")
                 
                     # Para instrucciones de dos registros 
-                    if isinstance(self.regRF.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                    if isinstance(self.regRF.instruccion, (Sma, Rta, O, Y, Mul, RIG, Rol, RIP, RIM, Oex)):
                         # Aplicar el forwarding al registro correspondiente
                         if self.forw_reg == 1:
                             self.regRF.data[0] = self.Check
@@ -117,7 +128,7 @@ class ProcesadorFullHazard:
                         print(f"Después del forwarding: {self.regRF.data}")
                     
                     #Para instrucciones con inmediatos
-                    elif isinstance(self.regRF.instruccion, Smai):
+                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Roti, Rotd, No)):
                         if self.forw_reg == 1:
                             self.regRF.data = self.Check
                             print(f"Después del forwarding: {self.regRF.data}")
@@ -138,12 +149,14 @@ class ProcesadorFullHazard:
                     
                     needs_forwarding = False
 
+                #revisar las cosas de memoria
+
                 if second_hazard:
                     print(f"Recibiendo forwarding de MEM")
                     print(f"Valor a recibir: {self.second_check}")
                 
                     # Para instrucciones de dos registros 
-                    if isinstance(self.regRF.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                    if isinstance(self.regRF.instruccion, (Sma, Rta, O, Y, Oex, Mul, Rol, RIG, RIP, RIM)):
                         if self.forw_reg2 == 1:
                             self.regRF.data[0] = self.second_check
                         elif self.forw_reg2 == 2:
@@ -153,7 +166,7 @@ class ProcesadorFullHazard:
                         print(f"Después del forwarding: {self.regRF.data}")
                     
                     #Para instrucciones con inmediatos
-                    elif isinstance(self.regRF.instruccion, Smai):
+                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, No, Roti, Rotd)):
                         if self.regRF.data is None:
                             self.regRF.data = None
                         if self.forw_reg2 == 1:
@@ -176,7 +189,7 @@ class ProcesadorFullHazard:
                 execute = True
 
                 #para los branches 
-                if isinstance(self.regIM.instruccion, BranchEqual):
+                if isinstance(self.regIM.instruccion, (RIG, RIP, RIM)):
                     instruction_id = id(self.regIM.instruccion)
                     predicted_taken = self.branch_predictor.predict(instruction_id)
                     print(f"[Branch detectado - Predicción: {predicted_taken}")
@@ -185,7 +198,8 @@ class ProcesadorFullHazard:
                         print(f"[Tomando salto: PC += {self.regIM.instruccion.offset}")
                         self.PC += self.regIM.instruccion.offset
                 
-                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Smai, Mix)):
+                #forwarding de execute
+                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Oex, Mul, Rol, RIG, RIP, RIM, Smai, Rtai, Muli, No, Rotd, Roti, Mix)):
                     if self.hazard_control.exex_fw(self.regIM.instruccion):
                         print("Se detectó un hazard EX- Forwarding necesario")
                         
@@ -222,10 +236,10 @@ class ProcesadorFullHazard:
                     time.sleep(0.1)
                 else:
                     # Continuar flujo normal del decode
-                    if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                    if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, RIG)):
                         if self.regRF.data is None:
                             self.regRF.data = [None, None]
-                    elif isinstance(self.regIM.instruccion, Smai):
+                    elif isinstance(self.regIM.instruccion, (Smai, Rtai, Muli, No, Rotd, Roti)):
                         if self.regRF.data is None:
                             self.regRF.data = None
                     elif isinstance(self.regIM.instruccion, Mix):

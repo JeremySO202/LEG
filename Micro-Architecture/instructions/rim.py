@@ -9,7 +9,7 @@ class RIM:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
         self.branch_taken = False
         self.prediction_made = False
-   
+    
     def decode(self):
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]

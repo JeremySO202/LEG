@@ -1,4 +1,4 @@
-from instructions.rig import BranchEqual
+from instructions.rig import RIG
 from instructions.crg import LoadWord
 from instructions.grd import StoreWord
 from instructions.sma import Sma

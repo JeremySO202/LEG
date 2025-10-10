@@ -1,5 +1,4 @@
 #rotacion derecha
-
 class Rotd:
     def __init__(self, _destino, _registro1, _registro2, _procesador):
         self.destino = _destino

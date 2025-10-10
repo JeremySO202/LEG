@@ -14,6 +14,9 @@ crg
 mov
 grd
 mix
+modp
+mula 
+rol
 
 
 Falta:
@@ -31,13 +34,10 @@ TENER EN CUENTA QUE CUANDO SE ESCRIBAN EN LOS REGITROS NO SE HAGA ESTO:
 QUE NO SE USEN LOS MISMOS 2 REGISTROS EN LAS INSTRUCCIONES PORQUE VA SALIR MAL LA OPERACION PORQUE SE FORWARDEAN AMBOS 
 
 
+#agregar la mula y modp al proceso de forwarding 
+#revisar el mem-reg forwarding
+#revisar el rotd y roti 
 
-------------------------------
-NO SE HAN DESARROLLADO:
-2-modp
-3-mula 
-10-rol
--------------------------------
 
 HAY QUE HACER:
 -hacer las pruebas para ver si la instrucción de beq está funcionando(creo que hay que hacer algo con la predicción de saltos entonces verificar)
