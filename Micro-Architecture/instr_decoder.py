@@ -174,6 +174,8 @@ class Inst_Decoder:
         elif instruction_type == "B":
             #| B |X|X| OFFSET(16)  |RS2(4) | OPC(6) | RS1(4)|
             offset = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+            if offset >= 2**15:  # Si el bit más significativo es 1, es negativo
+                offset -= 2**16  # Convertir a negativo usando complemento a dos
             rs2 = int(code_line[31-13:31-9],2)      # Bits 13-10
             rs1 = int(code_line[31-3:32],2)         # Bits 3-0
             print(f"{mnemonic} L{rs1} L{rs2} #{offset}")
