@@ -1,26 +1,41 @@
 import time
+import time
 from components.alu import ALU
 from components.data_memory import memoriaDatos
 from components.instr_memory import memoriaInstrucciones
 from components.vault import vault
 from components.register_file import archivoRegistros
 from components.register import Registro
-from instructions.rig import BranchEqual  
+from instructions.rig import Rig
 from hazard_control import HazardControl, BranchPredictor
+
+from instructions.nop import Nop
 from instructions.sma import Sma
+from instructions.smai import Smai
 from instructions.rta import Rta
+from instructions.rtai import Rtai
+from instructions.mul import Mul
+from instructions.muli import Muli
 from instructions.y import Y
 from instructions.o import O
 from instructions.oex import Oex
-from instructions.mul import Mul
-from instructions.smai import Smai  # Importar Addi y otras instrucciones con inmediato
-from instructions.crg import LoadWord
-from instructions.grd import StoreWord
+from instructions.rotd import Rotd
+from instructions.roti import Roti
+from instructions.no import No
+from instructions.mov import Mov
+
+from instructions.rol import Rol
+from instructions.modp import Modp
 from instructions.mix import Mix
-from instructions.nop import Nop
-from instructions.rim import RIM
-from instructions.rip import RIP
-from instructions.rin import RIN
+from instructions.mula import Mula
+
+from instructions.crg import Crg
+from instructions.grd import Grd
+
+from instructions.rig import Rig
+from instructions.rim import Rim
+from instructions.rip import Rip
+from instructions.rin import Rin
 
 
 
@@ -113,8 +128,8 @@ class ProcesadorFullHazard:
                     print(f"Recibiendo forwarding en EXECUTE")
                     print(f"Valor a recibir: {self.Check}")
                 
-                    # Para instrucciones de dos registros 
-                    if isinstance(self.regRF.instruccion, (Sma, Rta, Mul, Y, O, Oex, BranchEqual, RIN, RIP, RIM)):
+                    # Para instrucciones de dos registros incluyendo branches
+                    if isinstance(self.regRF.instruccion, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
                         # Aplicar el forwarding al registro correspondiente
                         if self.forw_reg == 1:
                             self.regRF.data[0] = self.Check
@@ -125,7 +140,7 @@ class ProcesadorFullHazard:
                         print(f"Después del forwarding: {self.regRF.data}")
                     
                     #Para instrucciones con inmediatos
-                    elif isinstance(self.regRF.instruccion, Smai):
+                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Rotd, Roti, No, Rol, Modp, Mula)):
                         if self.forw_reg == 1:
                             self.regRF.data = self.Check
                             print(f"Después del forwarding: {self.regRF.data}")
@@ -149,24 +164,38 @@ class ProcesadorFullHazard:
                 if second_hazard:
                     print(f"Recibiendo forwarding de MEM")
                     print(f"Valor a recibir: {self.second_check}")
-                
-                    # Para instrucciones de dos registros 
-                    if isinstance(self.regRF.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                    # Para instrucciones de dos registros incluyendo branches
+                    if isinstance(self.regRF.instruccion, (Sma, Rta, O, Y, Mul, Rig, Rip, Rim)):
                         if self.forw_reg2 == 1:
                             self.regRF.data[0] = self.second_check
-                        elif self.forw_reg2 == 2:
-                            print(f"Forwarding al registro2")
-                            self.regRF.data[1] = self.second_check
+                    elif self.forw_reg2 == 2:
+                        print(f"Forwarding al registro2")
+                        self.regRF.data[1] = self.second_check
                         
                         print(f"Después del forwarding: {self.regRF.data}")
                     
                     #Para instrucciones con inmediatos
-                    elif isinstance(self.regRF.instruccion, Smai):
+                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Rotd, Roti, No, Rol, Modp, Mula)):
                         if self.regRF.data is None:
                             self.regRF.data = None
                         if self.forw_reg2 == 1:
                             self.regRF.data = self.second_check
                             print(f"Después del forwarding: {self.regRF.data}")
+                            
+                    elif isinstance(self.regRF.instruccion, Mix):
+                        # Aplicar el forwarding al registro correspondiente
+                        if self.forw_reg2 == 1:
+                            print(f"Forwarding al registro1")
+                            self.regRF.data[0] = self.second_check
+                        elif self.forw_reg2 == 2:
+                            print(f"Forwarding al registro2")
+                            self.regRF.data[1] = self.second_check
+                        elif self.forw_reg2 == 3:
+                            print(f"Forwarding al registro3")
+                            self.regRF.data[2] = self.second_check
+                        
+                        print(f"Después del forwarding: {self.regRF.data}")
+                    second_hazard = False
 
 
 
@@ -186,16 +215,30 @@ class ProcesadorFullHazard:
                 execute = True
 
                 #para los branches 
-                if isinstance(self.regIM.instruccion, BranchEqual):
+                if isinstance(self.regIM.instruccion, (Rig, Rip, Rim)):
+                    # Verificar forwarding para branches
+                    if self.hazard_control.exex_fw(self.regIM.instruccion):
+                        print("Se detectó un hazard EX en branch - Forwarding necesario")
+                        needs_forwarding = True
+                        
+                    if self.hazard_control.memreg_forw(self.regIM.instruccion):
+                        print("Se detectó un hazard de MEM en branch - Forwarding necesario")
+                        second_hazard = True
+                    
                     instruction_id = id(self.regIM.instruccion)
                     predicted_taken = self.branch_predictor.predict(instruction_id)
                     print(f"[Branch detectado - Predicción: {predicted_taken}")
                     
                     if predicted_taken:
-                        print(f"[Tomando salto: PC += {self.regIM.instruccion.offset}")
+                        print(f"[Tomando salto especulativo: PC += {self.regIM.instruccion.offset}")
                         self.PC += self.regIM.instruccion.offset
                 
-                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Smai, Mix)):
+                # RIN es incondicional, siempre salta
+                elif isinstance(self.regIM.instruccion, Rin):
+                    print(f"[Salto incondicional: PC += {self.regIM.instruccion.offset}")
+                    self.PC += self.regIM.instruccion.offset
+                
+                if isinstance(self.regIM.instruccion, (Sma, Smai, Rta, Rtai, O, Oex, Y, Mul, Muli, Rotd, Roti, No, Rol, Modp, Mix, Mula)):
                     if self.hazard_control.exex_fw(self.regIM.instruccion):
                         print("Se detectó un hazard EX- Forwarding necesario")
                         
@@ -205,7 +248,7 @@ class ProcesadorFullHazard:
                         needs_forwarding = False
 
                 #revisa el forwarding de mem a execute
-                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Smai, Mix)):
+                if isinstance(self.regIM.instruccion, (Sma, Smai, Rta, Rtai, O, Oex, Y, Mul, Muli, Rotd, Roti, No, Rol, Modp, Mix, Mula)):
                     if self.hazard_control.memreg_forw(self.regIM.instruccion):
                         print("Se detectó un hazard de MEM - Forwarding necesario")
                         print(f"{self.second_check}")
@@ -217,8 +260,8 @@ class ProcesadorFullHazard:
                     
                     
                 # Verifica si debe insertar NOP (burbuja)
-                if isinstance(self.regALU.instruccion, LoadWord) and (needs_forwarding or second_hazard):
-                    print("Inserción de NOP por dependencia con LOADWORD")
+                if isinstance(self.regALU.instruccion, Crg) and (needs_forwarding or second_hazard):
+                    print("Inserción de NOP por dependencia con Crg")
 
                     # Retroceder el PC para volver a ejecutar la instrucción que estaba en decode
                     self.PC -= 1
@@ -232,7 +275,7 @@ class ProcesadorFullHazard:
                     time.sleep(0.1)
                 else:
                     # Continuar flujo normal del decode
-                    if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                    if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Rig, Rin, Rip, Rim)):
                         if self.regRF.data is None:
                             self.regRF.data = [None, None]
                     elif isinstance(self.regIM.instruccion, Smai):
@@ -259,6 +302,7 @@ class ProcesadorFullHazard:
                 print(f"Cargando instrucción {self.PC}")
                 self.pipeline_locations[0] = f"Instrucción {self.PC}"
                 self.regIM.instruccion = self.IM.instrucciones[self.PC]
+                self.regIM.instruccion.reset()
                 self.PC += 1
 
             else:

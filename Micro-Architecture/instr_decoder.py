@@ -1,6 +1,3 @@
-from instructions.rig import BranchEqual
-from instructions.crg import LoadWord
-from instructions.grd import StoreWord
 from instructions.sma import Sma
 from instructions.smai import Smai
 from instructions.rta import Rta
@@ -16,6 +13,15 @@ from instructions.rotd import Rotd
 from instructions.roti import Roti
 from instructions.no import No
 from instructions.nop import Nop
+from instructions.rol import Rol
+from instructions.modp import Modp
+from instructions.mula import Mula
+from instructions.crg import Crg
+from instructions.grd import Grd
+from instructions.rig import Rig
+from instructions.rim import Rim
+from instructions.rip import Rip
+from instructions.rin import Rin
 
 class Inst_Decoder:
     
@@ -122,6 +128,8 @@ class Inst_Decoder:
             #| I | VRS | X | IMM(16)  |RS(4) | OPC(6) | RD(4)|
             vrs = int(code_line[31-31:31-30],2)  # Bit 31
             imm = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+            if imm >= 2**15:  # Si el número es negativo en complemento a 2 (16 bits)
+                imm -= 2**16
             rs1 = int(code_line[31-13:31-9],2)   # Bits 13-10
             rd = int(code_line[31-3:32],2)       # Bits 3-0
             if mnemonic == "No":
@@ -131,14 +139,21 @@ class Inst_Decoder:
                 print(f"{mnemonic} L{rd} #{imm}")
                 return cls(rd, imm, processor)
             elif mnemonic == "Modp":
-                print(f"{mnemonic} L{rd} L{rs1}")
-                return cls(rd, rs1, processor)
+                print(f"{mnemonic} L{rd} {'V' if vrs else 'L'}{rs1}")
+                return cls(rd, rs1, vrs,processor)
+            elif mnemonic == "Mula":
+                print(f"{mnemonic} L{rd} {'V' if vrs else 'L'}{rs1}")
+                return cls(rd, rs1, vrs, processor)
             else:
                 print(f"{mnemonic} L{rd} {'V' if vrs else 'L'}{rs1} #{imm}")
                 return cls(rd, rs1, imm, vrs, processor)
         elif instruction_type == "M":
             #| M |X|X| OFFSET(16)  |BASE(4) | OPC(6) | RS/RD(4)|
-            offset = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+            offset = int(code_line[31-29:31-13], 2)  # Bits 29-14 (16 bits)
+            # Si el número es negativo en complemento a 2 (16 bits)
+            if offset >= 2**15:
+                offset -= 2**16
+            
             base = int(code_line[31-13:31-9],2)     # Bits 13-10
             rd = int(code_line[31-3:32],2)          # Bits 3-0
             print(f"{mnemonic} L{rd} (L{base} + #{offset})")
@@ -150,8 +165,13 @@ class Inst_Decoder:
         elif instruction_type == "B":
             #| B |X|X| OFFSET(16)  |RS2(4) | OPC(6) | RS1(4)|
             offset = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+            if offset >= 2**15:  # Si el número es negativo en complemento a 2 (16 bits)
+                offset -= 2**16
             rs2 = int(code_line[31-13:31-9],2)      # Bits 13-10
             rs1 = int(code_line[31-3:32],2)         # Bits 3-0
+            if mnemonic == "Rin":
+                print(f"{mnemonic} L{rs1} #{offset}")
+                return cls(rs1, offset, processor)
             print(f"{mnemonic} L{rs1} L{rs2} #{offset}")
             return cls(rs1, rs2, offset, processor)
             # este necesita revisión

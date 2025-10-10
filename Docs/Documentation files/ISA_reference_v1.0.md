@@ -26,7 +26,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 | ROTD - <small>rota derecha| 001010 | I |  rd ← rotr64(rs, imm) 
 | ROTI - <small>rota izquierda| 001011 |  I | rd ← rotl64(rs, imm) 
 | NO - <small>bitwise not| 001100 |  I | rd ← ~rs 
-| MOV - <small>mover | 001101 | R | rd ← imm 
+| MOV - <small>mover | 001101 | I | rd ← imm 
 
 
 

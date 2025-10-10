@@ -27,8 +27,11 @@ class ALU:
         elif op == 10:
             return (A & B) | (~A & C);
         elif op == 11:
+            
             mul = A * 0x9e3779b97f4a7c15
+            print(f"Valor antes del enmascaramiento a 64 bits: {mul}")
             mul &= 0xFFFFFFFFFFFFFFFF 
+            print(f"Valor después del enmascaramiento a 64 bits: {mul}")
             return mul
         elif op == 12:
             return (A << B) | (A >> (64 - B));

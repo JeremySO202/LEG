@@ -4,6 +4,10 @@ class Nop:
     def __init__(self, _procesador):
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+        
+    def reset(self):
+        """Reinicia la lista de ejecución para poder ejecutar la instrucción nuevamente"""
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):
         print(f"Leyendo valores 0 y 0")

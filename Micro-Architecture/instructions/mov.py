@@ -7,6 +7,10 @@ class Mov:
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
+    def reset(self):
+        """Reinicia la lista de ejecución para poder ejecutar la instrucción nuevamente"""
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+    
     def decode(self):
         self.procesador.regRF.data = self.inmediato
         print(f" Valor inmediato: {self.procesador.regRF.data}")

@@ -24,7 +24,7 @@ opcodes = {
     'ROTD': ["001010", "I"],
     'ROTI': ["001011", "I"],
     'NO': ["001100", "I"],
-    'MOV': ["001101", "R"],
+    'MOV': ["001101", "I"],
     'ROL': ["001110", "I"],
     'MODP': ["001111", "I"],
     'MIX': ["010000", "H"],
@@ -123,6 +123,22 @@ def extract_bytes(line):
     
     if instruction_parameter[1] == 'B':
         
+        if data[0] == 'RIN':
+            if len(data) != 2:
+                raise ValueError("Invalid number of parameters for RIN instruction: "+ line)
+            
+            
+            if not data[1].lstrip('-').isdigit():
+                raise ValueError("Immediate value must be an integer: "+ data[1])
+            if not -65536 <= int(data[1]) <= 65535:
+                raise ValueError("Immediate value out of range (-65536 to 65535): "+ data[1])
+
+             # Convert immediate to 16-bit two's complement binary
+            if int(data[1]) < 0:
+                imm = format((1 << 16) + int(data[1]), '016b')
+            else:
+                imm = format(int(data[1]), '016b')
+            return "00"+imm + "0000" + opcode + "0000"
            
         
         if len(data) != 4:
@@ -149,8 +165,6 @@ def extract_bytes(line):
         else:
             imm = format(int(data[3]), '016b')
         return "00"+imm + rs + opcode + rd
-        
-        
         
     if instruction_parameter[1] == 'M':
         
@@ -197,6 +211,26 @@ def extract_bytes(line):
             
             return "00"+"0"*16 + rs + opcode + rd
         
+        if data[0] == 'MOV':
+            if len(data) != 3:
+                raise ValueError("Invalid number of parameters for MOV instruction: "+ line)
+
+            if data[1] in regs:
+                rd = regs[data[1]]
+            else:
+                raise ValueError("Unknown destination register: "+ data[1])
+            if not data[2].lstrip('-').isdigit():
+                raise ValueError("Immediate value must be an integer: "+ data[2])
+            if not -65536 <= int(data[2]) <= 65535:
+                raise ValueError("Immediate value out of range (-65536 to 65535): "+ data[2])
+            
+             # Convert immediate to 17-bit two's complement binary
+            if int(data[2]) < 0:
+                imm = format((1 << 17) + int(data[2]), '016b')
+            else:
+                imm = format(int(data[2]), '016b')
+            return "00"+imm + "0000" + opcode + rd
+
         if len(data) != 4:
             raise ValueError("Invalid number of parameters for I-type instruction: "+ line)
         

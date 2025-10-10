@@ -1,11 +1,15 @@
 #save
 
-class StoreWord:
+class Grd:
     def __init__(self, _fuente, _inmediato, _destino, _procesador):
         self.destino = _destino
         self.inmediato = _inmediato
         self.fuente = _fuente
         self.procesador = _procesador
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+    
+    def reset(self):
+        """Reinicia la lista de ejecución para poder ejecutar la instrucción nuevamente"""
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):

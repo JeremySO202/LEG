@@ -8,6 +8,10 @@ class Smai:
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
+    def reset(self):
+        """Reinicia la lista de ejecución para poder ejecutar la instrucción nuevamente"""
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+    
     def decode(self):
         print(f"Leyendo registro R{self.registro1}")
         self.procesador.regRF.data = self.procesador.RF.registros[self.registro1]
@@ -22,7 +26,12 @@ class Smai:
             tempA = self.procesador.vault.get_secure_reg(self.registro1)
             self.procesador.regALU.data = self.procesador.ALU.operar(tempA, self.inmediate, 0)
         else:
-            self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, self.inmediate, 0)
+            # Si regRF.data es una lista, tomar el primer elemento, si no, usar el valor directamente
+            if isinstance(self.procesador.regRF.data, list):
+                valor = self.procesador.regRF.data[0] if self.procesador.regRF.data else 0
+            else:
+                valor = self.procesador.regRF.data
+            self.procesador.regALU.data = self.procesador.ALU.operar(valor, self.inmediate, 0)
         print(f"Resultado ALU: {self.procesador.regALU.data}")
     
     def memory(self):

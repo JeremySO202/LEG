@@ -1,3 +1,0 @@
-SMA L1 L2 L3
-NOP
-SMAI l1 l2  16

@@ -4,9 +4,12 @@ from instructions.y import Y
 from instructions.o import O
 from instructions.mul import Mul
 from instructions.smai import Smai
-from instructions.rig import BranchEqual
-from instructions.crg import LoadWord
-from instructions.grd import StoreWord
+from instructions.rig import Rig
+from instructions.rin import Rin
+from instructions.rip import Rip
+from instructions.rim import Rim
+from instructions.crg import Crg
+from instructions.grd import Grd
 from instructions.mix import Mix
 from instructions.nop import Nop
 from instructions.oex import Oex
@@ -31,11 +34,11 @@ class HazardControl:
         self.procesador.PC -= instruction.offset + 1
 
     def exex_fw(self, current_instruction):
-        if not isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Smai, BranchEqual, Mix)):
+        if not isinstance(current_instruction, (Sma, Smai, Rta, Rtai, O, Y, Mul, Muli, Rotd, Roti, Rol, Modp, Mula, No, Mix, Mov, Rig, Rin, Rip, Rim)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return False
 
-        if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, BranchEqual)):
+        if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Rig, Rin, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
         elif isinstance(current_instruction, Mix):
@@ -48,7 +51,7 @@ class HazardControl:
         alu_inst = self.procesador.regALU.instruccion
 
         if self.procesador.regALU.instruccion:
-            if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, BranchEqual)):
+            if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Rig, Rin, Rip, Rim)):
                 if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.bovedareg1 == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
@@ -62,13 +65,14 @@ class HazardControl:
                     return True
 
             elif isinstance(current_instruction, (Smai, Rtai, Muli, Rotd, Roti, Rol, Modp, Mula, No)):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.bovedareg1 == 0:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
                 
             elif isinstance(current_instruction, Mix):
+                print(current_instruction.boveda)
                 if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
@@ -95,11 +99,11 @@ class HazardControl:
 
     def memreg_forw(self, current_instruction):
 
-        if not isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Smai, BranchEqual, Mix)):
+        if not isinstance(current_instruction, (Sma, Smai, Rta, Rtai, O, Y, Mul, Muli, Rotd, Roti, Rol, Modp, Mula, No, Mix, Mov, Rig, Rin, Rip, Rim)):
             print("No se aplica forwarding: instrucción no es de un tipo soportado.")
             return False
 
-        if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, BranchEqual)):
+        if isinstance(current_instruction, (Sma, Smai, Rta, Rtai, O, Y, Mul, Muli, Rotd, Roti, Rol, Modp, Mula, No, Mov, Rig, Rin, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
         elif isinstance(current_instruction, Mix):
@@ -112,42 +116,42 @@ class HazardControl:
         dm_inst = self.procesador.regDM.instruccion
 
         if self.procesador.regDM.instruccion:
-            if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, BranchEqual)):
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+            if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Rig, Rin, Rip, Rim)):
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1 and current_instruction.bovedareg1 == 0:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 1
                     print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
                 
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2 and current_instruction.bovedareg2 == 0:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 2
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro2})")
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro2 (R{current_instruction.registro2})")
                     return True
             
-            elif isinstance(current_instruction, Smai):
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+            elif isinstance(current_instruction, (Smai, Rtai, Muli, Rotd, Roti, Rol, Modp, Mula, No)):
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 1
                     print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
                 
             elif isinstance(current_instruction, Mix):
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
-                    current_instruction.procesador.forw_reg2 = 1
+                    current_instruction.procesador.forw_reg1 = 1
                     print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
                 
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2 and current_instruction.boveda == 0:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 2
                     print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro2})")
                     return True
                 
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro3:
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro3 and current_instruction.boveda == 0:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
-                    current_instruction.procesador.forw_reg2 = 3
+                    current_instruction.procesador.forw_reg3 = 3
                     print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro3})")
                     return True
 

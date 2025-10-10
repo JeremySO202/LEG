@@ -11,6 +11,10 @@ class Mix:
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
+    def reset(self):
+        """Reinicia la lista de ejecución para poder ejecutar la instrucción nuevamente"""
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+    
     def decode(self):
         print(f"Leyendo registros R{self.registro1}, R{self.registro2} y R{self.registro3}")
         self.procesador.regRF.data = [None] * 3

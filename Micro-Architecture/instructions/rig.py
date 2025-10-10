@@ -1,6 +1,6 @@
 #branch equal
 
-class BranchEqual:
+class Rig:
     def __init__(self, _registro1, _registro2, _offset, _procesador):
         self.registro1 = _registro1
         self.registro2 = _registro2
@@ -9,35 +9,52 @@ class BranchEqual:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
         self.branch_taken = False 
         self.prediction_made = False
+        # Atributos para hazard detection (branches no usan vault)
+        self.bovedareg1 = 0
+        self.bovedareg2 = 0
+    
+    def reset(self):
+        """Reinicia la lista de ejecución para poder ejecutar la instrucción nuevamente"""
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+        self.branch_taken = False
+        self.prediction_made = False
     
     def decode(self):
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
-        print(f"valores leídos: {self.procesador.regRF.data}")
+        print(f"Leyendo registros R{self.registro1} y R{self.registro2}")
+        print(f"Valores leídos: {self.procesador.regRF.data}")
     
     def execute(self):
-        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 1)
-        self.branch_taken = (self.procesador.regALU.data == 0)
-        print(f"comparación: {self.procesador.regALU.data}")
-        print(f"Salto: {self.branch_taken}")
+        # Para branch equal, comparamos si son iguales (resta = 0)
+        valor1 = self.procesador.regRF.data[0]
+        valor2 = self.procesador.regRF.data[1]
+        
+        print(f"Valores antes de forwarding: [{valor1}, {valor2}]")
+        
+        self.procesador.regALU.data = self.procesador.ALU.operar(valor1, valor2, 1)  # resta
+        self.branch_taken = (self.procesador.regALU.data == 0)  # iguales si resta = 0
+        
+        print(f"Comparando {valor1} == {valor2}: resultado = {self.procesador.regALU.data}")
+        print(f"Branch taken: {self.branch_taken}")
         
         instruction_id = id(self)
         predicted_taken = self.procesador.branch_predictor.predict(instruction_id)
         print(f"Predicción fue: {predicted_taken}")
         
         if predicted_taken != self.branch_taken:
-            print(f"misprediction")
+            print(f"Misprediction detectado")
             print(f"Predicción: {predicted_taken}, Real: {self.branch_taken}")
             
             if not predicted_taken and self.branch_taken:
-                print(f"Aplicando salto tardío y limpiando pipeline")
-                self.procesador.PC += self.offset - 2  # -2 porque ya avanzó 2 ciclos
+                print(f"Tomando salto no predicho: PC += {self.offset}")
+                self.procesador.PC += self.offset - 2  # Ajustar por pipeline
                 self.procesador.clear_pipeline()
             
             elif predicted_taken and not self.branch_taken:
-                print(f"Cancelando salto especulativo y restaurando PC")
-                self.procesador.PC -= self.offset
+                print(f"Cancelando salto predicho: PC -= {self.offset}")
+                self.procesador.PC -= self.offset + 1  # Ajustar por pipeline
                 self.procesador.clear_pipeline()
         else:
             print(f"Predicción correcta")
