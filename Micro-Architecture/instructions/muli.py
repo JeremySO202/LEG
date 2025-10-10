@@ -1,10 +1,11 @@
 #multiplicacion immediate
 
 class Muli:
-    def __init__(self, _destino, _registro1, _inmediate, _procesador):
+    def __init__(self, _destino, _registro1, _inmediate, _boveda, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
         self.inmediate = _inmediate
+        self.boveda = _boveda
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
@@ -17,8 +18,12 @@ class Muli:
         print(f"Multiplicando registro + inmediato ({self.inmediate})")
         if self.procesador.regRF.data is None:
             raise ValueError(f"el Reg {self.registro1} es None y no puede multiplicarse.")
-        self.procesador.regALU.data = self.procesador.ALU.operar(
-            self.procesador.regRF.data, self.inmediate, 4)
+        if self.boveda:
+            print("Usando registro de boveda")
+            tempA = self.procesador.vault.get_secure_reg(self.registro1)
+            self.procesador.regALU.data = self.procesador.ALU.operar(tempA, self.inmediate, 4)
+        else:
+            self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, self.inmediate, 4)
         print(f"Multiplicando - ALU: {self.procesador.regALU.data}")
     
     def memory(self):

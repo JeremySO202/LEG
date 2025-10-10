@@ -19,12 +19,17 @@ from instructions.rip import RIP
 
 from instructions.grd import StoreWord
 from instructions.mix import Mix
-#de inmediatos
-from instructions.rtai import Rtai
-from instructions.smai import Smai
-from instructions.muli import Muli
-from instructions.roti import Roti
+from instructions.nop import Nop
+from instructions.oex import Oex
 from instructions.rotd import Rotd
+from instructions.roti import Roti
+from instructions.no import No
+from instructions.rol import Rol
+from instructions.modp import Modp
+from instructions.mula import Mula
+from instructions.mov import Mov
+from instructions.muli import Muli
+from instructions.rtai import Rtai
 
 class HazardControl:
     
@@ -55,39 +60,39 @@ class HazardControl:
 
         if self.procesador.regALU.instruccion:
             if isinstance(current_instruction, (Sma, Rta, O, Y, Oex, Mul, Rol, RIG, RIP, RIM)):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.bovedareg1 == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
 
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2 and current_instruction.bovedareg2 == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 2
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro2 (R{current_instruction.registro2})")
                     return True
 
             elif isinstance(current_instruction,(Smai, Rtai, Muli, No, Roti, Rotd)):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.bovedareg1 == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
                 
             elif isinstance(current_instruction, Mix):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
 
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2 and current_instruction.boveda == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 2
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro2 (R{current_instruction.registro2})")
                     return True
                 
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro3:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro3 and current_instruction.boveda == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 3
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro3 (R{current_instruction.registro3})")

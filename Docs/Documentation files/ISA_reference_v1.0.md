@@ -25,7 +25,7 @@ Hay que agregar la parte del excel para que se vea más lindo
 | OEX - <small>xor | 001001 |  R | rd ← rs1 ^ rs2 
 | ROTD - <small>rota derecha| 001010 | I |  rd ← rotr64(rs, imm) 
 | ROTI - <small>rota izquierda| 001011 |  I | rd ← rotl64(rs, imm) 
-| NO - <small>bitwise not| 001100 |  R | rd ← ~rs 
+| NO - <small>bitwise not| 001100 |  I | rd ← ~rs 
 | MOV - <small>mover | 001101 | R | rd ← imm 
 
 

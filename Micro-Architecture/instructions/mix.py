@@ -2,11 +2,12 @@
 # uint64_t f = (A & B) | (~A & C);
 # suma
 class Mix:
-    def __init__(self, _destino, _registro1, _registro2, _registro3, _procesador):
+    def __init__(self, _destino, _registro1, _registro2, _registro3, _boveda, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
         self.registro2 = _registro2
         self.registro3 = _registro3
+        self.boveda = _boveda
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
@@ -20,7 +21,14 @@ class Mix:
     
     def execute(self):
         print(f"Mezclando valores")
-        self.procesador.regALU.data = self.procesador.ALU.operar(A=self.procesador.regRF.data[0], B=self.procesador.regRF.data[1], op=10, C=self.procesador.regRF.data[2])
+        if self.boveda:
+            print("Usando registros de boveda")
+            tempA = self.procesador.vault.get_secure_reg(self.registro1)
+            tempB = self.procesador.vault.get_secure_reg(self.registro2)
+            tempC = self.procesador.vault.get_secure_reg(self.registro3)
+            self.procesador.regALU.data = self.procesador.ALU.operar(A=tempA, B=tempB, op=10, C=tempC)
+        else:
+            self.procesador.regALU.data = self.procesador.ALU.operar(A=self.procesador.regRF.data[0], B=self.procesador.regRF.data[1], op=10, C=self.procesador.regRF.data[2])
         print(f"Resultado ALU: {self.procesador.regALU.data}")
     
     def memory(self):

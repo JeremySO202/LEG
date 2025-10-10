@@ -2,9 +2,10 @@
 #uint64_t mul = ( block * 0x9e3779b97f4a7c15ULL );
 #mul &= 0 xFFFFFFFFFFFFFFFFULL ; // mask to 64 bits
 class Mula:
-    def __init__(self, _destino, _registro1, _procesador):
+    def __init__(self, _destino, _registro1, _boveda, _procesador):
         self.destino = _destino
         self.registro1 = _registro1 # block
+        self.boveda = _boveda
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
@@ -17,7 +18,12 @@ class Mula:
         print(f"Multiplicando registro * inmediato")
         if self.procesador.regRF.data is None:
             raise ValueError(f"el Reg {self.registro1} es None y no puede multiplicarse.")
-        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, 0, 11)
+        if self.boveda:
+            print("Usando registro de boveda")
+            tempA = self.procesador.vault.get_secure_reg(self.registro1)
+            self.procesador.regALU.data = self.procesador.ALU.operar(tempA, 0, 11)
+        else:
+            self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, 0, 11)
         print(f"Multiplicando - ALU: {self.procesador.regALU.data}")
     
     def memory(self):

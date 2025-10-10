@@ -1,26 +1,24 @@
 class vault:
     def __init__(self):
         # Llaves privadas (solo lectura/escritura segura)
-        self.keys = [0]*4  # cada una de 64 bits
-        # Valores iniciales de hash
-        self.hashes = [0]*4  # A, B, C, D
+        self.secure_regs = [0]*8  # cada una de 64 bits 0 a 3 son llaves, 4 a 7 son hashes
+        
+        
+        self.secure_user = True  # Indica si el usuario está autenticado
 
     # Escritura de llaves o hashes desde instrucciones especiales
-    def write_key(self, index, valor):
-        if 0 <= id < 4:
-            self.keys[index] = valor
-
-    def write_hash(self, index, valor):
-        if 0 <= index < 4:
-            self.hashes[index] = valor
+    def write_secure_reg(self, index, valor):
+        if self.secure_user:
+            if 0 <= index < 4:
+                self.secure_regs[index] = valor
 
     # Lectura controlada (solo por CPU)
-    def compare_key(self, index):
-        return self.keys[index]
+    def get_secure_reg(self, index):
+        if self.secure_user:
+            if 0 <= index < 4:
+                return self.secure_regs[index]
+        return 0
 
-    def compare_hash(self, index):
-        return self.hashes[index]
-    
 #Guardar hash    GRDH index, rs1
 #Guardar llave   GRDK index, rs1
 # Mix y rol

@@ -1,10 +1,11 @@
 #multiplicacion immediate
 
 class Modp:
-    def __init__(self, _destino, _registro1, _procesador):
+    def __init__(self, _destino, _registro1, _boveda, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
         self.prime = 0xFFFFFFFB 
+        self.boveda = _boveda
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
@@ -17,8 +18,13 @@ class Modp:
         print(f"Aplicando modulo de registro e inmediato ({self.prime})")
         if self.procesador.regRF.data is None:
             raise ValueError(f"el Reg {self.registro1} es None y no puede dividirse.")
-        self.procesador.regALU.data = self.procesador.ALU.operar(
-            self.procesador.regRF.data, self.prime, 9)
+        if self.boveda:
+            print("Usando registro de boveda")
+            tempA = self.procesador.vault.get_secure_reg(self.registro1)
+            self.procesador.regALU.data = self.procesador.ALU.operar(tempA, self.prime, 9)
+        else:
+            self.procesador.regALU.data = self.procesador.ALU.operar(
+                self.procesador.regRF.data, self.prime, 9)
         print(f"Modulo - ALU: {self.procesador.regALU.data}")
     
     def memory(self):

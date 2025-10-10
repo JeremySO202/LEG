@@ -15,7 +15,7 @@ class ALU:
             return A * B # Multiplicación
         elif op == 5:
             return A << B # Desplazamiento a la izquierda lógico
-            #deberia limitarse a 32 bits?
+            #deberia limitarse a 32 bits? -> Si
         elif op == 6:
             return A >> B # Desplazamiento a la derecha lógico
         elif op == 7:

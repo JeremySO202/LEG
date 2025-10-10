@@ -1,22 +1,27 @@
 #rotacion derecha
 class Rotd:
-    def __init__(self, _destino, _registro1, _registro2, _procesador):
+    def __init__(self, _destino, _registro1, _inmediate, _boveda, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
-        self.registro2 = _registro2
+        self.inmediate = _inmediate
+        self.boveda = _boveda
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):
-        print(f"Leyendo registros R{self.registro1} y R{self.registro2}")
+        print(f"Leyendo registros R{self.registro1}")
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
-        self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
         print(f"Valores leídos: {self.procesador.regRF.data}")
     
     def execute(self):
         print(f"Rotando valores a la derecha")
-        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 6)
+        if self.boveda:
+            print("Usando registros de boveda")
+            tempA = self.procesador.vault.get_secure_reg(self.registro1) if self.bovedareg1 else self.procesador.RF.registros[self.registro1]
+            self.procesador.regALU.data = self.procesador.ALU.operar(tempA, self.inmediate, 6)
+        else:
+            self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.inmediate, 6)
         print(f"Resultado ALU: {self.procesador.regALU.data}")
     
     def memory(self):
