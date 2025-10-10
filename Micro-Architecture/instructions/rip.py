@@ -8,6 +8,11 @@ class Rip:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
         self.branch_taken = False
         self.prediction_made = False
+        
+    def reset(self):
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+        self.branch_taken = False
+        self.prediction_made = False
    
     def decode(self):
         self.procesador.regRF.data = [None] * 2

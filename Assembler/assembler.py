@@ -122,9 +122,10 @@ def extract_bytes(line):
 
         return vrs1 + vrs2 + "0"*12 + rs2 + rs1 + opcode + rd
     
-    if instruction_parameter[1] == 'B':
+    if instruction_parameter[1] == 'B':   
         
-           
+        
+         
         
         if len(data) != 4:
             raise ValueError("Invalid number of parameters for B-type instruction: "+ line)

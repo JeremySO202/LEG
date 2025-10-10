@@ -12,14 +12,13 @@
   - Integrante 4: Jeremy Noryan Serracin Oporta
 - **Profesor**: Jeferson Gonzalez Gomez
 - **Materia**: Arquitectura de Computadores
-- **Fecha**: 10/2025
+- **Fecha**: 10/10/2025
 
 
 # Índice
 
-1. [Green Card](./ISA_reference_v1.0.md)
-2. [Arquitectura del set de instrucciones](./ISA_reference_v1.0.md)
-3. [Microarquitectura](./Organization_v0.1.md)
-4. [Modelado del software](#instrucciones-soportadas)
-5. [Memoria y Registros](#memoria-y-registros)
-6. [Referencias](#referencias)
+1. [Green Card](./Documentation%20files/ISA_reference_v1.0.md)
+2. [Arquitectura del set de instrucciones](./Documentation%20files/ISA_reference_v1.0.md)
+3. [Microarquitectura](./Documentation%20files/ISA_reference_v1.0.md)
+4. [Modelado del software](./Documentation%20files/ISA_decisions.md)
+5. [Referencias](./Documentation%20files/Referencias.md)
