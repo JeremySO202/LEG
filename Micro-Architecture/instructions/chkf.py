@@ -1,0 +1,1 @@
+#Comparar firma  CHKF rd, rs1, rs2 (registro destino, la calculada, la extraida del doc)

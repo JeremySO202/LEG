@@ -1,0 +1,1 @@
+#Guardar hash    GRDH index, rs1
