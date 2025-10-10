@@ -6,7 +6,11 @@ class Rin:
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
         self.return_address = None
-   
+
+    def reset(self):
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+        self.return_address = None
+
     def decode(self):
         self.return_address = self.procesador.PC
         print(f"Dirección de retorno: {self.return_address}")

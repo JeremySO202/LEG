@@ -6,6 +6,9 @@ class Mov:
         self.inmediato = _inmediato
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+        
+    def reset(self):
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):
         self.procesador.regRF.data = self.inmediato

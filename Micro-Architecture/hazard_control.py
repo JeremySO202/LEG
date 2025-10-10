@@ -40,7 +40,7 @@ class HazardControl:
     def handle_misprediction(self, instruction):
         print("Predicción incorrecta detectada. Penalización aplicada.")
         self.procesador.clear_pipeline()
-        self.procesador.PC -= instruction.offset + 1
+        self.procesador.PC -= instruction.offset + 2
 
     def exex_fw(self, current_instruction):
         
@@ -59,13 +59,13 @@ class HazardControl:
         if self.procesador.regALU.instruccion:
             # Instrucciones con dos registros fuente
             if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.bovedareg1 == 0:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and (not hasattr(current_instruction, 'bovedareg1') or current_instruction.bovedareg1 == 0):
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
 
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2 and current_instruction.bovedareg2 == 0:
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2 and (not hasattr(current_instruction, 'bovedareg2') or current_instruction.bovedareg2 == 0):
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 2
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro2 (R{current_instruction.registro2})")
@@ -131,16 +131,16 @@ class HazardControl:
         if self.procesador.regDM.instruccion:
             # Instrucciones con dos registros fuente
             if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1 and (not hasattr(current_instruction, 'bovedareg1') or current_instruction.bovedareg1 == 0):
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 1
                     print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
-                
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
+
+                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2 and (not hasattr(current_instruction, 'bovedareg2') or current_instruction.bovedareg2 == 0):
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 2
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro2})")
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro2 (R{current_instruction.registro2})")
                     return True
             # Instrucciones con un registro fuente
             elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
@@ -160,13 +160,13 @@ class HazardControl:
                 if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 2
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro2})")
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro2 (R{current_instruction.registro2})")
                     return True
                 
                 if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro3:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 3
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro3})")
+                    print(f"Hazard detectado: R{dm_inst.destino} -> registro3 (R{current_instruction.registro3})")
                     return True
 
         print("No hubo necesidad de aplicar forwarding de MEM para esta instrucción.")

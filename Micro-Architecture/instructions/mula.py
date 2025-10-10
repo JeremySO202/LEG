@@ -8,6 +8,9 @@ class Mula:
         self.boveda = _boveda
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+        
+    def reset(self):
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):
         print(f"Leyendo registro R{self.registro1}")

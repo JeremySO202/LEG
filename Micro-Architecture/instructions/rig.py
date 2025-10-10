@@ -9,6 +9,11 @@ class Rig:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
         self.branch_taken = False 
         self.prediction_made = False
+        
+    def reset(self):
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+        self.branch_taken = False
+        self.prediction_made = False
     
     def decode(self):
         self.procesador.regRF.data = [None] * 2
@@ -37,7 +42,7 @@ class Rig:
             
             elif predicted_taken and not self.branch_taken:
                 print(f"Cancelando salto especulativo y restaurando PC")
-                self.procesador.PC -= self.offset
+                self.procesador.PC -= self.offset + 1
                 self.procesador.clear_pipeline()
         else:
             print(f"Predicción correcta")

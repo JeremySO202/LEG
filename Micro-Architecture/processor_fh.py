@@ -159,23 +159,39 @@ class ProcesadorFullHazard:
                 if second_hazard:
                     print(f"Recibiendo forwarding de MEM")
                     print(f"Valor a recibir: {self.second_check}")
-                # Para instrucciones de dos registros
-                if isinstance(self.regRF.instruccion, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
-                    if self.forw_reg2 == 1:
-                        self.regRF.data[0] = self.second_check
-                    elif self.forw_reg2 == 2:
-                        print(f"Forwarding al registro2")
-                        self.regRF.data[1] = self.second_check
-                        
-                        print(f"Después del forwarding: {self.regRF.data}")
-                    
-                    #Para instrucciones con inmediatos
-                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
-                        if self.regRF.data is None:
-                            self.regRF.data = None
+                    # Para instrucciones de dos registros
+                    if isinstance(self.regRF.instruccion, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
                         if self.forw_reg2 == 1:
-                            self.regRF.data = self.second_check
+                            self.regRF.data[0] = self.second_check
+                        elif self.forw_reg2 == 2:
+                            print(f"Forwarding al registro2")
+                            print(f"Valor antes del forwarding: {self.regRF.data}")
+                            print(f"Valor a recibir: {self.second_check}")
+                            self.regRF.data[1] = self.second_check
+                            
                             print(f"Después del forwarding: {self.regRF.data}")
+                        
+                        #Para instrucciones con inmediatos
+                        elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+                            if self.regRF.data is None:
+                                self.regRF.data = None
+                            if self.forw_reg2 == 1:
+                                self.regRF.data = self.second_check
+                                print(f"Después del forwarding: {self.regRF.data}")
+                                
+                        elif isinstance(self.regRF.instruccion, Mix):
+                            if self.forw_reg2 == 1:
+                                print(f"Forwarding al registro1")
+                                self.regRF.data[0] = self.second_check
+                            elif self.forw_reg2 == 2:
+                                print(f"Forwarding al registro2")
+                                self.regRF.data[1] = self.second_check
+                            elif self.forw_reg2 == 3:
+                                print(f"Forwarding al registro3")
+                                self.regRF.data[2] = self.second_check
+                            
+                            print(f"Después del forwarding: {self.regRF.data}")
+                    second_hazard = False
 
                 self.regRF.instruccion.ejecutar()
                 
@@ -268,6 +284,7 @@ class ProcesadorFullHazard:
                 print(f"Cargando instrucción {self.PC}")
                 self.pipeline_locations[0] = f"Instrucción {self.PC}"
                 self.regIM.instruccion = self.IM.instrucciones[self.PC]
+                self.regIM.instruccion.reset()
                 self.PC += 1
 
             else:
