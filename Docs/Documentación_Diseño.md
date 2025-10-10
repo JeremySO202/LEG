@@ -19,7 +19,7 @@
 
 1. [Green Card](./ISA_reference_v1.0.md)
 2. [Arquitectura del set de instrucciones](./ISA_reference_v1.0.md)
-3. [Microarquitectura](./ISA_reference_v1.0.md)
+3. [Microarquitectura](./Organization_v0.1.md)
 4. [Modelado del software](#instrucciones-soportadas)
 5. [Memoria y Registros](#memoria-y-registros)
 6. [Referencias](#referencias)
