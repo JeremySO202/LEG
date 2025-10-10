@@ -14,9 +14,7 @@ from instructions.mul import Mul
 from instructions.y import Y
 from instructions.o import O
 from instructions.oex import Oex
-from instructions.mov import Mov
-
-#immediate
+#1 register
 from instructions.smai import Smai
 from instructions.rtai import Rtai
 from instructions.muli import Muli
@@ -135,7 +133,7 @@ class ProcesadorFullHazard:
                         print(f"Después del forwarding: {self.regRF.data}")
                     
                     #Para instrucciones con inmediatos
-                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Crg)):
                         if self.forw_reg == 1:
                             self.regRF.data = self.Check
                             print(f"Después del forwarding: {self.regRF.data}")
@@ -179,8 +177,6 @@ class ProcesadorFullHazard:
                             self.regRF.data = self.second_check
                             print(f"Después del forwarding: {self.regRF.data}")
 
-
-
                 self.regRF.instruccion.ejecutar()
                 
                 self.pipeline_locations[2] = "Instrucción ejecutando"
@@ -207,7 +203,7 @@ class ProcesadorFullHazard:
                         self.PC += self.regIM.instruccion.offset
                 
                 #forwarding de execute
-                if isinstance(self.regIM.instruccion, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Mix)):
+                if isinstance(self.regIM.instruccion, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Mix, Crg)):
                     if self.hazard_control.exex_fw(self.regIM.instruccion):
                         print("Se detectó un hazard EX- Forwarding necesario")
                         
@@ -242,6 +238,7 @@ class ProcesadorFullHazard:
 
                     # No avanzar esta instrucción al pipeline todavía
                     time.sleep(0.1)
+
                 else:
                     # Continuar flujo normal del decode
                     if isinstance(self.regIM.instruccion, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):

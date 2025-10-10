@@ -17,14 +17,14 @@ mix
 modp
 mula 
 rol
-
+rig
+rim
+rip
+no
 
 Falta:
-rig
-no 
-rim 
 rin 
-rip 
+
 
 TENER EN CUENTA QUE CUANDO SE ESCRIBAN EN LOS REGITROS NO SE HAGA ESTO:
 
@@ -34,18 +34,6 @@ TENER EN CUENTA QUE CUANDO SE ESCRIBAN EN LOS REGITROS NO SE HAGA ESTO:
 QUE NO SE USEN LOS MISMOS 2 REGISTROS EN LAS INSTRUCCIONES PORQUE VA SALIR MAL LA OPERACION PORQUE SE FORWARDEAN AMBOS 
 
 
-#agregar la mula y modp al proceso de forwarding 
-#revisar el mem-reg forwarding
-#revisar el rotd y roti 
 
 
-HAY QUE HACER:
--hacer las pruebas para ver si la instrucción de beq está funcionando(creo que hay que hacer algo con la predicción de saltos entonces verificar)
--hay que terminar de hacer las ultimas instrucciones
--probar cada una de las instrucciones 
--falta arreglar lo de los nops para el store word y así
--se debería de probar un codigo más grande a ver si todo funciona bien
-
--se debería de corregir los comentarios para que quede más legible 
--cambiar el nombre de "check" pq está muy confuso 
 

@@ -51,7 +51,7 @@ class HazardControl:
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None, None]
         
-        elif isinstance(current_instruction, (Smai, Rtai, Muli, No, Roti, Rotd)):
+        elif isinstance(current_instruction, (Smai, Rtai, Muli, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Crg)):
             pass
 
         alu_inst = self.procesador.regALU.instruccion
@@ -77,6 +77,17 @@ class HazardControl:
                     current_instruction.procesador.forw_reg = 1
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
+                
+             # Instrucciones de crg 
+             #Sma R1 R2 R3
+             #CRG R4 1 R1
+            elif isinstance(current_instruction, Crg):
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.fuente:
+                    current_instruction.procesador.Check = self.procesador.regALU.data
+                    current_instruction.procesador.forw_reg = 1
+                    print(f"Hazard detectado: L{alu_inst.destino} -> lfuente (L{current_instruction.fuente})")
+                    return True
+                
             # Instrucciones con tres registros fuente
             elif isinstance(current_instruction, Mix):
                 if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
@@ -104,6 +115,7 @@ class HazardControl:
     #revisar el no
 
     def memreg_forw(self, current_instruction):
+
         if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
@@ -111,7 +123,7 @@ class HazardControl:
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None, None]
         
-        elif isinstance(current_instruction, (Smai, Rtai, Muli)):
+        elif isinstance(current_instruction, (Smai, Rtai, Muli, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
             pass
 
         dm_inst = self.procesador.regDM.instruccion
