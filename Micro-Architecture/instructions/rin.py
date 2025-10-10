@@ -1,5 +1,5 @@
 #salto incondicional
-class RIN:
+class Rin:
     def __init__(self, _destino, _offset, _procesador):
         self.destino = _destino
         self.offset = _offset

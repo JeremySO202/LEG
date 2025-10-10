@@ -1,6 +1,6 @@
 #save
 
-class StoreWord:
+class Grd:
     def __init__(self, _fuente, _inmediato, _destino, _procesador):
         self.destino = _destino
         self.inmediato = _inmediato

@@ -1,35 +1,36 @@
-#registro-registro
+#register-register
+from instructions.nop import Nop
 from instructions.sma import Sma
 from instructions.rta import Rta
+from instructions.mul import Mul
 from instructions.y import Y
 from instructions.o import O
-from instructions.mul import Mul
-from instructions.rol import Rol
 from instructions.oex import Oex
-#para un inmediato
 from instructions.mov import Mov
-#para un solo registro
-from instructions.no import No
-#otras
-from instructions.crg import LoadWord
-from instructions.rig import RIG  
-from instructions.rim import RIM
-from instructions.rin import RIN
-from instructions.rip import RIP
 
-from instructions.grd import StoreWord
-from instructions.mix import Mix
-from instructions.nop import Nop
-from instructions.oex import Oex
+#immediate
+from instructions.smai import Smai
+from instructions.rtai import Rtai
+from instructions.muli import Muli
 from instructions.rotd import Rotd
 from instructions.roti import Roti
 from instructions.no import No
 from instructions.rol import Rol
 from instructions.modp import Modp
 from instructions.mula import Mula
-from instructions.mov import Mov
-from instructions.muli import Muli
-from instructions.rtai import Rtai
+
+#branch
+from instructions.rig import Rig
+from instructions.rim import Rim
+from instructions.rip import Rip
+from instructions.rin import Rin
+
+#h-type
+from instructions.mix import Mix
+
+#memory
+from instructions.crg import Crg
+from instructions.grd import Grd
 
 class HazardControl:
     
@@ -42,11 +43,8 @@ class HazardControl:
         self.procesador.PC -= instruction.offset + 1
 
     def exex_fw(self, current_instruction):
-        if not isinstance(current_instruction, (Sma, Rta, O, Y, Oex, Mul, Rol, RIG, RIP, RIM, Smai, Rtai, Muli, No, Rotd, Roti, Mix)):
-            print("No se aplica forwarding: instrucción no es de un tipo soportado.")
-            return False
-
-        if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, RIG)):
+        
+        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
         elif isinstance(current_instruction, Mix):
@@ -59,7 +57,8 @@ class HazardControl:
         alu_inst = self.procesador.regALU.instruccion
 
         if self.procesador.regALU.instruccion:
-            if isinstance(current_instruction, (Sma, Rta, O, Y, Oex, Mul, Rol, RIG, RIP, RIM)):
+            # Instrucciones con dos registros fuente
+            if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
                 if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.bovedareg1 == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
@@ -71,14 +70,14 @@ class HazardControl:
                     current_instruction.procesador.forw_reg = 2
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro2 (R{current_instruction.registro2})")
                     return True
-
-            elif isinstance(current_instruction,(Smai, Rtai, Muli, No, Roti, Rotd)):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.bovedareg1 == 0:
+            # Instrucciones con un registro fuente
+            elif isinstance(current_instruction,(Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
                     current_instruction.procesador.forw_reg = 1
                     print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
                     return True
-                
+            # Instrucciones con tres registros fuente
             elif isinstance(current_instruction, Mix):
                 if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
                     current_instruction.procesador.Check = self.procesador.regALU.data
@@ -105,12 +104,7 @@ class HazardControl:
     #revisar el no
 
     def memreg_forw(self, current_instruction):
-
-        if not isinstance(current_instruction, (Sma, Rta, O, Y, Mul, Smai, RIG, Mix)):
-            print("No se aplica forwarding: instrucción no es de un tipo soportado.")
-            return False
-
-        if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, RIG)):
+        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
         elif isinstance(current_instruction, Mix):
@@ -123,7 +117,8 @@ class HazardControl:
         dm_inst = self.procesador.regDM.instruccion
 
         if self.procesador.regDM.instruccion:
-            if isinstance(current_instruction, (Sma, Rta, O, Y, Mul, RIG)):
+            # Instrucciones con dos registros fuente
+            if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
                 if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 1
@@ -135,8 +130,8 @@ class HazardControl:
                     current_instruction.procesador.forw_reg2 = 2
                     print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro2})")
                     return True
-            
-            elif isinstance(current_instruction, (Smai, Rtai, Muli)):
+            # Instrucciones con un registro fuente
+            elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
                 if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
                     current_instruction.procesador.second_check = self.procesador.regDM.data
                     current_instruction.procesador.forw_reg2 = 1

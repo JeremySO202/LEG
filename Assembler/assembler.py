@@ -24,7 +24,7 @@ opcodes = {
     'ROTD': ["001010", "I"],
     'ROTI': ["001011", "I"],
     'NO': ["001100", "I"],
-    'MOV': ["001101", "R"],
+    'MOV': ["001101", "I"],
     'ROL': ["001110", "I"],
     'MODP': ["001111", "I"],
     'MIX': ["010000", "H"],
@@ -90,6 +90,7 @@ def extract_bytes(line):
         
         if data[0] == 'NOP':
             return "0"*32
+        
         
         if len(data) != 4:
             raise ValueError("Invalid number of parameters for R-type instruction: "+ line)
@@ -176,6 +177,7 @@ def extract_bytes(line):
         else:
             imm = format(int(data[3]), '016b')
         return "00"+imm + rs + opcode + rd
+    
     if instruction_parameter[1] == 'I':
         
         if data[0] == 'NO':
@@ -194,7 +196,29 @@ def extract_bytes(line):
                 raise ValueError("Unknown source register: "+ data[2])
             
             return "00"+"0"*16 + rs + opcode + rd
-        
+
+        if data[0] == 'MOV':
+
+            if len(data) != 3:
+                raise ValueError("Invalid number of parameters for MOV instruction: "+ line)
+
+            if data[1] in regs:
+                rd = regs[data[1]]
+            else:
+                raise ValueError("Unknown destination register: "+ data[1])
+            if data[2].lstrip('-').isdigit():
+                imm_value = int(data[2])
+                if not -65536 <= imm_value <= 65535:
+                    raise ValueError("Immediate value out of range (-65536 to 65535): "+ data[2])
+                # Convert immediate to 17-bit two's complement binary
+                if imm_value < 0:
+                    imm = format((1 << 17) + imm_value, '017b')
+                else:
+                    imm = format(imm_value, '017b')
+                return "0" + imm + "0000" + opcode + rd
+            else:
+                raise ValueError("Unknown source register: "+ data[2])
+
         if len(data) != 4:
             raise ValueError("Invalid number of parameters for I-type instruction: "+ line)
         

@@ -1,6 +1,6 @@
 #load
 
-class LoadWord:
+class Crg:
     def __init__(self, _destino, _inmediato, _fuente, _procesador):
         self.destino = _destino
         self.inmediato = _inmediato

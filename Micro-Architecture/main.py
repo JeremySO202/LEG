@@ -1,31 +1,3 @@
-#registro-registro
-from instructions.sma import Sma
-from instructions.rta import Rta
-from instructions.y import Y
-from instructions.o import O
-from instructions.mul import Mul
-from instructions.roti import Roti
-from instructions.rotd import Rotd
-from instructions.rol import Rol
-from instructions.oex import Oex
-#para un inmediato
-from instructions.mov import Mov
-#otras
-from instructions.crg import LoadWord
-from instructions.rig import RIG  
-from instructions.rim import RIM
-from instructions.rin import RIN
-from instructions.rip import RIP
-
-from instructions.grd import StoreWord
-from instructions.mix import Mix
-from instructions.nop import Nop
-#de solo un registro
-from instructions.rtai import Rtai
-from instructions.smai import Smai
-from instructions.muli import Muli
-from instructions.no import No
-
 from instr_decoder import Inst_Decoder
 
 from processor_fh import ProcesadorFullHazard
@@ -74,7 +46,7 @@ if __name__ == "__main__":
     procesador = ProcesadorFullHazard(interval=interval)
     # Cargar registros y memoria de datos para pruebas
     procesador.RF.registros[0] = 7
-    procesador.RF.registros[1] = 0x9e3779b97aaa7c19
+    procesador.RF.registros[1] = 10
     procesador.RF.registros[2] = 7
     procesador.RF.registros[9] = 5
     procesador.RF.registros[10] = 10
