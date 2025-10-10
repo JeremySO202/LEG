@@ -37,7 +37,7 @@ class RIG:
             
             elif predicted_taken and not self.branch_taken:
                 print(f"Cancelando salto especulativo y restaurando PC")
-                self.procesador.PC -= self.offset
+                self.procesador.PC -= self.offset + 1
                 self.procesador.clear_pipeline()
         else:
             print(f"Predicción correcta")
@@ -58,3 +58,6 @@ class RIG:
             fase()
         else:
             print("No hay más fases para ejecutar en rim")
+
+    def reset(self):
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]

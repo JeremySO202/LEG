@@ -73,9 +73,10 @@ if __name__ == "__main__":
     #
     procesador = ProcesadorFullHazard(interval=interval)
     # Cargar registros y memoria de datos para pruebas
-    procesador.RF.registros[0] = 7
-    procesador.RF.registros[1] = 0x9e3779b97aaa7c19
+    procesador.RF.registros[0] = 0
+    procesador.RF.registros[1] = 1
     procesador.RF.registros[2] = 7
+    procesador.RF.registros[3] = 1
     procesador.RF.registros[9] = 5
     procesador.RF.registros[10] = 10
     procesador.DM.datos[9] = 20
@@ -102,12 +103,21 @@ if __name__ == "__main__":
 
     decoder = Inst_Decoder()
     decoder.load_code(assembled_code, procesador)"""
+    procesador.cargarInstrucciones(Smai(0, 0, 0, procesador))      # 0: R0 = 0
+    procesador.cargarInstrucciones(Smai(1, 0, 3, procesador))      # 1: R1 = 3 (hacer 3 iteraciones)
+    # BUCLE
+    procesador.cargarInstrucciones(Smai(0, 0, 1, procesador))      # 2: R0++ 
+    procesador.cargarInstrucciones(Sma(3, 3, 0, procesador))       # 3: R3 += R0 (acumular)
+    procesador.cargarInstrucciones(RIG(0, 1, 2, procesador))       # 4: Si R0 == R1, salta +2 (sale del bucle)
+    procesador.cargarInstrucciones(Sma(4, 9, 10, procesador))       # 5: R4 = R0 (hacer algo)
+    procesador.cargarInstrucciones(RIG(0, 0, -4, procesador))      # 6: Siempre salta -4 (vuelve a instrucción 2)
 
-    procesador.cargarInstrucciones(Sma(2, 0, 9, procesador))
-    procesador.cargarInstrucciones(RIG(0, 2, 2, procesador))
-    procesador.cargarInstrucciones(Sma(2, 0, 1, procesador))
-    procesador.cargarInstrucciones(Sma(3, 2, 1, procesador))
-    procesador.cargarInstrucciones(Rta(4, 10, 9, procesador))
+    #salta bien pero hay que hacerle reset a las instrucciones cuando se salta en negativo
+    #if el procesador salta y el imm es negativo entonces se resetan las instrucciones  
+    
+
+    # SALIDA DEL BUCLE (instrucción 7)
+    procesador.cargarInstrucciones(Sma(5, 3, 1, procesador))       # 7: resultado final
     
     procesador.iniciarEjecucion()
     """ if not path_str:

@@ -74,6 +74,7 @@ class ProcesadorFullHazard:
     def iniciarEjecucion(self):
         needs_forwarding = False
         second_hazard = False
+        branch_taken = False
         start_time = time.time()
         execute = True
         
@@ -87,9 +88,12 @@ class ProcesadorFullHazard:
             if self.regDM.instruccion is not None:
                 execute = True
                 self.regDM.instruccion.ejecutar()
+                
                 self.pipeline_locations[4] = "Instrucción escribiendo"
                 self.regDM.clear()
                 self.instructions_completed += 1
+
+                #aquí tengo que ver una manera de que cuando todas las etapas se ejecutan de esa instrucción se resetea el pop digamos
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[4] = ""
@@ -197,6 +201,9 @@ class ProcesadorFullHazard:
                     if predicted_taken:
                         print(f"[Tomando salto: PC += {self.regIM.instruccion.offset}")
                         self.PC += self.regIM.instruccion.offset
+                        if self.regIM.instruccion.offset <= 0:
+                            self.clear_pipeline()
+
                 
                 #forwarding de execute
                 if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Oex, Mul, Rol, RIG, RIP, RIM, Smai, Rtai, Muli, No, Rotd, Roti, Mix)):
@@ -209,7 +216,7 @@ class ProcesadorFullHazard:
                         needs_forwarding = False
 
                 #revisa el forwarding de mem a execute
-                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Smai, Mix)):
+                if isinstance(self.regIM.instruccion, (Sma, Rta, O, Y, Mul, Smai, Mix, RIG)):
                     if self.hazard_control.memreg_forw(self.regIM.instruccion):
                         print("Se detectó un hazard de MEM - Forwarding necesario")
                         print(f"{self.second_check}")
@@ -249,7 +256,8 @@ class ProcesadorFullHazard:
                     self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
                     self.regIM.instruccion.ejecutar()
                     self.regRF.instruccion = self.regIM.instruccion
-                    self.regIM.clear()
+                    if not isinstance(self.regIM.instruccion, RIG):
+                        self.regIM.clear()
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[1] = ""
@@ -263,6 +271,7 @@ class ProcesadorFullHazard:
                 print(f"Cargando instrucción {self.PC}")
                 self.pipeline_locations[0] = f"Instrucción {self.PC}"
                 self.regIM.instruccion = self.IM.instrucciones[self.PC]
+                self.regIM.instruccion.
                 self.PC += 1
 
             else:

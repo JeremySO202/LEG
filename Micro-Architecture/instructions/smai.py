@@ -35,3 +35,6 @@ class Smai:
             fase()
         else:
             print("No hay más fases para ejecutar en Smai.")
+
+    def reset(self):
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
