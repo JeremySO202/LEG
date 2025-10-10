@@ -7,6 +7,9 @@ class Crg:
         self.fuente = _fuente
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
+        
+    def reset(self):
+        self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
 
     def decode(self):
         print(f"Leyendo registro base R{self.fuente}")
