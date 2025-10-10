@@ -1,3 +1,3 @@
 class archivoRegistros:
     def __init__(self):
-        self.registros = [None]*64
+        self.registros = [0]*64

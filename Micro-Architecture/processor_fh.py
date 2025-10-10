@@ -2,6 +2,7 @@ import time
 from components.alu import ALU
 from components.data_memory import memoriaDatos
 from components.instr_memory import memoriaInstrucciones
+from components.vault import vault
 from components.register_file import archivoRegistros
 from components.register import Registro
 from instructions.rig import BranchEqual  
@@ -10,12 +11,17 @@ from instructions.sma import Sma
 from instructions.rta import Rta
 from instructions.y import Y
 from instructions.o import O
+from instructions.oex import Oex
 from instructions.mul import Mul
 from instructions.smai import Smai  # Importar Addi y otras instrucciones con inmediato
 from instructions.crg import LoadWord
 from instructions.grd import StoreWord
 from instructions.mix import Mix
 from instructions.nop import Nop
+from instructions.rim import RIM
+from instructions.rip import RIP
+from instructions.rin import RIN
+
 
 
 class ProcesadorFullHazard:
@@ -41,6 +47,8 @@ class ProcesadorFullHazard:
         self.total_cycles = 0
         self.instructions_completed = 0
         self.pipeline_locations = ["", "", "", "", ""]
+        
+        self.vault = vault()
 
 
     def cargarInstrucciones(self, instruccion):
@@ -106,7 +114,7 @@ class ProcesadorFullHazard:
                     print(f"Valor a recibir: {self.Check}")
                 
                     # Para instrucciones de dos registros 
-                    if isinstance(self.regRF.instruccion, (Sma, Rta, O, Y, Mul, BranchEqual)):
+                    if isinstance(self.regRF.instruccion, (Sma, Rta, Mul, Y, O, Oex, BranchEqual, RIN, RIP, RIM)):
                         # Aplicar el forwarding al registro correspondiente
                         if self.forw_reg == 1:
                             self.regRF.data[0] = self.Check
@@ -159,6 +167,8 @@ class ProcesadorFullHazard:
                         if self.forw_reg2 == 1:
                             self.regRF.data = self.second_check
                             print(f"Después del forwarding: {self.regRF.data}")
+
+
 
                 self.regRF.instruccion.ejecutar()
                 

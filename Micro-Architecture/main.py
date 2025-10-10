@@ -23,7 +23,7 @@ import sys
 
 if __name__ == "__main__":
     # Leer intervalo desde argumentos de la línea de comandos (si no, usar 1 por defecto)
-    interval = float(sys.argv[1]) if len(sys.argv) > 1 else 1.0
+    interval = float(sys.argv[1]) if len(sys.argv) > 1 else 0
     procesador = ProcesadorFullHazard(interval=interval)
 
     procesador.RF.registros[0] = 7
@@ -37,11 +37,11 @@ if __name__ == "__main__":
     Así se cargan las instrucciones con el decoder, hay que cambiar para que assembled code se cargue desde el txt 
     al decoder
     El decoder ya carga a memoria las instrucciones decodificadas
-    
+    """
     assembled_code = [
     "00000000000000000000000000000000", # NOP
-    "00000000000000001100100000010001", # SMA L1 L2 L3
-    "00000000001111111101010000100100", # SMAI L4 L5 255
+    "01000000000000111100100000010001", # SMA R1 V2 L15
+    "10000000001111111101010000100100", # SMAI L4 V5 255
     "00000000000000100001110000110110", # RTA L6 L7 L8
     "00000000000000101110100001011001", # MUL L9 L10 L11
     "00000000000110010011010001101100", # MULI L12 L13 100
@@ -50,17 +50,10 @@ if __name__ == "__main__":
     "00000000000000011001010010010100", # OEX L4 L5 L6
     "00000000000011001010000010100111", # ROTD L7 L8 50
     "00000000000001100110100010111001", # ROTI L9 L10 25
-    "00000000000000110111000011001011", # NO L11 L12 L13
+    "10000000000000110100110011001011", # NO L11 L12 L13
     "00000000000000000011110011011110"]  # MOV L14 L15 L0
 
     decoder = Inst_Decoder()
-    decoder.load_code(assembled_code, procesador)"""
-    
-    procesador.cargarInstrucciones(Mula(5, 1, procesador))
-    procesador.cargarInstrucciones(Rol(4, 1, 0, procesador))
-    
-    #procesador.cargarInstrucciones(StoreWord(9, 0, 1, procesador))
-    #procesador.cargarInstrucciones(Sma(3, 9, 0, procesador))
-    #procesador.cargarInstrucciones(Mov(5, 1, procesador))
+    decoder.load_code(assembled_code, procesador)
 
     procesador.iniciarEjecucion()

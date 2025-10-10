@@ -20,14 +20,14 @@ from instructions.nop import Nop
 class Inst_Decoder:
     
     """ CORE INSTRUCTION FORMATS
-        |TYPE| 31| 30-22|21-18|17-14|13-10|9-4|3-0|
-        |---|---|---|---|---|---|---|---|
-        | R | V(1) ||X(14) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-        | B ||||OFFSET(18)  |RS2(4) | OPC(6) | RS1(4)
-        | M ||||OFFSET(18)  |BASE(4) | OPC(6) | RS/RD(4)
-        | I ||||IMM(18)  |RS1(4) | OPC(6) | RD(4)
-        | H ||X(10) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-        | V ||||||| """
+            |TYPE| 31 |30| 29-22|21-18|17-14|13-10|9-4|3-0|
+            |---|---|---|---|---|---|---|---|---|
+            | R | VRS2 |VRS1||X(12) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+            | B |X|X|||OFFSET(16)  |RS2(4) | OPC(6) | RS1(4)
+            | M |X|X|||OFFSET(16)  |BASE(4) | OPC(6) | RS/RD(4)
+            | I | VRS |X|||IMM(16)  |RS(4) | OPC(6) | RD(4)
+            | H |VRS||X(9) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
+            | V |||||||"""
                 
     def __init__(self):
         #self.processor = _processor
@@ -38,8 +38,7 @@ class Inst_Decoder:
             "000101": "Mul",
             "000111": "Y",
             "001000": "O",
-            "001001": "Oex",
-            "001100": "No"
+            "001001": "Oex"
         }
 
         self.I_instructions = {
@@ -51,7 +50,8 @@ class Inst_Decoder:
             "001110": "Rol",
             "001111": "Modp",
             "010001": "Mula",
-            "001101": "Mov"
+            "001101": "Mov",
+            "001100": "No"
         }
 
         self.B_instructions = {
@@ -105,38 +105,42 @@ class Inst_Decoder:
         cls = globals()[mnemonic]
         
         if instruction_type == "R":          
-            #| R ||X(14) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-            rs1 = int(code_line[14:18],2)
-            rs2 = int(code_line[18:22],2)
-            rd = int(code_line[28:32],2)
-            if mnemonic == "No":
-                print(f"{mnemonic} L{rd}, L{rs1}")
-                return cls(rd, rs1, processor)
-            elif mnemonic == "Nop":
+            #| R | VRS2 |VRS1| X(8) | RS2(4) | RS1(4) | OPC(6) | RD(4)|
+            vrs2 = int(code_line[31-31:31-30],2) # Bit 31
+            vrs1 = int(code_line[31-30:31-29],2) # Bit 30
+            rs2 = int(code_line[31-17:31-13],2)  # Bits 17-14
+            rs1 = int(code_line[31-13:31-9],2)   # Bits 13-10
+            rd = int(code_line[31-3:32],2)       # Bits 3-0
+            if mnemonic == "Nop":
                 print(f"{mnemonic}")
                 return cls(processor)
             else:
-                print(f"{mnemonic} L{rd}, L{rs1}, L{rs2}")
-                return cls(rd, rs1, rs2, processor)
+
+                print(f"{mnemonic} R{rd}, {'V' if vrs1 else 'L'}{rs1}, {'V' if vrs2 else 'L'}{rs2}")
+                return cls(rd, rs1, rs2, vrs1, vrs2, processor)
         elif instruction_type == "I":
-            #| I |||IMM(18)  |RS1(4) | OPC(6) | RD(4)
-            imm = int(code_line[1:18],2)
-            rs1 = int(code_line[18:22],2)
-            rd = int(code_line[28:32],2)
-            if mnemonic == "Mov":
+            #| I | VRS | X | IMM(16)  |RS(4) | OPC(6) | RD(4)|
+            vrs = int(code_line[31-31:31-30],2)  # Bit 31
+            imm = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+            rs1 = int(code_line[31-13:31-9],2)   # Bits 13-10
+            rd = int(code_line[31-3:32],2)       # Bits 3-0
+            if mnemonic == "No":
+                print(f"{mnemonic} L{rd}, {'V' if vrs else 'L'}{rs1}")
+                return cls(rd, rs1, vrs, processor)
+            elif mnemonic == "Mov":
                 print(f"{mnemonic} L{rd} #{imm}")
                 return cls(rd, imm, processor)
             elif mnemonic == "Modp":
                 print(f"{mnemonic} L{rd} L{rs1}")
                 return cls(rd, rs1, processor)
             else:
-                print(f"{mnemonic} L{rd} L{rs1} #{imm}")
-                return cls(rd, rs1, imm, processor)
+                print(f"{mnemonic} L{rd} {'V' if vrs else 'L'}{rs1} #{imm}")
+                return cls(rd, rs1, imm, vrs, processor)
         elif instruction_type == "M":
-            #| M |||OFFSET(18)  |BASE(4) | OPC(6) | RS/RD(4)
-            offset = int(code_line[1:18],2)
-            base = int(code_line[18:22],2)
-            rd = int(code_line[28:32],2)
+            #| M |X|X| OFFSET(16)  |BASE(4) | OPC(6) | RS/RD(4)|
+            offset = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+            base = int(code_line[31-13:31-9],2)     # Bits 13-10
+            rd = int(code_line[31-3:32],2)          # Bits 3-0
             print(f"{mnemonic} L{rd} (L{base} + #{offset})")
             if mnemonic == "Crg":  # Load
                 return cls(rd, offset, base, processor)
@@ -144,26 +148,30 @@ class Inst_Decoder:
                 return cls(base, offset, rd, processor)
             # este necesita revisión
         elif instruction_type == "B":
-            #| B |||OFFSET(18)  |RS2(4) | OPC(6) | RS1(4)
-            offset = int(code_line[1:18],2)
-            rs2 = int(code_line[18:22],2)
-            rs1 = int(code_line[28:32],2)
+            #| B |X|X| OFFSET(16)  |RS2(4) | OPC(6) | RS1(4)|
+            offset = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+            rs2 = int(code_line[31-13:31-9],2)      # Bits 13-10
+            rs1 = int(code_line[31-3:32],2)         # Bits 3-0
             print(f"{mnemonic} L{rs1} L{rs2} #{offset}")
             return cls(rs1, rs2, offset, processor)
             # este necesita revisión
         elif instruction_type == "H":
-           #| H |X(10) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-            rs3 = code_line[10:14]
-            rs2 = code_line[14:18]
-            rs1 = code_line[18:22]
-            rd = code_line[28:32]
-            print(f"{mnemonic} L{rd} L{rs1} L{rs2} L{rs3}")
-            return cls(rd, rs1, rs2, rs3, processor)
+           #| H |VRS| X(9) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)|
+            vrs = int(code_line[31-31:31-30],2)   # Bit 31
+            rs3 = int(code_line[31-21:31-17],2)   # Bits 21-18
+            rs2 = int(code_line[31-17:31-13],2)   # Bits 17-14
+            rs1 = int(code_line[31-13:31-9],2)    # Bits 13-10
+            rd = int(code_line[31-3:32],2)        # Bits 3-0
+            if vrs == 0:
+                print(f"{mnemonic} L{rd} L{rs1} L{rs2} L{rs3}")
+            else:
+                print(f"{mnemonic} R{rd} V{rs1} V{rs2} V{rs3}")
+            return cls(rd, rs1, rs2, rs3, vrs, processor)
             # este necesita revisión
         return 0
     
     def get_mnemonic_and_type(self, code_line):
-        opcode = code_line[22:28]
+        opcode = code_line[31-9:31-3]  # Bits 9-4 (6 bits)
         for inst_type, dic in self.instructions.items():
             if opcode in dic:
                 #print(f"El valor {opcode} está en el diccionario {inst_type} con instrucción '{dic[opcode]}'.")

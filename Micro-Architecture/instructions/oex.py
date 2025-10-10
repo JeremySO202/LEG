@@ -1,10 +1,12 @@
 #xor
 
 class Oex:
-    def __init__(self, _destino, _registro1, _registro2, _procesador):
+    def __init__(self, _destino, _registro1, _registro2, _bovedareg1, _bovedareg2, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
         self.registro2 = _registro2
+        self.bovedareg1 = _bovedareg1
+        self.bovedareg2 = _bovedareg2
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
@@ -17,7 +19,13 @@ class Oex:
     
     def execute(self):
         print(f"Aplicando Oex a valores")
-        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 7)
+        if self.bovedareg1 or self.bovedareg2:
+            print("Usando registros de boveda")
+            tempA = self.procesador.vault.get_secure_reg(self.registro1) if self.bovedareg1 else self.procesador.RF.registros[self.registro1]
+            tempB = self.procesador.vault.get_secure_reg(self.registro2) if self.bovedareg2 else self.procesador.RF.registros[self.registro2]
+            self.procesador.regALU.data = self.procesador.ALU.operar(tempA, tempB, 2)
+        else:
+            self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 7)
         print(f"Resultado ALU: {self.procesador.regALU.data}")
     
     def memory(self):

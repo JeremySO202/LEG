@@ -23,7 +23,7 @@ opcodes = {
     'OEX': ["001001", "R"],
     'ROTD': ["001010", "I"],
     'ROTI': ["001011", "I"],
-    'NO': ["001100", "R"],
+    'NO': ["001100", "I"],
     'MOV': ["001101", "R"],
     'ROL': ["001110", "I"],
     'MODP': ["001111", "I"],
@@ -123,6 +123,8 @@ def extract_bytes(line):
     
     if instruction_parameter[1] == 'B':
         
+           
+        
         if len(data) != 4:
             raise ValueError("Invalid number of parameters for B-type instruction: "+ line)
         
@@ -177,6 +179,23 @@ def extract_bytes(line):
             imm = format(int(data[3]), '016b')
         return "00"+imm + rs + opcode + rd
     if instruction_parameter[1] == 'I':
+        
+        if data[0] == 'NO':
+            if len(data) != 3:
+                raise ValueError("Invalid number of parameters for NO instruction: "+ line)
+            
+            if data[1] in regs:
+                rd = regs[data[1]]
+            else:
+                raise ValueError("Unknown destination register: "+ data[1])
+            if data[2] in vault:
+                rs = vault[data[2]]
+            elif data[2] in regs:
+                rs = regs[data[2]]
+            else:
+                raise ValueError("Unknown source register: "+ data[2])
+            
+            return "00"+"0"*16 + rs + opcode + rd
         
         if len(data) != 4:
             raise ValueError("Invalid number of parameters for I-type instruction: "+ line)
