@@ -13,27 +13,34 @@ El procesador simulado implementa un **pipeline de 5 etapas** (**FETCH → DECOD
 ### Diagrama de bloques (falta completar)
 ```mermaid
 flowchart LR
+  %% Pipeline
   IF[IF: Fetch] --> ID[ID: Decode]
   ID --> EX[EX: ALU / MUL / MIX / Branch]
   EX --> MEM[MEM: Data Mem 64b]
   MEM --> WB[WB: Write Back]
 
+  %% Bloques lógicos
   subgraph Memories
-    IM[Instr. Memory (32b/inst)]
-    DM[Data Memory (64b word)]
+    IM[Instr. Memory 32b per instr]
+    DM[Data Memory 64b word]
   end
+
   subgraph Regs
-    RF[L0.. (archivoRegistros)]
+    RF[L0..L15 Register File 64b]
   end
+
   subgraph Secure
     VAULT[K0..K3, H0..H3]
   end
+
   CTRL[HazardControl + BranchPredictor]
 
-  IM -. inst .-> IF
-  ID <-- R/W --> RF
-  EX <---> RF
-  EX <-- secure port --> VAULT
+  %% Conexiones
+  IM --> IF
+  ID <-->|R/W| RF
+  EX <-->|bypass| RF
+  EX -->|secure port| VAULT
   MEM <--> DM
   ID -. control .- CTRL
   EX -. branch outcome .- CTRL
+
