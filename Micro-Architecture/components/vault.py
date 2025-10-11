@@ -15,7 +15,7 @@ class vault:
     # Lectura controlada (solo por CPU)
     def get_secure_reg(self, index):
         if self.secure_user:
-            if 0 <= index < 4:
+            if 0 <= index < 8:
                 return self.secure_regs[index]
         return 0
 
