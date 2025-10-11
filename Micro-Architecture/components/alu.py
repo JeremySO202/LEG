@@ -32,5 +32,7 @@ class ALU:
             return mul
         elif op == 12:
             return (A << B) | (A >> (64 - B));
+        elif op == 13:
+            return A == B
         else:
             raise ValueError("Operación no reconocida")
