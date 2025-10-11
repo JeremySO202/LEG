@@ -1,10 +1,9 @@
 #Guardar hash    GRDH index, rs1
 
 class Grdh:
-    def __init__(self, _fuente, _destino, _bovedareg1, _procesador):
+    def __init__(self, _fuente, _destino, _procesador):
         self.destino = _destino
         self.fuente = _fuente
-        self.bovedareg1 = _bovedareg1
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
@@ -17,7 +16,7 @@ class Grdh:
         # En RF.data[0] guardamos el valor a almacenar
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.fuente]
         # En RF.data[1] guardamos el registro base para calcular dirección
-        self.procesador.regRF.data[1] = self.procesador.RF.registros[self.destino]
+        self.procesador.regRF.data[1] = self.destino # para asegurar que sea el hash
         print(f"Valor a almacenar: {self.procesador.regRF.data[0]}")
         
     def execute(self):
@@ -26,12 +25,12 @@ class Grdh:
         print(f"Sin operación de execute para Grdh.")
     
     def memory(self):
-        self.procesador.regDM.data = self.procesador.regALU.data[0]
+        self.procesador.regDM.data = self.procesador.regALU.data
         print(f"Sin operación de memoria para Grdh.")
     
     def writeback(self):
         print(f"Escribiendo resultado en V{self.destino}")
-        self.procesador.vault.write_secure_reg(self.destino, self.procesador.regDM.data)
+        self.procesador.vault.write_secure_reg(self.destino + 4, self.procesador.regDM.data)
         print(f"V{self.destino} = {self.procesador.vault.get_secure_reg(self.destino)}")
        
     def ejecutar(self):

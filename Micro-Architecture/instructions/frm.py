@@ -1,12 +1,10 @@
 #Generar firma   FRM rd, rs1, index (Registro destino, registro con hash, indice de la llave) = (A XOR K)
 
 class Frm:
-    def __init__(self, _destino, _registro1, _registro2, _bovedareg1, _bovedareg2, _procesador):
+    def __init__(self, _destino, _registro1, _indice, _procesador):
         self.destino = _destino
         self.registro1 = _registro1
-        self.registro2 = _registro2
-        self.bovedareg1 = _bovedareg1
-        self.bovedareg2 = _bovedareg2 
+        self.indice = _indice
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
         
@@ -14,21 +12,15 @@ class Frm:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):
-        print(f"Leyendo registros R{self.registro1} y R{self.registro2}")
-        self.procesador.regRF.data = [None] * 2
-        self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
-        self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
+        print(f"Leyendo registros R{self.registro1}")
+        self.procesador.regRF.data = None
+        self.procesador.regRF.data = self.procesador.RF.registros[self.registro1]
         print(f"Valores leídos: {self.procesador.regRF.data}")
     
     def execute(self):
         print(f"Firmando bloque")
-        if self.bovedareg1 or self.bovedareg2:
-            print("Usando registros de boveda")
-            tempA = self.procesador.vault.get_secure_reg(self.registro1) if self.bovedareg1 else self.procesador.RF.registros[self.registro1]
-            tempB = self.procesador.vault.get_secure_reg(self.registro2) if self.bovedareg2 else self.procesador.RF.registros[self.registro2]
-            self.procesador.regALU.data = self.procesador.ALU.operar(tempA, tempB, 7)
-        else:
-            self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data[0], self.procesador.regRF.data[1], 7)
+        print(self.procesador.regRF.data)
+        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, self.procesador.vault.get_secure_reg(self.indice), 7)
         print(f"Resultado ALU: {self.procesador.regALU.data}")
     
     def memory(self):

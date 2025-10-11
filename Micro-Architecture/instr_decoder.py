@@ -7,6 +7,7 @@ from instructions.y import Y
 from instructions.o import O
 from instructions.oex import Oex
 from instructions.mov import Mov
+from instructions.chkf import Chkf
 
 #immediate
 from instructions.smai import Smai
@@ -18,6 +19,8 @@ from instructions.no import No
 from instructions.rol import Rol
 from instructions.modp import Modp
 from instructions.mula import Mula
+from instructions.frm import Frm
+
 
 #branch
 from instructions.rig import Rig
@@ -30,6 +33,10 @@ from instructions.mix import Mix
 #memory
 from instructions.crg import Crg
 from instructions.grd import Grd
+
+#vault
+from instructions.grdh import Grdh
+from instructions.grdk import Grdk
 
 
 
@@ -54,7 +61,9 @@ class Inst_Decoder:
             "000101": "Mul",
             "000111": "Y",
             "001000": "O",
-            "001001": "Oex"
+            "001001": "Oex",
+            "011010": "Chkf"
+            
         }
 
         self.I_instructions = {
@@ -70,7 +79,8 @@ class Inst_Decoder:
             "001100": "No",
             "001110": "Rol",
             "001111": "Modp",
-            "010001": "Mula"
+            "010001": "Mula",
+            "011001": "Frm"
         }
 
         self.B_instructions = {
@@ -83,12 +93,18 @@ class Inst_Decoder:
             "010000": "Mix"
         }
 
-        self.V_instructions = {}
+        
 
         self.M_instructions = {
             "010010": "Crg",
             "010011": "Grd"
         }
+        
+        self.V_instructions = {
+            "010111": "Grdh",
+            "011000": "Grdk"
+        }
+        
         
         self.instructions  = {
             "R": self.R_instructions,
@@ -129,6 +145,9 @@ class Inst_Decoder:
             if mnemonic == "Nop":
                 print(f"{mnemonic}")
                 return cls(processor)
+            elif mnemonic == 'Chkf':
+                print(f"{mnemonic} R{rd}, L{rs1}, L{rs2}")
+                return cls(rd, rs1, rs2, processor)
             else:
 
                 print(f"{mnemonic} R{rd}, {'V' if vrs1 else 'L'}{rs1}, {'V' if vrs2 else 'L'}{rs2}")
@@ -153,6 +172,10 @@ class Inst_Decoder:
             elif mnemonic == "Mula":
                 print(f"{mnemonic} L{rd} {'V' if vrs else 'L'}{rs1}")
                 return cls(rd, rs1, vrs, processor)
+            elif mnemonic == "Frm":
+                imm = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+                print(f"{mnemonic} R{rd}, R{rs1}, #{imm}")
+                return cls(rd, rs1, imm, processor)
             else:
                 print(f"{mnemonic} L{rd} {'V' if vrs else 'L'}{rs1} #{imm}")
                 return cls(rd, rs1, imm, vrs, processor)
@@ -192,6 +215,14 @@ class Inst_Decoder:
                 print(f"{mnemonic} R{rd} V{rs1} V{rs2} V{rs3}")
             return cls(rd, rs1, rs2, rs3, vrs, processor)
             # este necesita revisión
+        
+        elif instruction_type == "V":
+           #| V | | | | | X(20) | INDEX(2) | OPC(6) | RS(4) |
+            index = int(code_line[31-11:31-9],2)   # Bits 11-10
+            rs = int(code_line[31-3:32],2)        # Bits 3-0
+            print(f"{mnemonic} R{rs} #{index}")
+            return cls(rs, index, processor)
+            
         return 0
     
     def get_mnemonic_and_type(self, code_line):

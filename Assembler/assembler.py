@@ -34,7 +34,12 @@ opcodes = {
     'RIG': ["010100", "B"],
     'RIM': ["010101", "B"],
     'RIP': ["010110", "B"],
- #Falta agregar las instrucciones de vault
+    'GDRH': ["010111", "V"],
+    'GDRK': ["011000", "V"],
+    'FRM': ["011001", "I"],
+    'CHKF': ["011010", "R"]
+    
+    
 }
 
 regs = {
@@ -67,197 +72,155 @@ vault = {
     'K3': "0111"
 }
 
-def extract_bytes(line):
-    """Extracts bytes from a given line of assembly code."""
-
+def _parse_line(line):
+    """Parse assembly line into tokens and get instruction info."""
     line = line.upper()
     print("Processing line:", line)
-
-
-    data = line.split(" ")
     
-    data = [item for item in data if item != '']
-
-    if data[0] in opcodes:
-        instruction_parameter = opcodes[data[0]]
-    else:
-        raise ValueError("Unknown mnemonic: "+ data[0])
-
+    data = [item for item in line.split(" ") if item != '']
+    
+    if data[0] not in opcodes:
+        raise ValueError("Unknown mnemonic: " + data[0])
+    
+    instruction_parameter = opcodes[data[0]]
     opcode = instruction_parameter[0]
+    instr_type = instruction_parameter[1]
+    
+    return data, opcode, instr_type
 
-    if instruction_parameter[1] == 'R':
-        
+def _validate_register(reg, reg_type="register", allow_vault=True):
+    """Validate register and return its binary representation and vault flag."""
+    if reg in regs:
+        return regs[reg], "0"
+    elif allow_vault and reg in vault:
+        return vault[reg], "1"
+    else:
+        reg_types = "register" if not allow_vault else "register or vault"
+        raise ValueError(f"Unknown {reg_type}: {reg}")
+
+def _validate_immediate_signed(value_str, bits=16):
+    """Validate signed immediate value and convert to binary."""
+    if not value_str.lstrip('-').isdigit():
+        raise ValueError(f"Immediate value must be a signed integer: {value_str}")
+    
+    value = int(value_str)
+    max_val = (1 << (bits - 1)) - 1  # 32767 for 16-bit
+    min_val = -(1 << (bits - 1))     # -32768 for 16-bit
+    
+    if not min_val <= value <= max_val:
+        raise ValueError(f"Immediate value out of range ({min_val} to {max_val}): {value_str}")
+    
+    if value < 0:
+        return format((1 << bits) + value, f'0{bits}b')
+    else:
+        return format(value, f'0{bits}b')
+
+def _validate_immediate_unsigned(value_str, bits=16):
+    """Validate unsigned immediate value and convert to binary."""
+    if not value_str.isdigit():
+        raise ValueError(f"Immediate value must be an unsigned integer: {value_str}")
+    
+    value = int(value_str)
+    max_val = (1 << bits) - 1  # 65535 for 16-bit, 3 for 2-bit
+    
+    if not 0 <= value <= max_val:
+        raise ValueError(f"Immediate value out of range (0 to {max_val}): {value_str}")
+    
+    return format(value, f'0{bits}b')
+
+def extract_bytes(line):
+    """Extracts bytes from a given line of assembly code."""
+    data, opcode, instr_type = _parse_line(line)
+
+    if instr_type == 'R':
         if data[0] == 'NOP':
-            return "0"*32
+            return "0" * 32
         
         if len(data) != 4:
-            raise ValueError("Invalid number of parameters for R-type instruction: "+ line)
+            raise ValueError("Invalid number of parameters for R-type instruction: " + line)
         
-        # Check for vault register usage
-        if data[1] in vault:
-            raise ValueError("Invalid use of vault register in R-type instruction: "+ line)
-        elif data[1] in regs:
-            rd = regs[data[1]]
-        else:
-            raise ValueError("Unknown destination register: "+ data[1])
-            
-        if data[2] in vault:
-            rs1= vault[data[2]]
-            vrs1 = "1"  # Indicate rs1 is a vault register
-        elif data[2] in regs:
-            rs1 = regs[data[2]]
-            vrs1 = "0"  # Indicate rs1 is a general-purpose register
-        else:
-            raise ValueError("Unknown source register 1: "+ data[2])
-        if data[3] in vault:
-            rs2= vault[data[3]]
-            vrs2 = "1"  # Indicate rs2 is a vault register
-        elif data[3] in regs:
-            rs2 = regs[data[3]]
-            vrs2 = "0"  # Indicate rs2 is a general-purpose register
-        else:
-            raise ValueError("Unknown source register 2: "+ data[3])
+        # Destination register (no vault allowed)
+        rd, _ = _validate_register(data[1], "destination register", allow_vault=False)
+        
+        # Source registers (vault allowed)
+        rs1, vrs1 = _validate_register(data[2], "source register 1")
+        rs2, vrs2 = _validate_register(data[3], "source register 2")
 
-        return vrs1 + vrs2 + "0"*12 + rs2 + rs1 + opcode + rd
+        return vrs1 + vrs2 + "0" * 12 + rs2 + rs1 + opcode + rd
     
-    if instruction_parameter[1] == 'B':   
-        
+    if instr_type == 'B':
         if len(data) != 4:
-            raise ValueError("Invalid number of parameters for B-type instruction: "+ line)
+            raise ValueError("Invalid number of parameters for B-type instruction: " + line)
         
-        if data[1] in regs:
-            rd = regs[data[1]]
-        else:
-            raise ValueError("Unknown destination register: "+ data[1])
+        # Registers (no vault allowed for B-type)
+        rd, _ = _validate_register(data[1], "destination register", allow_vault=False)
+        rs, _ = _validate_register(data[2], "source register", allow_vault=False)
         
-        if data[2] in regs:
-            rs = regs[data[2]]
-        else:
-            raise ValueError("Unknown source register: "+ data[2])
+        # Signed immediate
+        imm = _validate_immediate_signed(data[3])
         
-        if not data[3].lstrip('-').isdigit():
-            raise ValueError("Immediate value must be an integer: "+ data[3])
-        if not -65536 <= int(data[3]) <= 65535:
-            raise ValueError("Immediate value out of range (-65536 to 65535): "+ data[3])
+        return "00" + imm + rs + opcode + rd
         
-         # Convert immediate to 16-bit two's complement binary
-        if int(data[3]) < 0:
-            imm = format((1 << 16) + int(data[3]), '016b')
-        else:
-            imm = format(int(data[3]), '016b')
-        return "00"+imm + rs + opcode + rd
-        
-    if instruction_parameter[1] == 'M':
-        
+    if instr_type == 'M':
         if len(data) != 4:
-            raise ValueError("Invalid number of parameters for M-type instruction: "+ line)
+            raise ValueError("Invalid number of parameters for M-type instruction: " + line)
         
-        if data[1] in regs:
-            rd = regs[data[1]]
-        else:
-            raise ValueError("Unknown destination/source register: "+ data[1])
+        # Registers (no vault allowed for M-type)
+        rd, _ = _validate_register(data[1], "destination/source register", allow_vault=False)
+        rs, _ = _validate_register(data[2], "base register", allow_vault=False)
         
-        if data[2] in regs:
-            rs = regs[data[2]]
-        else:
-            raise ValueError("Unknown base register: "+ data[2])
+        # Signed immediate
+        imm = _validate_immediate_signed(data[3])
         
-        if not data[3].lstrip('-').isdigit():
-            raise ValueError("Immediate value must be an integer: "+ data[3])
-        if not -65536 <= int(data[3]) <= 65535:
-            raise ValueError("Immediate value out of range (-65536 to 65535): "+ data[3])
-        
-         # Convert immediate to 16-bit two's complement binary
-        if int(data[3]) < 0:
-            imm = format((1 << 16) + int(data[3]), '016b')
-        else:
-            imm = format(int(data[3]), '016b')
-        return "00"+imm + rs + opcode + rd
+        return "00" + imm + rs + opcode + rd
     
-    if instruction_parameter[1] == 'I':
-        
+    if instr_type == 'I':
+        # Special case: NO instruction
         if data[0] == 'NO':
             if len(data) != 3:
-                raise ValueError("Invalid number of parameters for NO instruction: "+ line)
+                raise ValueError("Invalid number of parameters for NO instruction: " + line)
             
-            if data[1] in regs:
-                rd = regs[data[1]]
-            else:
-                raise ValueError("Unknown destination register: "+ data[1])
-            if data[2] in vault:
-                rs = vault[data[2]]
-            elif data[2] in regs:
-                rs = regs[data[2]]
-            else:
-                raise ValueError("Unknown source register: "+ data[2])
+            rd, _ = _validate_register(data[1], "destination register", allow_vault=False)
+            rs, _ = _validate_register(data[2], "source register")
             
-            return "00"+"0"*16 + rs + opcode + rd
+            return "00" + "0" * 16 + rs + opcode + rd
 
+        # Special case: MOV instruction
         if data[0] == 'MOV':
-
             if len(data) != 3:
-                raise ValueError("Invalid number of parameters for MOV instruction: "+ line)
+                raise ValueError("Invalid number of parameters for MOV instruction: " + line)
 
-            if data[1] in regs:
-                rd = regs[data[1]]
-            else:
-                raise ValueError("Unknown destination register: "+ data[1])
-            if data[2].lstrip('-').isdigit():
-                imm_value = int(data[2])
-                if not -65536 <= imm_value <= 65535:
-                    raise ValueError("Immediate value out of range (-65536 to 65535): "+ data[2])
-                # Convert immediate to 17-bit two's complement binary
-                if imm_value < 0:
-                    imm = format((1 << 17) + imm_value, '017b')
-                else:
-                    imm = format(imm_value, '017b')
-                return "0" + imm + "0000" + opcode + rd
-            else:
-                raise ValueError("Unknown source register: "+ data[2])
-
+            rd, _ = _validate_register(data[1], "destination register", allow_vault=False)
+            imm = _validate_immediate_unsigned(data[2])
+            
+            return "00" + imm + "0000" + opcode + rd
+        elif data[0] == 'FRM':
+            if len(data) != 4:
+                raise ValueError("Invalid number of parameters for FRM instruction: " + line)
+            
+            rd, _ = _validate_register(data[1], "destination register", allow_vault=False)
+            rs, vrs = _validate_register(data[2], "source register")
+            index = _validate_immediate_unsigned(data[3], bits=2)
+            
+            return "0"*16 + index + rs + opcode + rd
+        # Regular I-type instructions
         if len(data) != 4:
-            raise ValueError("Invalid number of parameters for I-type instruction: "+ line)
+            raise ValueError("Invalid number of parameters for I-type instruction: " + line)
         
-        if data[1] in vault:
-            raise ValueError("Invalid use of vault register in I-type instruction: "+ line)
-        elif data[1] in regs:
-            rd = regs[data[1]]
-        else:
-            raise ValueError("Unknown destination register: "+ data[1])
-
-        if data[2] in vault:
-            rs = vault[data[2]]
-            vrs = "1"  # Indicate rs is a vault register
-        elif data[2] in regs:
-            rs = regs[data[2]]
-            vrs = "0"  # Indicate rs is a general-purpose register
-        else:
-            raise ValueError("Unknown source register: "+ data[2])
+        rd, _ = _validate_register(data[1], "destination register", allow_vault=False)
+        rs, vrs = _validate_register(data[2], "source register")
+        imm = _validate_immediate_unsigned(data[3])
         
-        if not data[3].lstrip('-').isdigit():
-            raise ValueError("Immediate value must be an integer: "+ data[3])
-        if not -65536 <= int(data[3]) <= 65535:
-            raise ValueError("Immediate value out of range (-65536 to 65535): "+ data[3])
-        
-         # Convert immediate to 17-bit two's complement binary
-        if int(data[3]) < 0:
-            imm = format((1 << 17) + int(data[3]), '017b')
-        else:
-            imm = format(int(data[3]), '017b')
-        return vrs+imm + rs + opcode + rd
+        return vrs + "0" + imm + rs + opcode + rd
     
-    if instruction_parameter[1] == 'H':
-
+    if instr_type == 'H':
         if len(data) != 5:
-            raise ValueError("Invalid number of parameters for H-type instruction: "+ line)
+            raise ValueError("Invalid number of parameters for H-type instruction: " + line)
         
-        if data[1] in vault:
-            raise ValueError("Invalid use of vault register in H-type instruction: "+ line)
-        elif data[1] in regs:
-            rd = regs[data[1]]
-        else:
-            raise ValueError("Unknown destination register: "+ data[1])
+        # Destination register (no vault allowed)
+        rd, _ = _validate_register(data[1], "destination register", allow_vault=False)
         
+        # All source registers must be same type (all vault or all regular)
         if data[2] in vault and data[3] in vault and data[4] in vault:
             rs1 = vault[data[2]]
             rs2 = vault[data[3]]
@@ -269,13 +232,24 @@ def extract_bytes(line):
             rs3 = regs[data[4]]
             vrs = "0"
         else:
-            raise ValueError("All source registers must be of the same type (either all vault or all general-purpose): "+ line)
+            raise ValueError("All source registers must be of the same type (either all vault or all general-purpose): " + line)
         
-        return vrs + "0"*9 + rs3 + rs2 + rs1 + opcode + rd
+        return vrs + "0" * 9 + rs3 + rs2 + rs1 + opcode + rd
+
+    if instr_type == 'V':
+        if len(data) != 3:
+            raise ValueError("Invalid number of parameters for V-type instruction: " + line)
+        
+        rs, _ = _validate_register(data[1], "source register", allow_vault=False)
+        index_bits = _validate_immediate_unsigned(data[2], bits=2)
+        
+        return "0" * 20 + index_bits + opcode + rs
+    
+    raise ValueError(f"Unknown instruction type: {instr_type}")
 
 def assembler(file_path, output_file):
     """Main function to assemble the code from the given file path."""
-    lines = read_file(file_path)    
+    lines = read_file(file_path)
 
     binary_lines = []
 

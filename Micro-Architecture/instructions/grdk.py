@@ -1,10 +1,9 @@
 #Guardar llave   GRDK index, rs1
 
 class Grdk:
-    def __init__(self, _fuente, _destino, _bovedareg1, _procesador):
+    def __init__(self, _fuente, _destino, _procesador):
         self.destino = _destino
         self.fuente = _fuente
-        self.bovedareg1 = _bovedareg1
         self.procesador = _procesador
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
@@ -17,7 +16,7 @@ class Grdk:
         # En RF.data[0] guardamos el valor a almacenar
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.fuente]
         # En RF.data[1] guardamos el registro base para calcular dirección
-        self.procesador.regRF.data[1] = self.procesador.RF.registros[self.destino]
+        self.procesador.regRF.data[1] = self.destino
         print(f"Valor a almacenar: {self.procesador.regRF.data[0]}")
         
     def execute(self):
@@ -26,11 +25,12 @@ class Grdk:
         print(f"Sin operación de execute para Grdk.")
     
     def memory(self):
-        self.procesador.regDM.data = self.procesador.regALU.data[0]
+        print(self.procesador.regALU.data)
+        self.procesador.regDM.data = self.procesador.regALU.data
         print(f"Sin operación de memoria para Grdk.")
     
     def writeback(self):
-        print(f"Escribiendo resultado en V{self.destino}")
+        print(f"Escribiendo resultado en V{self.destino} = {self.procesador.regDM.data}")
         self.procesador.vault.write_secure_reg(self.destino, self.procesador.regDM.data)
         print(f"V{self.destino} = {self.procesador.vault.get_secure_reg(self.destino)}")
        

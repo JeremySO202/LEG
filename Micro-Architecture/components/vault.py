@@ -1,7 +1,7 @@
 class vault:
     def __init__(self):
         # Llaves privadas (solo lectura/escritura segura)
-        self.secure_regs = [10]*8  # cada una de 64 bits 0 a 3 son llaves, 4 a 7 son hashes
+        self.secure_regs = [0]*8  # cada una de 64 bits 0 a 3 son llaves, 4 a 7 son hashes
         
         
         self.secure_user = True  # Indica si el usuario está autenticado

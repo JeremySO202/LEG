@@ -7,6 +7,7 @@ from instructions.y import Y
 from instructions.o import O
 from instructions.oex import Oex
 from instructions.mov import Mov
+from instructions.chkf import Chkf
 
 #immediate
 from instructions.smai import Smai
@@ -18,6 +19,7 @@ from instructions.no import No
 from instructions.rol import Rol
 from instructions.modp import Modp
 from instructions.mula import Mula
+from instructions.frm import Frm
 
 #branch
 from instructions.rig import Rig
@@ -30,6 +32,10 @@ from instructions.mix import Mix
 #memory
 from instructions.crg import Crg
 from instructions.grd import Grd
+
+#vault
+from instructions.grdh import Grdh
+from instructions.grdk import Grdk
 
 class HazardControl:
     
@@ -80,8 +86,8 @@ class HazardControl:
         """Verifica hazards para instrucciones de un registro"""
         if not hasattr(source_inst, 'destino'):
             return False
-            
-        if source_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
+
+        if source_inst.destino == current_instruction.registro1 and (not hasattr(current_instruction, 'boveda') or current_instruction.boveda == 0):
             if is_mem_stage:
                 current_instruction.procesador.second_check = forwarding_data
                 current_instruction.procesador.forw_reg2 = 1
@@ -148,15 +154,15 @@ class HazardControl:
         forwarding_data = self.procesador.regALU.data
         
         # Instrucciones con dos registros fuente
-        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
+        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Chkf)):
             return self._check_two_register_hazard(current_instruction, alu_inst, forwarding_data)
             
         # Instrucciones con un registro fuente
-        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Frm)):
             return self._check_single_register_hazard(current_instruction, alu_inst, forwarding_data)
             
         # Instrucciones de crg
-        elif isinstance(current_instruction, Crg):
+        elif isinstance(current_instruction, (Crg, Grdh, Grdk)):
             if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.fuente:
                 current_instruction.procesador.Check = forwarding_data
                 current_instruction.procesador.forw_reg = 1
@@ -183,12 +189,19 @@ class HazardControl:
         forwarding_data = self.procesador.regDM.data
         
         # Instrucciones con dos registros fuente
-        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
+        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Chkf)):
             return self._check_two_register_hazard(current_instruction, dm_inst, forwarding_data, is_mem_stage=True)
             
         # Instrucciones con un registro fuente
-        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Frm)):
             return self._check_single_register_hazard(current_instruction, dm_inst, forwarding_data, is_mem_stage=True)
+        
+        elif isinstance(current_instruction, (Crg, Grdh, Grdk)):
+            if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.fuente:
+                current_instruction.procesador.second_check = forwarding_data
+                current_instruction.procesador.forw_reg2 = 1
+                print(f"Hazard detectado: L{dm_inst.destino} -> fuente (L{current_instruction.fuente})")
+                return True
                 
         # Instrucciones con tres registros fuente
         elif isinstance(current_instruction, Mix):

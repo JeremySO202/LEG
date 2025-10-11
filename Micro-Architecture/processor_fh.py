@@ -14,6 +14,7 @@ from instructions.mul import Mul
 from instructions.y import Y
 from instructions.o import O
 from instructions.oex import Oex
+from instructions.chkf import Chkf
 #1 register
 from instructions.smai import Smai
 from instructions.rtai import Rtai
@@ -24,6 +25,7 @@ from instructions.no import No
 from instructions.rol import Rol
 from instructions.modp import Modp
 from instructions.mula import Mula
+from instructions.frm import Frm
 
 #branch
 from instructions.rig import Rig
@@ -37,14 +39,18 @@ from instructions.mix import Mix
 from instructions.crg import Crg
 from instructions.grd import Grd
 
+#vault
+from instructions.grdh import Grdh
+from instructions.grdk import Grdk
+
 
 
 class ProcesadorFullHazard:
     # Constantes para tipos de instrucciones
-    TWO_REG_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Roti, Rotd, Rig, Rip, Rim)
-    IMMEDIATE_INSTRUCTIONS = (Smai, Rtai, Muli, No, Rol, Modp, Mula, Crg)
-    IMMEDIATE_NO_CRG = (Smai, Rtai, Muli, No, Rol, Modp, Mula)
-    ALL_HAZARD_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Mix, Crg)
+    TWO_REG_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Roti, Rotd, Rig, Rip, Rim, Chkf)
+    IMMEDIATE_INSTRUCTIONS = (Smai, Rtai, Muli, No, Rol, Modp, Mula, Crg, Grd, Grdh, Grdk, Frm)
+    IMMEDIATE_NO_CRG = (Smai, Rtai, Muli, No, Rol, Modp, Mula, Grd, Grdh, Grdk, Frm)
+    ALL_HAZARD_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Mix, Crg, Grd, Grdh, Grdk, Chkf, Frm)
     
     def __init__(self, interval=1, print_registers=False, step_by_step=False):
         self.PC = 0
@@ -175,9 +181,11 @@ class ProcesadorFullHazard:
                 if needs_forwarding:
                     print(f"Recibiendo forwarding en EXECUTE - Valor: {self.Check}")
                     
+                    
                     if isinstance(self.regRF.instruccion, self.TWO_REG_INSTRUCTIONS):
                         self._handle_forwarding_two_registers(self, self.Check, self.forw_reg)
                     elif isinstance(self.regRF.instruccion, self.IMMEDIATE_INSTRUCTIONS):
+                        
                         if self.forw_reg == 1:
                             self._handle_forwarding_immediate(self, self.Check)
                     elif isinstance(self.regRF.instruccion, Mix):
@@ -193,7 +201,7 @@ class ProcesadorFullHazard:
                         if self.regRF.data is None:
                             self.regRF.data = [None, None]
                         self._handle_forwarding_two_registers(self, self.second_check, self.forw_reg2)
-                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+                    elif isinstance(self.regRF.instruccion, self.IMMEDIATE_NO_CRG):
                         if self.regRF.data is None:
                             self.regRF.data = None
                         if self.forw_reg2 == 1:
