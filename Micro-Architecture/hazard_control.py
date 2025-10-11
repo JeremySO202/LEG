@@ -142,6 +142,8 @@ class HazardControl:
                     current_instruction.procesador.forw_reg2 = 2
                     print(f"Hazard detectado: R{dm_inst.destino} -> registro2 (R{current_instruction.registro2})")
                     return True
+                
+                
             # Instrucciones con un registro fuente
             elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
                 if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:

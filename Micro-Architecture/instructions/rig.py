@@ -50,11 +50,11 @@ class Rig:
         self.procesador.branch_predictor.update(instruction_id, self.branch_taken)
     
     def memory(self):
-        print(f"Sin operación de memoria para rim")
+        print(f"Sin operación de memoria para rig")
         pass
     
     def writeback(self):
-        print(f"Sin writeback para rim")
+        print(f"Sin writeback para rig")
         pass
     
     def ejecutar(self):

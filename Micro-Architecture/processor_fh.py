@@ -65,6 +65,13 @@ class ProcesadorFullHazard:
         self.pipeline_locations = ["", "", "", "", ""]
         
         self.vault = vault()
+        
+        # Para tracking de instrucciones en el pipeline
+        self.fetch_instruction_index = None
+        self.decode_instruction_index = None
+        self.execute_instruction_index = None
+        self.memory_instruction_index = None
+        self.writeback_instruction_index = None
 
 
     def cargarInstrucciones(self, instruccion):
@@ -75,6 +82,9 @@ class ProcesadorFullHazard:
         time.sleep(0.1)
         self.regIM.clear()
         self.regRF.clear()
+        # Limpiar los índices también
+        self.decode_instruction_index = None
+        self.execute_instruction_index = None
 
     def iniciarEjecucion(self):
         needs_forwarding = False
@@ -91,9 +101,11 @@ class ProcesadorFullHazard:
             print(f"Etapa WRITEBACK {self.PC-4} ")
             if self.regDM.instruccion is not None:
                 execute = True
+                print(f"{self.regDM.instruccion}")
                 self.regDM.instruccion.ejecutar()
                 self.pipeline_locations[4] = "Instrucción escribiendo"
                 self.regDM.clear()
+                self.writeback_instruction_index = None
                 self.instructions_completed += 1
             else:
                 print("No hay instrucción en esta etapa")
@@ -107,7 +119,9 @@ class ProcesadorFullHazard:
                 self.regALU.instruccion.ejecutar()
                 self.pipeline_locations[3] = "Instrucción en memoria"
                 self.regDM.instruccion = self.regALU.instruccion
+                self.writeback_instruction_index = self.memory_instruction_index
                 self.regALU.clear()
+                self.memory_instruction_index = None
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[3] = ""
@@ -123,7 +137,6 @@ class ProcesadorFullHazard:
                 
                     # Para instrucciones de dos registros 
                     if isinstance(self.regRF.instruccion, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
-                        # Aplicar el forwarding al registro correspondiente
                         if self.forw_reg == 1:
                             self.regRF.data[0] = self.Check
                         elif self.forw_reg == 2:
@@ -131,6 +144,7 @@ class ProcesadorFullHazard:
                             self.regRF.data[1] = self.Check
                         
                         print(f"Después del forwarding: {self.regRF.data}")
+
                     
                     #Para instrucciones con inmediatos
                     elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Crg)):
@@ -161,6 +175,8 @@ class ProcesadorFullHazard:
                     print(f"Valor a recibir: {self.second_check}")
                     # Para instrucciones de dos registros
                     if isinstance(self.regRF.instruccion, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
+                        if self.regRF.data is None:
+                            self.regRF.data = [None, None]    
                         if self.forw_reg2 == 1:
                             self.regRF.data[0] = self.second_check
                         elif self.forw_reg2 == 2:
@@ -197,7 +213,9 @@ class ProcesadorFullHazard:
                 
                 self.pipeline_locations[2] = "Instrucción ejecutando"
                 self.regALU.instruccion = self.regRF.instruccion
+                self.memory_instruction_index = self.execute_instruction_index
                 self.regRF.clear()
+                self.execute_instruction_index = None
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[2] = ""
@@ -267,10 +285,18 @@ class ProcesadorFullHazard:
                         if self.regRF.data is None:
                             self.regRF.data = [None, None, None]
 
-                    self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
-                    self.regIM.instruccion.ejecutar()
-                    self.regRF.instruccion = self.regIM.instruccion
-                    self.regIM.clear()
+                self.pipeline_locations[1] = f"Instrucción {self.PC - 1}"
+                self.regIM.instruccion.ejecutar()
+                #en estas 2 lineas debe de estar el error
+                self.regRF.instruccion = self.regIM.instruccion
+                self.execute_instruction_index = self.decode_instruction_index
+                if isinstance(self.regIM.instruccion,  Rig):
+                    print(f"{self.regRF.data}")
+                    print(f"{self.regIM.data}")
+                
+                self.regIM.clear()
+                self.decode_instruction_index = None
+
             else:
                 print("No hay instrucción en esta etapa")
                 self.pipeline_locations[1] = ""
@@ -280,12 +306,31 @@ class ProcesadorFullHazard:
             print(f"Etapa FETCH {self.PC}")
 
             if self.PC < len(self.IM.instrucciones):
-                execute = True
-                print(f"Cargando instrucción {self.PC}")
-                self.pipeline_locations[0] = f"Instrucción {self.PC}"
-                self.regIM.instruccion = self.IM.instrucciones[self.PC]
-                self.regIM.instruccion.reset()
-                self.PC += 1
+                # NUEVA LÓGICA: Verificar si la instrucción a hacer fetch está en MEMORY o WRITEBACK
+                if self.memory_instruction_index == self.PC or self.writeback_instruction_index == self.PC:
+                    print(f"⚠️ STALL DETECTADO: La instrucción {self.PC} aún está en el pipeline (MEMORY o WRITEBACK)")
+                    print(f"   Memory index: {self.memory_instruction_index}, Writeback index: {self.writeback_instruction_index}")
+                    print(f"   Insertando NOP y retrocediendo PC")
+                    
+                    # Insertar NOP en lugar de hacer fetch
+                    self.regIM.instruccion = Nop(self)
+                    self.regIM.instruccion.reset()
+                    self.decode_instruction_index = None
+                    
+                    # NO incrementar PC, queremos volver a intentar hacer fetch de esta instrucción
+                    self.PC = self.PC  # Mantener PC igual
+                    
+                    self.pipeline_locations[0] = f"STALL (esperando instrucción {self.PC})"
+                    execute = True
+                else:
+                    # Fetch normal
+                    execute = True
+                    print(f"Cargando instrucción {self.PC}")
+                    self.pipeline_locations[0] = f"Instrucción {self.PC}"
+                    self.regIM.instruccion = self.IM.instrucciones[self.PC]
+                    self.regIM.instruccion.reset()
+                    self.decode_instruction_index = self.PC
+                    self.PC += 1
 
             else:
                 print("No hay más instrucciones")
