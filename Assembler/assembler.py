@@ -21,8 +21,8 @@ opcodes = {
     'Y': ["000111", "R"],
     'O': ["001000", "R"],
     'OEX': ["001001", "R"],
-    'ROTD': ["001010", "I"],
-    'ROTI': ["001011", "I"],
+    'ROTD': ["001010", "R"],
+    'ROTI': ["001011", "R"],
     'NO': ["001100", "I"],
     'MOV': ["001101", "I"],
     'ROL': ["001110", "I"],
@@ -34,7 +34,6 @@ opcodes = {
     'RIG': ["010100", "B"],
     'RIM': ["010101", "B"],
     'RIP': ["010110", "B"],
-    'RIN': ["010111", "B"],
  #Falta agregar las instrucciones de vault
 }
 
@@ -65,7 +64,7 @@ vault = {
     'K0': "0100",
     'K1': "0101",
     'K2': "0110",
-    'K3': "0111",
+    'K3': "0111"
 }
 
 def extract_bytes(line):
@@ -90,7 +89,6 @@ def extract_bytes(line):
         
         if data[0] == 'NOP':
             return "0"*32
-        
         
         if len(data) != 4:
             raise ValueError("Invalid number of parameters for R-type instruction: "+ line)
@@ -123,9 +121,6 @@ def extract_bytes(line):
         return vrs1 + vrs2 + "0"*12 + rs2 + rs1 + opcode + rd
     
     if instruction_parameter[1] == 'B':   
-        
-        
-         
         
         if len(data) != 4:
             raise ValueError("Invalid number of parameters for B-type instruction: "+ line)

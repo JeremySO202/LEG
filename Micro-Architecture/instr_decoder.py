@@ -23,7 +23,6 @@ from instructions.mula import Mula
 from instructions.rig import Rig
 from instructions.rim import Rim
 from instructions.rip import Rip
-from instructions.rin import Rin
 
 #h-type
 from instructions.mix import Mix
@@ -77,8 +76,7 @@ class Inst_Decoder:
         self.B_instructions = {
             "010100": "Rig",
             "010101": "Rim",
-            "010110": "Rip",
-            "010111": "Rin"
+            "010110": "Rip"
         }
 
         self.H_instructions = {

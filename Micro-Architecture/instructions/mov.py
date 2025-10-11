@@ -10,19 +10,32 @@ class Mov:
     def reset(self):
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
-    def decode(self):
+    def _load_immediate_value(self):
+        """Carga el valor inmediato en regRF"""
         self.procesador.regRF.data = self.inmediato
-        print(f" Valor inmediato: {self.procesador.regRF.data}")
+    
+    def _get_operand_value(self):
+        """Obtiene el valor del operando (inmediato)"""
+        return self.procesador.regRF.data
+    
+    def decode(self):
+        print(f"Cargando valor inmediato: {self.inmediato}")
+        self._load_immediate_value()
+        print(f"Valor inmediato cargado: {self.procesador.regRF.data}")
     
     def execute(self):
-        self.procesador.regALU.data = self.procesador.ALU.operar(self.procesador.regRF.data, 0, 0)
-        print(f" Valor en ALU: {self.procesador.regALU.data}")
+        print(f"Moviendo valor inmediato")
+        operand_value = self._get_operand_value()
+        self.procesador.regALU.data = self.procesador.ALU.operar(operand_value, 0, 0)
+        print(f"Valor en ALU: {self.procesador.regALU.data}")
     
     def memory(self):
+        print(f"Sin operación de memoria para Mov")
         self.procesador.regDM.data = self.procesador.regALU.data
-        print(f" Valor: {self.procesador.regDM.data}")
+        print(f"Valor: {self.procesador.regDM.data}")
         
     def writeback(self):
+        print(f"Escribiendo valor en R{self.destino}")
         self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
         print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
     

@@ -8,11 +8,15 @@ class Nop:
     def reset(self):
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
-    def decode(self):
-        print(f"Leyendo valores 0 y 0")
+    def _initialize_dummy_data(self):
+        """Inicializa datos dummy para NOP"""
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = 0
         self.procesador.regRF.data[1] = 0
+    
+    def decode(self):
+        print(f"Leyendo valores 0 y 0")
+        self._initialize_dummy_data()
         print(f"Valores leídos: {self.procesador.regRF.data}")
     
     def execute(self):
@@ -22,7 +26,7 @@ class Nop:
         print(f"Sin operación de memoria para Nop")
     
     def writeback(self):
-        print(f"Sin operación de memoria para Nop")
+        print(f"Sin operación de writeback para Nop")
        
     def ejecutar(self):
         if self.ejecucion:

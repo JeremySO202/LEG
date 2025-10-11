@@ -12,22 +12,32 @@ class Modp:
     def reset(self):
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
+    def _read_register(self):
+        """Lee el registro fuente y lo almacena en regRF"""
+        self.procesador.regRF.data = self.procesador.RF.registros[self.registro1]
+    
+    def _get_operand_value(self):
+        """Obtiene el valor del operando considerando registros de bóveda"""
+        if self.boveda:
+            return self.procesador.vault.get_secure_reg(self.registro1)
+        else:
+            return self.procesador.regRF.data
+    
     def decode(self):
         print(f"Leyendo registro R{self.registro1}")
-        self.procesador.regRF.data = self.procesador.RF.registros[self.registro1]
+        self._read_register()
         print(f"Valor leído: {self.procesador.regRF.data}")
     
     def execute(self):
         print(f"Aplicando modulo de registro e inmediato ({self.prime})")
         if self.procesador.regRF.data is None:
             raise ValueError(f"el Reg {self.registro1} es None y no puede dividirse.")
+        
         if self.boveda:
             print("Usando registro de boveda")
-            tempA = self.procesador.vault.get_secure_reg(self.registro1)
-            self.procesador.regALU.data = self.procesador.ALU.operar(tempA, self.prime, 9)
-        else:
-            self.procesador.regALU.data = self.procesador.ALU.operar(
-                self.procesador.regRF.data, self.prime, 9)
+        
+        operand_value = self._get_operand_value()
+        self.procesador.regALU.data = self.procesador.ALU.operar(operand_value, self.prime, 9)
         print(f"Modulo - ALU: {self.procesador.regALU.data}")
     
     def memory(self):
