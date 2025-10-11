@@ -19,6 +19,6 @@
 
 1. [Green Card](./Documentation%20files/ISA_reference_v1.0.md)
 2. [Arquitectura del set de instrucciones](./Documentation%20files/ISA_reference_v1.0.md)
-3. [Microarquitectura](./Documentation%20files/ISA_reference_v1.0.md)
-4. [Modelado del software](./Documentation%20files/ISA_decisions.md)
+3. [Microarquitectura](./Documentation%20files/Organization_v0.1.md)
+4. [Modelado del software](./Documentation%20files/Software_Model.md)
 5. [Referencias](./Documentation%20files/Referencias.md)
