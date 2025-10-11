@@ -41,3 +41,5 @@ QUE NO SE USEN LOS MISMOS 2 REGISTROS EN LAS INSTRUCCIONES PORQUE VA SALIR MAL L
 
 #para el error del branch hay 2 opciones. O mando las varas desde el decode bien o le meto un nop
 no logro hacer ninguno :p
+
+cambiar de nuevo las instrucciones de rotd y roti para que operen solamente con registros

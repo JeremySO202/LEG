@@ -42,8 +42,7 @@ class HazardControl:
         self.procesador.clear_pipeline()
         self.procesador.PC -= instruction.offset + 2
 
-    def exex_fw(self, current_instruction):
-        
+    def exex_fw(self, current_instruction):     
         if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
@@ -53,7 +52,7 @@ class HazardControl:
         
         elif isinstance(current_instruction, (Smai, Rtai, Muli, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Crg)):
             pass
-
+        
         alu_inst = self.procesador.regALU.instruccion
 
         if self.procesador.regALU.instruccion:
