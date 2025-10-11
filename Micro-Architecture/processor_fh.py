@@ -308,9 +308,9 @@ class ProcesadorFullHazard:
             if self.PC < len(self.IM.instrucciones):
                 # NUEVA LÓGICA: Verificar si la instrucción a hacer fetch está en MEMORY o WRITEBACK
                 if self.memory_instruction_index == self.PC or self.writeback_instruction_index == self.PC:
-                    print(f"⚠️ STALL DETECTADO: La instrucción {self.PC} aún está en el pipeline (MEMORY o WRITEBACK)")
-                    print(f"   Memory index: {self.memory_instruction_index}, Writeback index: {self.writeback_instruction_index}")
-                    print(f"   Insertando NOP y retrocediendo PC")
+                    print(f"STALL DETECTADO: La instrucción {self.PC} aún está en el pipeline (MEMORY o WRITEBACK)")
+                    print(f"Memory index: {self.memory_instruction_index}, Writeback index: {self.writeback_instruction_index}")
+                    print(f"Insertando NOP y retrocediendo PC")
                     
                     # Insertar NOP en lugar de hacer fetch
                     self.regIM.instruccion = Nop(self)

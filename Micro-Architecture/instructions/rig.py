@@ -37,7 +37,7 @@ class Rig:
             
             if not predicted_taken and self.branch_taken:
                 print(f"Aplicando salto tardío y limpiando pipeline")
-                self.procesador.PC += self.offset - 2  # -2 porque ya avanzó 2 ciclos
+                self.procesador.PC += self.offset  # -2 porque ya avanzó 2 ciclos
                 self.procesador.clear_pipeline()
             
             elif predicted_taken and not self.branch_taken:
