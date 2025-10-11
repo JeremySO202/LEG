@@ -15,7 +15,7 @@ El procesador simulado implementa un **pipeline de 5 etapas** (**FETCH → DECOD
 flowchart TB
   %% Program Counter
   PC[Program Counter<br/>PC]
-  
+
   %% Pipeline Stages with Pipeline Registers
   subgraph Pipeline["5-Stage Pipeline"]
     direction TB
@@ -39,10 +39,19 @@ flowchart TB
     %% EX Stage
     subgraph EX_Stage["EX: Execute"]
       direction LR
-      ALU_OP[ALU Operations<br/>SMA, RTA, MUL, Y, O, OEX]
+      EXHUB[EX Stage Hub]
+      ALU_OP[ALU Ops<br/>SMA, RTA, MUL, Y, O, OEX]
       IMM_OP[Immediate Ops<br/>SMAI, RTAI, MULI, ROTI, etc.]
-      BRANCH_OP[Branch Ops<br/>RIG, RIM, RIP, RIN]
+      BRANCH_OP[Branch Ops<br/>RIG]
       MIX_OP[Security Ops<br/>MIX - VAULT Access]
+      EXHUB --> ALU_OP
+      EXHUB --> IMM_OP
+      EXHUB --> BRANCH_OP
+      EXHUB --> MIX_OP
+      ALU_OP --> EXHUB
+      IMM_OP --> EXHUB
+      BRANCH_OP --> EXHUB
+      MIX_OP --> EXHUB
     end
     
     %% Pipeline Register EX/MEM
@@ -50,7 +59,7 @@ flowchart TB
     
     %% MEM Stage
     subgraph MEM_Stage["MEM: Memory Access"]
-      MEM[Memory Operations<br/>CRG, GRD - Data Memory]
+      MEM[Memory Ops<br/>CRG, GRD - Data Memory]
     end
     
     %% Pipeline Register MEM/WB
@@ -62,7 +71,6 @@ flowchart TB
     end
   end
 
-  
   %% Memory Subsystem
   subgraph Memories["Memory Subsystem"]
     IM[Instruction Memory<br/>memoriaInstrucciones<br/>32-bit instructions]
@@ -71,20 +79,20 @@ flowchart TB
   
   %% Register File
   subgraph RegisterFile["Register File"]
-    RF[General Purpose Registers<br/>archivoRegistros<br/>L0 to L15 - 64-bit each<br/>Total: 64 registers]
+    RF[General-Purpose Registers<br/>archivoRegistros<br/>L0..L15 — 64-bit each<br/>Total: 16 registers]
   end
   
   %% Security Vault
   subgraph Security["Security Vault"]
-    VAULT[VAULT Component<br/>vault<br/>K0 to K3: Private Keys<br/>H0 to H3: Hash Values<br/>Secure Authentication]
+    VAULT[VAULT Component<br/>vault<br/>K0..K3 - Private Keys<br/>H0..H3 - Hash State]
   end
   
   %% Control Units
   subgraph Control["Control & Hazard Management"]
     direction TB
     HC[HazardControl<br/>Data Forwarding<br/>Stall Detection]
-    BP[BranchPredictor<br/>Branch Prediction<br/>Misprediction Handling]
-    DECODER[Inst_Decoder<br/>Instruction Decoding<br/>Binary to Objects]
+    BP[BranchPredictor<br/>Prediction & Mispredict]
+    DECODER[Inst_Decoder<br/>Binary → Instr Objects]
   end
   
   %% ALU and Execution Units
@@ -92,14 +100,13 @@ flowchart TB
     ALU_UNIT[ALU Component<br/>Arithmetic & Logic<br/>64-bit Operations]
   end
 
-  
   %% Pipeline Flow
   PC --> IF
   IF --> regIM
   regIM --> ID
   ID --> regRF  
-  regRF --> EX_Stage
-  EX_Stage --> regALU
+  regRF --> EXHUB
+  EXHUB --> regALU
   regALU --> MEM
   MEM --> regDM
   regDM --> WB
@@ -117,32 +124,31 @@ flowchart TB
   MIX_OP <--> VAULT
   
   %% ALU Connection
-  EX_Stage --> ALU_UNIT
-  ALU_UNIT --> EX_Stage
+  EXHUB <--> ALU_UNIT
   
   %% Control Connections
   DECODER --> ID
-  HC -.->|Forwarding Paths| EX_Stage
+  HC -.->|Forwarding| EXHUB
   HC -.->|Stall Control| regRF
   BP -.->|Prediction| BRANCH_OP
   BRANCH_OP -.->|Outcome| BP
-  HC -.->|Pipeline Control| Pipeline
   
-  %% Forwarding Paths (Data Bypassing)
-  regALU -.->|EX-EX Forwarding| EX_Stage
-  regDM -.->|MEM-EX Forwarding| EX_Stage
-  WB -.->|WB-EX Forwarding| EX_Stage
+  %% Forwarding Paths
+  regALU -.->|EX→EX| EXHUB
+  regDM -.->|MEM→EX| EXHUB
+  WB -.->|WB→EX| EXHUB
   
   %% PC Update
-  WB -.->|PC Update| PC
   BRANCH_OP -.->|Branch Target| PC
   
-  %% Instruction Types Legend
+  %% Legend
   subgraph Legend["Instruction Categories"]
     R_TYPE[R-Type<br/>NOP, SMA, RTA, MUL, Y, O, OEX, MOV]
     I_TYPE[I-Type<br/>SMAI, RTAI, MULI, ROTD, ROTI, NO, ROL, MODP, MULA]
-    B_TYPE[B-Type<br/>RIG, RIM, RIP, RIN]
+    B_TYPE[B-Type<br/>RIG]
     H_TYPE[H-Type<br/>MIX]
     M_TYPE[M-Type<br/>CRG, GRD]
   end
+
+
 
