@@ -9,7 +9,7 @@ class vault:
     # Escritura de llaves o hashes desde instrucciones especiales
     def write_secure_reg(self, index, valor):
         if self.secure_user:
-            if 0 <= index < 4:
+            if 0 <= index < 8:
                 self.secure_regs[index] = valor
 
     # Lectura controlada (solo por CPU)

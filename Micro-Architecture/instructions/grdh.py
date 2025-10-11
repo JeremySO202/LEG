@@ -19,7 +19,6 @@ class Grdh:
         # En RF.data[1] guardamos el registro base para calcular dirección
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.destino]
         print(f"Valor a almacenar: {self.procesador.regRF.data[0]}")
-        print(f"Registro base: {self.procesador.regRF.data[1]}")
         
     def execute(self):
         # vault does not require an offset, only direct access allowed

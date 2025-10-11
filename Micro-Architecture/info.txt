@@ -34,6 +34,13 @@ TENER EN CUENTA QUE CUANDO SE ESCRIBAN EN LOS REGITROS NO SE HAGA ESTO:
 QUE NO SE USEN LOS MISMOS 2 REGISTROS EN LAS INSTRUCCIONES PORQUE VA SALIR MAL LA OPERACION PORQUE SE FORWARDEAN AMBOS 
 
 
+Instrucciones H:
+
+- El procesador debe verificar si grdh usa de v4 a v7? o lo hace el assembler
+- mismo con grdk de v0 a v3
+- la función frm hace lo mismo que oex, por tener acceso a la boveda, se deja o se quita de oex?
+
+
 
 
 
