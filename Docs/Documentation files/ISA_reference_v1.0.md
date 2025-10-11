@@ -1,13 +1,5 @@
 # LEG    <small>REFERENCE DATA CARD
 
-//TODO: hay que agregarle el calling a los otros registros
-Hay que hacer el del vault
-Hay que agregar informaicón adicional como de que es big endian
-que los registros son de cierto tamaño y demás info importante
-se puede poner en una tabla y ponerla ahí abajo
-Hay que agregar la parte del excel para que se vea más lindo
-¿Si lo hacemos en overleaf tal vez queda más lindo, no se puede? -> hacerlo si hay tiempo 
-
 ### ARITHMETIC INSTRUCTIONS 
 
 
@@ -98,7 +90,13 @@ V(2): Vault register specifier (00: no vault, 01 for rs1 vault register, 10 for 
 
 
 ### ADDITIONAL INFORMATION 
-LEG utiliza un formato de endianess BIG ENDIAN
 
-Y DEMÁS INFORMACIÓN QUE sea necesaria
+1. LEG utiliza un formato de endianess BIG ENDIAN. 
+2. Solo utiliza datos sin signo a excepción de instrucciones de saltos condicionales.
+3. No tiene instrucciones de punto flotante, ni de llamada a subrutinas o funciones. 
+
+4. Tamaño de inmediatos: 
+
+
+
 
