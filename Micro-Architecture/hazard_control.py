@@ -23,7 +23,6 @@ from instructions.mula import Mula
 from instructions.rig import Rig
 from instructions.rim import Rim
 from instructions.rip import Rip
-from instructions.rin import Rin
 
 #h-type
 from instructions.mix import Mix
@@ -36,139 +35,164 @@ class HazardControl:
     
     def __init__(self, procesador):
         self.procesador = procesador
-
-    def handle_misprediction(self, instruction):
-        print("Predicción incorrecta detectada. Penalización aplicada.")
-        self.procesador.clear_pipeline()
-        self.procesador.PC -= instruction.offset + 2
-
-    def exex_fw(self, current_instruction):     
+    
+    def _initialize_regrf_data(self, current_instruction):
+        """Inicializa la estructura de datos regRF según el tipo de instrucción"""
         if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
         elif isinstance(current_instruction, Mix):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None, None]
+    
+    def _check_two_register_hazard(self, current_instruction, source_inst, forwarding_data, is_mem_stage=False):
+        """Verifica hazards para instrucciones de dos registros"""
+        if not hasattr(source_inst, 'destino'):
+            return False
+            
+        # Verificar registro1
+        if (source_inst.destino == current_instruction.registro1 and 
+            (not hasattr(current_instruction, 'bovedareg1') or current_instruction.bovedareg1 == 0)):
+            if is_mem_stage:
+                current_instruction.procesador.second_check = forwarding_data
+                current_instruction.procesador.forw_reg2 = 1
+            else:
+                current_instruction.procesador.Check = forwarding_data
+                current_instruction.procesador.forw_reg = 1
+            print(f"Hazard detectado: R{source_inst.destino} -> registro1 (R{current_instruction.registro1})")
+            return True
+            
+        # Verificar registro2  
+        if (source_inst.destino == current_instruction.registro2 and
+            (not hasattr(current_instruction, 'bovedareg2') or current_instruction.bovedareg2 == 0)):
+            if is_mem_stage:
+                current_instruction.procesador.second_check = forwarding_data
+                current_instruction.procesador.forw_reg2 = 2
+            else:
+                current_instruction.procesador.Check = forwarding_data
+                current_instruction.procesador.forw_reg = 2
+            print(f"Hazard detectado: R{source_inst.destino} -> registro2 (R{current_instruction.registro2})")
+            return True
+            
+        return False
+    
+    def _check_single_register_hazard(self, current_instruction, source_inst, forwarding_data, is_mem_stage=False):
+        """Verifica hazards para instrucciones de un registro"""
+        if not hasattr(source_inst, 'destino'):
+            return False
+            
+        if source_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
+            if is_mem_stage:
+                current_instruction.procesador.second_check = forwarding_data
+                current_instruction.procesador.forw_reg2 = 1
+            else:
+                current_instruction.procesador.Check = forwarding_data
+                current_instruction.procesador.forw_reg = 1
+            print(f"Hazard detectado: R{source_inst.destino} -> registro1 (R{current_instruction.registro1})")
+            return True
+            
+        return False
+    
+    def _check_mix_hazard(self, current_instruction, source_inst, forwarding_data, is_mem_stage=False):
+        """Verifica hazards para instrucciones Mix (3 registros)"""
+        if not hasattr(source_inst, 'destino'):
+            return False
+            
+        registers = [
+            (current_instruction.registro1, 1, "registro1"),
+            (current_instruction.registro2, 2, "registro2"), 
+            (current_instruction.registro3, 3, "registro3")
+        ]
         
-        elif isinstance(current_instruction, (Smai, Rtai, Muli, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Crg)):
-            pass
+        for reg_num, forw_reg_num, reg_name in registers:
+            if source_inst.destino == reg_num and current_instruction.boveda == 0:
+                if is_mem_stage:
+                    current_instruction.procesador.second_check = forwarding_data
+                    current_instruction.procesador.forw_reg2 = forw_reg_num
+                else:
+                    current_instruction.procesador.Check = forwarding_data
+                    current_instruction.procesador.forw_reg = forw_reg_num
+                print(f"Hazard detectado: R{source_inst.destino} -> {reg_name} (R{reg_num})")
+                return True
+                
+        return False
+
+    def handle_misprediction(self, instruction):
+        """Maneja las mispredictions de branch de forma centralizada"""
+        print("Predicción incorrecta detectada. Penalización aplicada.")
+        
+        if not instruction.prediction_made:
+            predicted_taken = self.procesador.branch_predictor.predict(id(instruction))
+        else:
+            predicted_taken = instruction.prediction_made
+        
+        if not predicted_taken and instruction.branch_taken:
+            print(f"Aplicando salto tardío y limpiando pipeline")
+            self.procesador.PC += instruction.offset
+            
+        elif predicted_taken and not instruction.branch_taken:
+            print(f"Cancelando salto especulativo y restaurando PC")
+            self.procesador.PC -= instruction.offset + 1
+            
+        self.procesador.clear_pipeline()
+
+    def exex_fw(self, current_instruction):
+        """Detecta y aplica forwarding EX-EX"""
+        self._initialize_regrf_data(current_instruction)
         
         alu_inst = self.procesador.regALU.instruccion
-
-        if self.procesador.regALU.instruccion:
-            # Instrucciones con dos registros fuente
-            if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and (not hasattr(current_instruction, 'bovedareg1') or current_instruction.bovedareg1 == 0):
-                    current_instruction.procesador.Check = self.procesador.regALU.data
-                    current_instruction.procesador.forw_reg = 1
-                    print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
-                    return True
-
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2 and (not hasattr(current_instruction, 'bovedareg2') or current_instruction.bovedareg2 == 0):
-                    current_instruction.procesador.Check = self.procesador.regALU.data
-                    current_instruction.procesador.forw_reg = 2
-                    print(f"Hazard detectado: R{alu_inst.destino} -> registro2 (R{current_instruction.registro2})")
-                    return True
-            # Instrucciones con un registro fuente
-            elif isinstance(current_instruction,(Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
-                    current_instruction.procesador.Check = self.procesador.regALU.data
-                    current_instruction.procesador.forw_reg = 1
-                    print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
-                    return True
+        if not alu_inst:
+            print("No hubo necesidad de aplicar forwarding de EX para esta instrucción.")
+            return False
+        
+        forwarding_data = self.procesador.regALU.data
+        
+        # Instrucciones con dos registros fuente
+        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
+            return self._check_two_register_hazard(current_instruction, alu_inst, forwarding_data)
+            
+        # Instrucciones con un registro fuente
+        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+            return self._check_single_register_hazard(current_instruction, alu_inst, forwarding_data)
+            
+        # Instrucciones de crg
+        elif isinstance(current_instruction, Crg):
+            if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.fuente:
+                current_instruction.procesador.Check = forwarding_data
+                current_instruction.procesador.forw_reg = 1
+                print(f"Hazard detectado: L{alu_inst.destino} -> fuente (L{current_instruction.fuente})")
+                return True
                 
-             # Instrucciones de crg 
-             #Sma R1 R2 R3
-             #CRG R4 1 R1
-            elif isinstance(current_instruction, Crg):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.fuente:
-                    current_instruction.procesador.Check = self.procesador.regALU.data
-                    current_instruction.procesador.forw_reg = 1
-                    print(f"Hazard detectado: L{alu_inst.destino} -> lfuente (L{current_instruction.fuente})")
-                    return True
-                
-            # Instrucciones con tres registros fuente
-            elif isinstance(current_instruction, Mix):
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
-                    current_instruction.procesador.Check = self.procesador.regALU.data
-                    current_instruction.procesador.forw_reg = 1
-                    print(f"Hazard detectado: R{alu_inst.destino} -> registro1 (R{current_instruction.registro1})")
-                    return True
-
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro2 and current_instruction.boveda == 0:
-                    current_instruction.procesador.Check = self.procesador.regALU.data
-                    current_instruction.procesador.forw_reg = 2
-                    print(f"Hazard detectado: R{alu_inst.destino} -> registro2 (R{current_instruction.registro2})")
-                    return True
-                
-                if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.registro3 and current_instruction.boveda == 0:
-                    current_instruction.procesador.Check = self.procesador.regALU.data
-                    current_instruction.procesador.forw_reg = 3
-                    print(f"Hazard detectado: R{alu_inst.destino} -> registro3 (R{current_instruction.registro3})")
-                    return True
+        # Instrucciones con tres registros fuente
+        elif isinstance(current_instruction, Mix):
+            return self._check_mix_hazard(current_instruction, alu_inst, forwarding_data)
 
         print("No hubo necesidad de aplicar forwarding de EX para esta instrucción.")
         return False
     
 
-    #revisar el no
-
     def memreg_forw(self, current_instruction):
-
-        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
-            if current_instruction.procesador.regRF.data is None:
-                current_instruction.procesador.regRF.data = [None, None]
-        elif isinstance(current_instruction, Mix):
-            if current_instruction.procesador.regRF.data is None:
-                current_instruction.procesador.regRF.data = [None, None, None]
+        """Detecta y aplica forwarding MEM-EX"""
+        self._initialize_regrf_data(current_instruction)
         
-        elif isinstance(current_instruction, (Smai, Rtai, Muli, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
-            pass
-
         dm_inst = self.procesador.regDM.instruccion
-
-        if self.procesador.regDM.instruccion:
-            # Instrucciones con dos registros fuente
-            if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1 and (not hasattr(current_instruction, 'bovedareg1') or current_instruction.bovedareg1 == 0):
-                    current_instruction.procesador.second_check = self.procesador.regDM.data
-                    current_instruction.procesador.forw_reg2 = 1
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
-                    return True
-
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2 and (not hasattr(current_instruction, 'bovedareg2') or current_instruction.bovedareg2 == 0):
-                    current_instruction.procesador.second_check = self.procesador.regDM.data
-                    current_instruction.procesador.forw_reg2 = 2
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro2 (R{current_instruction.registro2})")
-                    return True
+        if not dm_inst:
+            print("No hubo necesidad de aplicar forwarding de MEM para esta instrucción.")
+            return False
+        
+        forwarding_data = self.procesador.regDM.data
+        
+        # Instrucciones con dos registros fuente
+        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
+            return self._check_two_register_hazard(current_instruction, dm_inst, forwarding_data, is_mem_stage=True)
+            
+        # Instrucciones con un registro fuente
+        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+            return self._check_single_register_hazard(current_instruction, dm_inst, forwarding_data, is_mem_stage=True)
                 
-                
-            # Instrucciones con un registro fuente
-            elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
-                    current_instruction.procesador.second_check = self.procesador.regDM.data
-                    current_instruction.procesador.forw_reg2 = 1
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
-                    return True
-                
-            elif isinstance(current_instruction, Mix):
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro1:
-                    current_instruction.procesador.second_check = self.procesador.regDM.data
-                    current_instruction.procesador.forw_reg2 = 1
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro1 (R{current_instruction.registro1})")
-                    return True
-                
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro2:
-                    current_instruction.procesador.second_check = self.procesador.regDM.data
-                    current_instruction.procesador.forw_reg2 = 2
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro2 (R{current_instruction.registro2})")
-                    return True
-                
-                if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.registro3:
-                    current_instruction.procesador.second_check = self.procesador.regDM.data
-                    current_instruction.procesador.forw_reg2 = 3
-                    print(f"Hazard detectado: R{dm_inst.destino} -> registro3 (R{current_instruction.registro3})")
-                    return True
+        # Instrucciones con tres registros fuente
+        elif isinstance(current_instruction, Mix):
+            return self._check_mix_hazard(current_instruction, dm_inst, forwarding_data, is_mem_stage=True)
 
         print("No hubo necesidad de aplicar forwarding de MEM para esta instrucción.")
         return False
