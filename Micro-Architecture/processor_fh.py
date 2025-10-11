@@ -46,7 +46,7 @@ class ProcesadorFullHazard:
     IMMEDIATE_NO_CRG = (Smai, Rtai, Muli, No, Rol, Modp, Mula)
     ALL_HAZARD_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Mix, Crg)
     
-    def __init__(self, interval=1):
+    def __init__(self, interval=1, print_registers=False, step_by_step=False):
         self.PC = 0
         self.Check = ""
         self.forw_reg = 0
@@ -65,6 +65,8 @@ class ProcesadorFullHazard:
 
         self.time = 1
         self.interval = interval
+        self.print_registers = print_registers
+        self.step_by_step = step_by_step
         self.total_cycles = 0
         self.instructions_completed = 0
         self.pipeline_locations = ["", "", "", "", ""]
@@ -297,6 +299,8 @@ class ProcesadorFullHazard:
             print("___________________________________________")
             print("_________________FIN CICLO_________________")
             
+            
+            
             elapsed_time = self.time
             if elapsed_time > 0:
                 clock_rate = self.total_cycles / (elapsed_time * 1e9)
@@ -307,6 +311,13 @@ class ProcesadorFullHazard:
             print("___________________________________________")
             self.time += 20
             time.sleep(self.interval)
+            
+            if self.print_registers:
+                print(f"Registros: {self.RF.registros}")
+                print(f"Vault: {self.vault.secure_regs}")
+                
+            if self.step_by_step:
+                input("Presiona Enter para continuar al siguiente ciclo...")
 
     def manejar_branch(self, branch_instruction):
         branch_instruction.ejecutar()
