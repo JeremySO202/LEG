@@ -34,8 +34,8 @@ opcodes = {
     'RIG': ["010100", "B"],
     'RIM': ["010101", "B"],
     'RIP': ["010110", "B"],
-    'GDRH': ["010111", "V"],
-    'GDRK': ["011000", "V"],
+    'GRDH': ["010111", "V"],
+    'GRDK': ["011000", "V"],
     'FRM': ["011001", "I"],
     'CHKF': ["011010", "R"]
     
@@ -74,10 +74,22 @@ vault = {
 
 def _parse_line(line):
     """Parse assembly line into tokens and get instruction info."""
-    line = line.upper()
+    # Remove comments (everything after #)
+    if '#' in line:
+        line = line[:line.index('#')]
+    
+    # Convert to uppercase and strip whitespace
+    line = line.upper().strip()
     print("Processing line:", line)
     
+    # Skip empty lines after comment removal
+    if not line:
+        return None, None, None
+    
     data = [item for item in line.split(" ") if item != '']
+    
+    if not data:
+        return None, None, None
     
     if data[0] not in opcodes:
         raise ValueError("Unknown mnemonic: " + data[0])
@@ -131,6 +143,10 @@ def _validate_immediate_unsigned(value_str, bits=16):
 def extract_bytes(line):
     """Extracts bytes from a given line of assembly code."""
     data, opcode, instr_type = _parse_line(line)
+    
+    # Skip empty lines or comment-only lines
+    if data is None:
+        return None
 
     if instr_type == 'R':
         if data[0] == 'NOP':
@@ -176,7 +192,7 @@ def extract_bytes(line):
     
     if instr_type == 'I':
         # Special case: NO instruction
-        if data[0] == 'NO':
+        if data[0] in ('NO', 'MULA', 'MODP'):
             if len(data) != 3:
                 raise ValueError("Invalid number of parameters for NO instruction: " + line)
             
@@ -255,7 +271,9 @@ def assembler(file_path, output_file):
 
     for line in lines:
         binary_line = extract_bytes(line)
-        binary_lines.append(binary_line)
+        # Only add non-None lines (skip comments and empty lines)
+        if binary_line is not None:
+            binary_lines.append(binary_line)
 
     write_file(output_file, binary_lines)
     print(f"Assembly completed. Output written to {output_file}")

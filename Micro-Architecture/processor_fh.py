@@ -201,7 +201,7 @@ class ProcesadorFullHazard:
                         if self.regRF.data is None:
                             self.regRF.data = [None, None]
                         self._handle_forwarding_two_registers(self, self.second_check, self.forw_reg2)
-                    elif isinstance(self.regRF.instruccion, self.IMMEDIATE_NO_CRG):
+                    elif isinstance(self.regRF.instruccion, self.IMMEDIATE_INSTRUCTIONS):
                         if self.regRF.data is None:
                             self.regRF.data = None
                         if self.forw_reg2 == 1:
@@ -232,14 +232,11 @@ class ProcesadorFullHazard:
                     needs_forwarding = self.hazard_control.exex_fw(self.regIM.instruccion)
                     print(f"Hazard EX: {'Detectado - Forwarding necesario' if needs_forwarding else 'No detectado'}")
 
-                    # Hazard MEM-EX (excluir Crg)
-                    if not isinstance(self.regIM.instruccion, Crg):
-                        second_hazard = self.hazard_control.memreg_forw(self.regIM.instruccion)
-                        print(f"Hazard MEM: {'Detectado - Forwarding necesario' if second_hazard else 'No detectado'}")
-                        if second_hazard:
-                            print(f"Valor MEM: {self.second_check}")
-                    else:
-                        second_hazard = False
+                    
+                    second_hazard = self.hazard_control.memreg_forw(self.regIM.instruccion)
+                    print(f"Hazard MEM: {'Detectado - Forwarding necesario' if second_hazard else 'No detectado'}")
+                    if second_hazard:
+                        print(f"Valor MEM: {self.second_check}")
                 
                 # Inserción de NOP por dependencia con load (Crg)
                 if isinstance(self.regALU.instruccion, Crg) and (needs_forwarding or second_hazard):
@@ -323,6 +320,7 @@ class ProcesadorFullHazard:
             if self.print_registers:
                 print(f"Registros: {self.RF.registros}")
                 print(f"Vault: {self.vault.secure_regs}")
+                print(f"First 64 memory blocks: {self.DM.datos[:64]}")
                 
             if self.step_by_step:
                 input("Presiona Enter para continuar al siguiente ciclo...")

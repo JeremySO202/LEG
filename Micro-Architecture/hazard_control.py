@@ -196,7 +196,7 @@ class HazardControl:
         elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Frm)):
             return self._check_single_register_hazard(current_instruction, dm_inst, forwarding_data, is_mem_stage=True)
         
-        elif isinstance(current_instruction, (Crg, Grdh, Grdk)):
+        elif isinstance(current_instruction, (Crg, Grd, Grdh, Grdk)):
             if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.fuente:
                 current_instruction.procesador.second_check = forwarding_data
                 current_instruction.procesador.forw_reg2 = 1
