@@ -55,7 +55,7 @@
 | GDRH - <small>guardar hash | 010111 | V | rs ← vault_hash_reg[index]
 | GDRK - <small>guardar clave | 011000 | V | rs ← vault_key_reg[index]
 
-## SIGNATURE INSTRUCTIONS
+### SIGNATURE INSTRUCTIONS
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION
 |---|---|---|---|
 | FRM - <small> generar firma | 011001 | I | rd ← (rs ^ KEY)
