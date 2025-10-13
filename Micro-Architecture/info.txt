@@ -1,0 +1,43 @@
+Las instrucciones revisadas son: 
+y
+smai
+sma
+rtai
+rta
+roti
+rotd
+oex
+o 
+mul 
+muli 
+crg 
+mov
+grd
+mix
+modp
+mula 
+rol
+rig
+rim
+rip
+no
+
+Falta:
+rin 
+
+
+TENER EN CUENTA QUE CUANDO SE ESCRIBAN EN LOS REGITROS NO SE HAGA ESTO:
+
+    procesador.cargarInstrucciones(StoreWord(9, 0, 1, procesador))
+    procesador.cargarInstrucciones(Sma(3, 9, 0, procesador))
+
+QUE NO SE USEN LOS MISMOS 2 REGISTROS EN LAS INSTRUCCIONES PORQUE VA SALIR MAL LA OPERACION PORQUE SE FORWARDEAN AMBOS 
+
+
+
+
+
+#falta agregar el forwarding de mov a algo 
+
+#para el error del branch hay 2 opciones. O mando las varas desde el decode bien o le meto un nop
+no logro hacer ninguno :p
