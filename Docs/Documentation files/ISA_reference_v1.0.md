@@ -28,7 +28,7 @@
 |---|---|---|---|
 | ROL - <small> rol64 | 001110 | I |  rd ← (rs1 << imm) or (rs1 >> (64 - imm))
 | MODP - <small>modulo primo | 001111 | I | rd ← rs1 mod 0xFFFFFFFB 
-| MIX - <small> mix no lineal | 010000 | H |  rd ← (rs1 & rs2) \| (~rs1 & rs3)  
+| MIX - <small> mix no lineal | 010000 | H |  rd ← (rs1 & rs2) | (~rs1 & rs3)  
 | MULA - <small>multiplicacion aurea | 010001 | I | rd ← (rs1 * 0x9e3779b97f4a7c15)  
 
 ### MEMORY ACCESS/ DATA HANDLING INSTRUCTIONS
@@ -52,6 +52,14 @@
 
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
 |---|---|---|---|
+| GDRH - <small>guardar hash | 010111 | V | rs ← vault_hash_reg[index]
+| GDRK - <small>guardar clave | 011000 | V | rs ← vault_key_reg[index]
+
+## SIGNATURE INSTRUCTIONS
+| MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION
+|---|---|---|---|
+| FRM - <small> generar firma | 011001 | I | rd ← (rs ^ KEY)
+| CHKF - <small> verificar firma | 011010 | R | rd ← (rs1 == rs2)
 
 
 <hr style="margin:0; border:3px solid white;">
@@ -64,8 +72,8 @@
 | B |X|X|||OFFSET(16)  |RS2(4) | OPC(6) | RS1(4)
 | M |X|X|||OFFSET(16)  |BASE(4) | OPC(6) | RS/RD(4)
 | I | VRS |X|||IMM(16)  |RS(4) | OPC(6) | RD(4)
-| H |VRS||X(9) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4)
-| V |||||||
+| H |VRS||X(9) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4) 
+| V |||||X(20)|INDEX(2)|OPC(6)|RS(4)|
 
 V(2): Vault register specifier (00: no vault, 01 for rs1 vault register, 10 for rs2 vault register, 11 for rs1 and rs2 vault register)
 
@@ -88,14 +96,18 @@ V(2): Vault register specifier (00: no vault, 01 for rs1 vault register, 10 for 
 
 <hr style="margin:0; border:3px solid white;">
 
+### INSTRUCTION ENCODINGS
+
+![Encodings green card](../Assets/encodings.png "Encodigns green card")
+
+<hr style="margin:0; border:3px solid white;">
 
 ### ADDITIONAL INFORMATION 
 
 1. LEG utiliza un formato de endianess BIG ENDIAN. 
 2. Solo utiliza datos sin signo a excepción de instrucciones de saltos condicionales.
 3. No tiene instrucciones de punto flotante, ni de llamada a subrutinas o funciones. 
-
-4. Tamaño de inmediatos: 
+4. Tamaño de inmediatos: 16 bits
 
 
 
