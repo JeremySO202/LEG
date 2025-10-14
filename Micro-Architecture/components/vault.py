@@ -11,21 +11,12 @@ class vault:
         self.max_attempts = 3
 
     def login(self, password):
-        """Intenta hacer login con la contraseña proporcionada."""
-        if self.login_attempts >= self.max_attempts:
-            return False, "Maximum login attempts exceeded. System locked."
-        
+        """Intenta hacer login con la contraseña proporcionada."""        
         if password == self.master_password:
             self.secure_user = True
-            self.login_attempts = 0
-            return True, "Login successful. Vault access granted."
+            return True
         else:
-            self.login_attempts += 1
-            remaining = self.max_attempts - self.login_attempts
-            if remaining > 0:
-                return False, f"Incorrect password. {remaining} attempts remaining."
-            else:
-                return False, "Maximum login attempts exceeded. System locked."
+            return False
     
     def logout(self):
         """Cierra sesión del vault."""
@@ -54,6 +45,15 @@ class vault:
             if 0 <= index < 8:
                 return self.secure_regs[index]
         return 0
+    
+    def get_password(self):
+        return self.master_password
+    
+    def write_authorization(self, result):
+        self.secure_user = result
+        
+    def unathorize(self):
+        self.secure_user = False
 
     #Login y tenemos contraseña en boveda, me compara la que le doy con la hardcoded en boveda
     # Esto activa un registro interno para comprobar si se logueó o no

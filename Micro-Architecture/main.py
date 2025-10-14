@@ -203,20 +203,6 @@ if __name__ == "__main__":
     # Create processor
     procesador = ProcesadorFullHazard(interval=interval, print_registers=print_registers, step_by_step=step_by_step)
     
-    # Show vault login GUI
-    print("\n=== Vault Authentication Required ===")
-    print("Opening login window...")
-    authenticated = show_login_gui(procesador.vault)
-    
-    if not authenticated:
-        print("\n✗ Authentication failed!")
-        print("Processor cannot start without vault access.")
-        print("Exiting...")
-        sys.exit(1)
-    
-    print("\n✓ Vault access granted!")
-    print("Processor is now authorized to execute.")
-    
     # Load input data and key into memory
     print("\n=== Loading Input Data and Key ===")
     ok = load_file_to_memory(input_file, procesador)
