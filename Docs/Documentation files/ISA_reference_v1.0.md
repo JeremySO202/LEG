@@ -54,12 +54,13 @@
 |---|---|---|---|
 | GDRH - <small>guardar hash | 010111 | V | rs ← vault_hash_reg[index]
 | GDRK - <small>guardar clave | 011000 | V | rs ← vault_key_reg[index]
+| AUT - <small>iniciar sesión segura | 011001 | V | rd ← check_credential[rs]
 
-## HASH VAULT INSTRUCTIONS
+### SIGNATURE INSTRUCTIONS
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION
 |---|---|---|---|
 | FRM - <small> generar firma | 011001 | I | rd ← (rs ^ KEY)
-| CHKF - <small> verificar firma | 011010 | R | rd ← ()
+| CHKF - <small> verificar firma | 011010 | R | rd ← (rs1 == rs2)
 
 
 <hr style="margin:0; border:3px solid white;">
@@ -96,15 +97,18 @@ V(2): Vault register specifier (00: no vault, 01 for rs1 vault register, 10 for 
 
 <hr style="margin:0; border:3px solid white;">
 
+### INSTRUCTION ENCODINGS
+
+![Encodings green card](../Assets/encodings.png "Encodigns green card")
+
+<hr style="margin:0; border:3px solid white;">
 
 ### ADDITIONAL INFORMATION 
 
 1. LEG utiliza un formato de endianess BIG ENDIAN. 
 2. Solo utiliza datos sin signo a excepción de instrucciones de saltos condicionales.
 3. No tiene instrucciones de punto flotante, ni de llamada a subrutinas o funciones. 
-
-4. Tamaño de inmediatos: PENDIENTE
-
+4. Tamaño de inmediatos: 16 bits
 
 
 
