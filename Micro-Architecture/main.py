@@ -28,7 +28,7 @@ def load_code_from_file(file_path, processor):
         return True
 
 def load_file_to_memory(file_path, processor):
-    """Carga cualquier archivo en la memoria del procesador en bloques de 64 bits."""
+    # Carga cualquier archivo en la memoria del procesador en bloques de 64 bits.
     p = Path(file_path).expanduser()
     if not p.is_file():
         print(f"Error: The file {file_path} does not exist.")
@@ -109,7 +109,7 @@ def load_file_to_memory(file_path, processor):
         return False
 
 def save_file_from_memory(file_path, processor):
-    """Guarda el contenido de la memoria del procesador en un archivo en bloques de 64 bits."""
+    # Guarda el contenido de la memoria del procesador en un archivo en bloques de 64 bits
     p = Path(file_path).expanduser()
     try:
         with p.open('wb') as f:
@@ -174,9 +174,7 @@ if __name__ == "__main__":
     
     # Validate required arguments
     if len(clean_args) < 3:
-        print("Error: Missing required arguments!")
-        print("Usage: python main.py [options] <instructions_file> <input_file> <output_file> [interval]")
-        print("Use -h or --help for more information.")
+        print("Error: Missing required arguments")
         sys.exit(1)
     
     # Parse arguments

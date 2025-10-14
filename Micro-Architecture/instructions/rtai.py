@@ -13,18 +13,18 @@ class Rtai:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def _read_register(self):
-        """Lee el registro fuente y lo almacena en regRF"""
+        # Lee el registro fuente y lo almacena en regRF
         self.procesador.regRF.data = self.procesador.RF.registros[self.registro1]
     
     def _get_operand_value(self):
-        """Obtiene el valor del operando considerando registros de bóveda"""
+        # Obtiene el valor del operando considerando registros de bóveda
         if self.boveda:
             return self.procesador.vault.get_secure_reg(self.registro1)
         else:
             return self.procesador.regRF.data
     
     def decode(self):
-        print(f"Leyendo registro R{self.registro1}")
+        print(f"Leyendo registro L{self.registro1}")
         self._read_register()
         print(f"Valor leído: {self.procesador.regRF.data}")
     
@@ -45,10 +45,10 @@ class Rtai:
         self.procesador.regDM.data = self.procesador.regALU.data
     
     def writeback(self):
-        print(f"Escribiendo resultado en R{self.destino}")
+        print(f"Escribiendo resultado en L{self.destino}")
         self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
-        print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
-    
+        print(f"L{self.destino} = {self.procesador.RF.registros[self.destino]}")
+
     def ejecutar(self):
         if self.ejecucion:
             fase = self.ejecucion.pop(0)

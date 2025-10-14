@@ -11,7 +11,7 @@ class Grdh:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):    
-        print(f"Leyendo valor a almacenar desde R{self.fuente}")
+        print(f"Leyendo valor a almacenar desde L{self.fuente}")
         self.procesador.regRF.data = [None, None]
         # En RF.data[0] guardamos el valor a almacenar
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.fuente]

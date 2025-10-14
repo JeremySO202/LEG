@@ -11,7 +11,7 @@ class Grdk:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):    
-        print(f"Leyendo valor a almacenar desde R{self.fuente}")
+        print(f"Leyendo valor a almacenar desde L{self.fuente}")
         self.procesador.regRF.data = [None, None]
         # En RF.data[0] guardamos el valor a almacenar
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.fuente]
@@ -22,12 +22,12 @@ class Grdk:
     def execute(self):
         # vault does not require an offset, only direct access allowed
         self.procesador.regALU.data = self.procesador.regRF.data
-        print(f"Sin operación de execute para Grdk.")
+        print(f"Sin operación de execute para Grdk")
     
     def memory(self):
         print(self.procesador.regALU.data)
         self.procesador.regDM.data = self.procesador.regALU.data
-        print(f"Sin operación de memoria para Grdk.")
+        print(f"Sin operación de memoria para Grdk")
     
     def writeback(self):
         print(f"Escribiendo resultado en V{self.destino} = {self.procesador.regDM.data}")
@@ -39,4 +39,4 @@ class Grdk:
             fase = self.ejecucion.pop(0)
             fase()
         else:
-            print("No hay más fases para ejecutar en Grdk.")
+            print("No hay más fases para ejecutar en Grdk")

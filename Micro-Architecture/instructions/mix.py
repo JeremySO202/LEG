@@ -14,14 +14,14 @@ class Mix:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def _read_registers(self):
-        """Lee los tres registros fuente y los almacena en regRF"""
+        # Lee los tres registros fuente y los almacena en regRF
         self.procesador.regRF.data = [None] * 3
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
         self.procesador.regRF.data[2] = self.procesador.RF.registros[self.registro3]
     
     def _get_operand_values(self):
-        """Obtiene los valores de los tres operandos considerando registros de bóveda"""
+        # Obtiene los valores de los tres operandos considerando registros de bóveda
         if self.boveda:
             tempA = self.procesador.vault.get_secure_reg(self.registro1)
             tempB = self.procesador.vault.get_secure_reg(self.registro2)
@@ -33,7 +33,7 @@ class Mix:
                    self.procesador.regRF.data[2])
     
     def decode(self):
-        print(f"Leyendo registros R{self.registro1}, R{self.registro2} y R{self.registro3}")
+        print(f"Leyendo registros L{self.registro1}, L{self.registro2} y L{self.registro3}")
         self._read_registers()
         print(f"Valores leídos: {self.procesador.regRF.data}")
     
@@ -51,9 +51,9 @@ class Mix:
         self.procesador.regDM.data = self.procesador.regALU.data
     
     def writeback(self):
-        print(f"Escribiendo resultado en R{self.destino}")
+        print(f"Escribiendo resultado en L{self.destino}")
         self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
-        print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
+        print(f"L{self.destino} = {self.procesador.RF.registros[self.destino]}")
        
     def ejecutar(self):
         if self.ejecucion:

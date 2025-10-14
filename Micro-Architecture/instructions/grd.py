@@ -12,7 +12,7 @@ class Grd:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def _read_registers(self):
-        """Lee el valor a almacenar y el registro base para dirección"""
+        # Lee el valor a almacenar y el registro base para dirección
         self.procesador.regRF.data = [None, None]
         # En RF.data[0] guardamos el valor a almacenar
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.fuente]
@@ -20,22 +20,22 @@ class Grd:
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.destino]
     
     def _calculate_address(self):
-        """Calcula la dirección de memoria sumando base + offset"""
+        # Calcula la dirección de memoria sumando base + offset
         return self.procesador.ALU.operar(self.procesador.regRF.data[1], self.inmediato, 0)
     
     def _store_memory_data(self, address, value):
-        """Almacena el dato en la memoria en la dirección especificada"""
+        # Almacena el dato en la memoria en la dirección especificada
         self.procesador.DM.datos[address] = value
         self.procesador.regDM.data = value
     
     def decode(self):
-        print(f"Leyendo valor a almacenar desde R{self.fuente} y registro base R{self.destino}")
+        print(f"Leyendo valor a almacenar desde L{self.fuente} y registro base L{self.destino}")
         self._read_registers()
         print(f"Valor a almacenar: {self.procesador.regRF.data[0]}")
         print(f"Registro base: {self.procesador.regRF.data[1]}")
     
     def execute(self):
-        print(f"Calculando dirección: R{self.destino} + {self.inmediato}")
+        print(f"Calculando dirección: L{self.destino} + {self.inmediato}")
         direccion = self._calculate_address()
         # Guardamos [dirección, valor_a_almacenar]
         self.procesador.regALU.data = [direccion, self.procesador.regRF.data[0]]

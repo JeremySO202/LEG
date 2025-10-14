@@ -28,9 +28,9 @@ class Frm:
         self.procesador.regDM.data = self.procesador.regALU.data
     
     def writeback(self):
-        print(f"Escribiendo resultado en R{self.destino}")
+        print(f"Escribiendo resultado en L{self.destino}")
         self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
-        print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
+        print(f"L{self.destino} = {self.procesador.RF.registros[self.destino]}")
        
     def ejecutar(self):
         if self.ejecucion:

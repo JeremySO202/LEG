@@ -9,7 +9,7 @@ class Nop:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def _initialize_dummy_data(self):
-        """Inicializa datos dummy para NOP"""
+        # Inicializa datos dummy para NOP
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = 0
         self.procesador.regRF.data[1] = 0

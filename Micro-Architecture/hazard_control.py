@@ -43,7 +43,7 @@ class HazardControl:
         self.procesador = procesador
     
     def _initialize_regrf_data(self, current_instruction):
-        """Inicializa la estructura de datos regRF según el tipo de instrucción"""
+        # Inicializa la estructura de datos regRF según el tipo de instrucción
         if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
@@ -52,7 +52,7 @@ class HazardControl:
                 current_instruction.procesador.regRF.data = [None, None, None]
     
     def _check_two_register_hazard(self, current_instruction, source_inst, forwarding_data, is_mem_stage=False):
-        """Verifica hazards para instrucciones de dos registros"""
+        # Verifica hazards para instrucciones de dos registros
         if not hasattr(source_inst, 'destino'):
             return False
             
@@ -100,7 +100,7 @@ class HazardControl:
         return False
     
     def _check_mix_hazard(self, current_instruction, source_inst, forwarding_data, is_mem_stage=False):
-        """Verifica hazards para instrucciones Mix (3 registros)"""
+        # Verifica hazards para instrucciones Mix (3 registros)
         if not hasattr(source_inst, 'destino'):
             return False
             
@@ -124,7 +124,7 @@ class HazardControl:
         return False
 
     def handle_misprediction(self, instruction):
-        """Maneja las mispredictions de branch de forma centralizada"""
+        # Maneja las mispredictions de branch de forma centralizada
         print("Predicción incorrecta detectada. Penalización aplicada.")
         
         if not instruction.prediction_made:
@@ -143,7 +143,7 @@ class HazardControl:
         self.procesador.clear_pipeline()
 
     def exex_fw(self, current_instruction):
-        """Detecta y aplica forwarding EX-EX"""
+        # Detecta y aplica forwarding EX-EX
         self._initialize_regrf_data(current_instruction)
         
         alu_inst = self.procesador.regALU.instruccion
@@ -178,7 +178,7 @@ class HazardControl:
     
 
     def memreg_forw(self, current_instruction):
-        """Detecta y aplica forwarding MEM-EX"""
+        # Detecta y aplica forwarding MEM-EX
         self._initialize_regrf_data(current_instruction)
         
         dm_inst = self.procesador.regDM.instruccion
@@ -221,14 +221,14 @@ class BranchPredictor:
         self.default_prediction = default_prediction
 
     def predict(self, instruction_id):
-        """Devuelve la predicción para una instrucción específica."""
+        # Devuelve la predicción para una instrucción específica.
         return self.history.get(instruction_id, self.default_prediction)
 
     def update(self, instruction_id, actual_outcome):
-        """Actualiza el historial dinámico basado en el resultado real."""
+        # Actualiza el historial dinámico basado en el resultado real.
         self.history[instruction_id] = actual_outcome
         print(f"Historial actualizado para instrucción {instruction_id}: {actual_outcome}")
 
     def reset(self):
-        """Resetea el historial dinámico."""
+        # Resetea el historial dinámico.
         self.history = {}

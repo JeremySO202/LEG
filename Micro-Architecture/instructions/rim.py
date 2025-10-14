@@ -16,18 +16,18 @@ class Rim:
         self.prediction_made = False
     
     def _read_registers(self):
-        """Lee los registros fuente y los almacena en regRF"""
+        # Lee los registros fuente y los almacena en regRF
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
     
     def _evaluate_branch_condition(self, valor1, valor2):
-        """Evalúa la condición específica del branch (mayor o igual) para números unsigned"""
+        # Evalúa la condición específica del branch (mayor o igual) para números unsigned
         # Para unsigned: A >= B es verdadero si A >= B directamente
         return valor1 >= valor2
     
     def _handle_branch_prediction(self):
-        """Maneja la predicción y misprediction del branch"""
+        # Maneja la predicción y misprediction del branch
         instruction_id = id(self)
         predicted_taken = self.procesador.branch_predictor.predict(instruction_id)
         print(f"Predicción fue: {predicted_taken}")
@@ -41,7 +41,7 @@ class Rim:
         self.procesador.branch_predictor.update(instruction_id, self.branch_taken)
     
     def decode(self):
-        print(f"Leyendo registros R{self.registro1} y R{self.registro2}")
+        print(f"Leyendo registros L{self.registro1} y L{self.registro2}")
         self._read_registers()
         print(f"Valores leídos: {self.procesador.regRF.data}")
         

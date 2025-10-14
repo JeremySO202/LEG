@@ -39,7 +39,7 @@ from instructions.grdh import Grdh
 from instructions.grdk import Grdk
 
 #authentication
-from instructions.Aut import Aut
+from instructions.aut import Aut
 
 
 

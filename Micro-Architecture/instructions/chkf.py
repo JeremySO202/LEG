@@ -13,7 +13,7 @@ class Chkf:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def decode(self):
-        print(f"Leyendo registros R{self.registro1} y R{self.registro2}")
+        print(f"Leyendo registros L{self.registro1} y L{self.registro2}")
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
@@ -29,10 +29,10 @@ class Chkf:
         self.procesador.regDM.data = self.procesador.regALU.data
     
     def writeback(self):
-        print(f"Escribiendo resultado en R{self.destino}")
+        print(f"Escribiendo resultado en L{self.destino}")
         self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
-        print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
-       
+        print(f"L{self.destino} = {self.procesador.RF.registros[self.destino]}")
+
     def ejecutar(self):
         if self.ejecucion:
             fase = self.ejecucion.pop(0)

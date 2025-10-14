@@ -100,17 +100,17 @@ class ProcesadorFullHazard:
         self.execute_instruction_index = None
 
     def _print_stage_header(self, stage_name, pc_offset):
-        """Imprime el encabezado de cada etapa del pipeline"""
+        # Imprime el encabezado de cada etapa del pipeline
         print("----------------------")
         print(f"Etapa {stage_name} {self.PC + pc_offset}")
 
     def _print_no_instruction(self, stage_index):
-        """Imprime mensaje cuando no hay instrucción en una etapa"""
+        # Imprime mensaje cuando no hay instrucción en una etapa
         print("No hay instrucción en esta etapa")
         self.pipeline_locations[stage_index] = ""
 
     def _handle_forwarding_two_registers(self, instruction, forw_value, forw_reg):
-        """Maneja forwarding para instrucciones de dos registros"""
+        # Maneja forwarding para instrucciones de dos registros
         if forw_reg == 1:
             instruction.regRF.data[0] = forw_value
         elif forw_reg == 2:
@@ -119,12 +119,12 @@ class ProcesadorFullHazard:
         print(f"Después del forwarding: {instruction.regRF.data}")
 
     def _handle_forwarding_immediate(self, instruction, forw_value):
-        """Maneja forwarding para instrucciones con inmediatos"""
+        # Maneja forwarding para instrucciones con inmediatos
         instruction.regRF.data = forw_value
         print(f"Después del forwarding: {instruction.regRF.data}")
 
     def _handle_forwarding_mix(self, instruction, forw_value, forw_reg):
-        """Maneja forwarding para instrucciones Mix"""
+        # Maneja forwarding para instrucciones Mix
         if forw_reg == 1:
             print(f"Forwarding al registro1")
             instruction.regRF.data[0] = forw_value
@@ -141,7 +141,7 @@ class ProcesadorFullHazard:
         second_hazard = False
         start_time = time.time()
         execute = True
-        max_cycles = 10000  # Límite de seguridad para evitar ciclos infinitos
+        max_cycles = 10000  # Límite para los ciclos inficitos
         
         while execute and self.total_cycles < max_cycles:
             self.total_cycles += 1
@@ -304,9 +304,7 @@ class ProcesadorFullHazard:
             # Fin de ciclo y métricas
             print("___________________________________________")
             print("_________________FIN CICLO_________________")
-            
-            
-            
+               
             elapsed_time = self.time
             if elapsed_time > 0:
                 clock_rate = self.total_cycles / (elapsed_time * 1e9)
@@ -328,7 +326,7 @@ class ProcesadorFullHazard:
         
         # Verificar si se alcanzó el límite de ciclos
         if self.total_cycles >= max_cycles:
-            print(f"\n⚠️  ADVERTENCIA: Se alcanzó el límite máximo de ciclos ({max_cycles})")
+            print(f"Se alcanzó el límite máximo de ciclos ({max_cycles})")
             print(f"El programa puede estar en un ciclo infinito o necesita más ciclos para completar.")
             print(f"Instrucciones completadas: {self.instructions_completed}")
 
