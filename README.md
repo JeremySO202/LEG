@@ -27,12 +27,29 @@ El programa toma como parámetros:
 - instructions_file
 - input_file
 - output_file
+- interval (opcional)
+
+Y las opciones:
+```
+-S, --step         Ejecución paso a paso
+-R, --registers    Imprimir estado de los registros
+-h, --help         Ayuda del programa
+```
 
 Para firmar un archivo, se debe ejectuar el programa ToyMDMA/toyMDMA_FRM.txt
 Para verificar la firma, se debe ejecutar el programa ToyMDMA/toyMDMA_CHK.txt
 
+Los archivos .txt contienen las instrucciones ensambladas en binario de cada programa
 
-## Ejemplos
+Mapa de memoria:
+```
+  Memory[0]          Número de bloques de datos
+  Memory[1]          Llave de encripción de 64-bit (user provided)
+  Memory[2+]         Bloques del archivo de 64-bits (user provided)
+  ```
+
+
+## Ejemplo
 
 En la carpeta ToyMDMA se encuentra un archivo de prueba pruebaHash.txt, para agregar una firma a este archivo y escribirlo en un archivo llamado output.txt se ejecuta:
 
