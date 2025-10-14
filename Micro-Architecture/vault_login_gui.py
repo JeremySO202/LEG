@@ -1,8 +1,3 @@
-"""
-Vault Login GUI - Graphical interface for secure vault authentication
-This module provides a tkinter-based login window for the processor vault system.
-"""
-
 import tkinter as tk
 from tkinter import messagebox, ttk
 import sys

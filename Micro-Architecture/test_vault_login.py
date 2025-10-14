@@ -1,8 +1,3 @@
-"""
-Test script for the Vault Login GUI
-This demonstrates the login functionality without needing to run the full processor.
-"""
-
 import sys
 sys.path.append('.')
 
