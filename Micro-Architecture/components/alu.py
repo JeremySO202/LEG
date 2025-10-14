@@ -1,36 +1,56 @@
 class ALU:
     def __init__(self):
-        pass
+        # Máscara para limitar resultados a 64 bits
+        self.MASK_64BIT = 0xFFFFFFFFFFFFFFFF
+
+    def _limit_64bit(self, value):
+        """Limita un valor a 64 bits usando máscara."""
+        return value & self.MASK_64BIT
 
     def operar(self, A, B, op, C=0):
+        # Asegurar que los operandos estén dentro de 64 bits
+        A = self._limit_64bit(A)
+        B = self._limit_64bit(B)
+        C = self._limit_64bit(C)
+        
         if op == 0:
-            return A + B
+            return self._limit_64bit(A + B)
         elif op == 1:
-            return A - B
+            return self._limit_64bit(A - B)
         elif op == 2:
-            return A & B
+            return self._limit_64bit(A & B)
         elif op == 3:
-            return A | B
+            return self._limit_64bit(A | B)
         elif op == 4:
-            return A * B # Multiplicación
+            return self._limit_64bit(A * B)  # Multiplicación
         elif op == 5:
-            return A << B # Desplazamiento a la izquierda lógico
-            #deberia limitarse a 32 bits? -> Si
+            # Desplazamiento a la izquierda lógico (limitado a 63 bits de desplazamiento)
+            B = B & 0x3F  # Limitar desplazamiento a 0-63
+            return self._limit_64bit(A << B)
         elif op == 6:
-            return A >> B # Desplazamiento a la derecha lógico
+            # Desplazamiento a la derecha lógico (limitado a 63 bits de desplazamiento)
+            B = B & 0x3F  # Limitar desplazamiento a 0-63
+            return self._limit_64bit(A >> B)
         elif op == 7:
-            return A ^ B # XOR
+            return self._limit_64bit(A ^ B)  # XOR
         elif op == 8:
-            return ~A # NOT
+            return self._limit_64bit(~A)  # NOT
         elif op == 9:
-            return A % B
+            if B == 0:
+                raise ValueError("División por cero en operación módulo")
+            return self._limit_64bit(A % B)
         elif op == 10:
-            return (A & B) | (~A & C);
+            # Mix no lineal: (A & B) | (~A & C)
+            return self._limit_64bit((A & B) | (~A & C))
         elif op == 11:
+            # Multiplicación áurea
             mul = A * 0x9e3779b97f4a7c15
-            mul &= 0xFFFFFFFFFFFFFFFF 
-            return mul
+            return self._limit_64bit(mul)
         elif op == 12:
-            return (A << B) | (A >> (64 - B));
+            # Rotación a la izquierda
+            B = B & 0x3F  # Limitar rotación a 0-63
+            return self._limit_64bit((A << B) | (A >> (64 - B)))
+        elif op == 13:
+            return 1 if A == B else 0  # Comparación de igualdad
         else:
             raise ValueError("Operación no reconocida")

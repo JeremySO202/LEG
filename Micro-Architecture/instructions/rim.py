@@ -16,17 +16,18 @@ class Rim:
         self.prediction_made = False
     
     def _read_registers(self):
-        """Lee los registros fuente y los almacena en regRF"""
+        # Lee los registros fuente y los almacena en regRF
         self.procesador.regRF.data = [None] * 2
         self.procesador.regRF.data[0] = self.procesador.RF.registros[self.registro1]
         self.procesador.regRF.data[1] = self.procesador.RF.registros[self.registro2]
     
-    def _evaluate_branch_condition(self, alu_result):
-        """Evalúa la condición específica del branch (mayor o igual)"""
-        return alu_result >= 0
+    def _evaluate_branch_condition(self, valor1, valor2):
+        # Evalúa la condición específica del branch (mayor o igual) para números unsigned
+        # Para unsigned: A >= B es verdadero si A >= B directamente
+        return valor1 >= valor2
     
     def _handle_branch_prediction(self):
-        """Maneja la predicción y misprediction del branch"""
+        # Maneja la predicción y misprediction del branch
         instruction_id = id(self)
         predicted_taken = self.procesador.branch_predictor.predict(instruction_id)
         print(f"Predicción fue: {predicted_taken}")
@@ -40,7 +41,7 @@ class Rim:
         self.procesador.branch_predictor.update(instruction_id, self.branch_taken)
     
     def decode(self):
-        print(f"Leyendo registros R{self.registro1} y R{self.registro2}")
+        print(f"Leyendo registros L{self.registro1} y L{self.registro2}")
         self._read_registers()
         print(f"Valores leídos: {self.procesador.regRF.data}")
         
@@ -54,15 +55,18 @@ class Rim:
             self.procesador.PC += self.offset
    
     def execute(self):
-        print(f"Comparando valores para branch mayor igual")
+        print(f"Comparando valores para branch mayor igual (unsigned)")
         valor1 = self.procesador.regRF.data[0]
         valor2 = self.procesador.regRF.data[1]
        
+        # Realizar la resta para almacenar en ALU (por compatibilidad)
         self.procesador.regALU.data = self.procesador.ALU.operar(valor1, valor2, 1)
-        self.branch_taken = self._evaluate_branch_condition(self.procesador.regALU.data)
         
-        print(f"Resultado comparación: {valor1} - {valor2} = {self.procesador.regALU.data}")
-        print(f"Salto: {self.branch_taken}")
+        # Evaluar condición usando comparación unsigned directa
+        self.branch_taken = self._evaluate_branch_condition(valor1, valor2)
+        
+        print(f"Comparación unsigned: {valor1} >= {valor2} = {self.branch_taken}")
+        print(f"Resultado resta (ALU): {valor1} - {valor2} = {self.procesador.regALU.data}")
        
         self._handle_branch_prediction()
    

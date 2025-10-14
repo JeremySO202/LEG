@@ -14,6 +14,7 @@ from instructions.mul import Mul
 from instructions.y import Y
 from instructions.o import O
 from instructions.oex import Oex
+from instructions.chkf import Chkf
 #1 register
 from instructions.smai import Smai
 from instructions.rtai import Rtai
@@ -24,6 +25,7 @@ from instructions.no import No
 from instructions.rol import Rol
 from instructions.modp import Modp
 from instructions.mula import Mula
+from instructions.frm import Frm
 
 #branch
 from instructions.rig import Rig
@@ -37,14 +39,18 @@ from instructions.mix import Mix
 from instructions.crg import Crg
 from instructions.grd import Grd
 
+#vault
+from instructions.grdh import Grdh
+from instructions.grdk import Grdk
+
 
 
 class ProcesadorFullHazard:
     # Constantes para tipos de instrucciones
-    TWO_REG_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Roti, Rotd, Rig, Rip, Rim)
-    IMMEDIATE_INSTRUCTIONS = (Smai, Rtai, Muli, No, Rol, Modp, Mula, Crg)
-    IMMEDIATE_NO_CRG = (Smai, Rtai, Muli, No, Rol, Modp, Mula)
-    ALL_HAZARD_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Mix, Crg)
+    TWO_REG_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Roti, Rotd, Rig, Rip, Rim, Chkf)
+    IMMEDIATE_INSTRUCTIONS = (Smai, Rtai, Muli, No, Rol, Modp, Mula, Crg, Grd, Grdh, Grdk, Frm)
+    IMMEDIATE_NO_CRG = (Smai, Rtai, Muli, No, Rol, Modp, Mula, Grd, Grdh, Grdk, Frm)
+    ALL_HAZARD_INSTRUCTIONS = (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Mix, Crg, Grd, Grdh, Grdk, Chkf, Frm)
     
     def __init__(self, interval=1, print_registers=False, step_by_step=False):
         self.PC = 0
@@ -94,17 +100,17 @@ class ProcesadorFullHazard:
         self.execute_instruction_index = None
 
     def _print_stage_header(self, stage_name, pc_offset):
-        """Imprime el encabezado de cada etapa del pipeline"""
+        # Imprime el encabezado de cada etapa del pipeline
         print("----------------------")
         print(f"Etapa {stage_name} {self.PC + pc_offset}")
 
     def _print_no_instruction(self, stage_index):
-        """Imprime mensaje cuando no hay instrucción en una etapa"""
+        # Imprime mensaje cuando no hay instrucción en una etapa
         print("No hay instrucción en esta etapa")
         self.pipeline_locations[stage_index] = ""
 
     def _handle_forwarding_two_registers(self, instruction, forw_value, forw_reg):
-        """Maneja forwarding para instrucciones de dos registros"""
+        # Maneja forwarding para instrucciones de dos registros
         if forw_reg == 1:
             instruction.regRF.data[0] = forw_value
         elif forw_reg == 2:
@@ -113,12 +119,12 @@ class ProcesadorFullHazard:
         print(f"Después del forwarding: {instruction.regRF.data}")
 
     def _handle_forwarding_immediate(self, instruction, forw_value):
-        """Maneja forwarding para instrucciones con inmediatos"""
+        # Maneja forwarding para instrucciones con inmediatos
         instruction.regRF.data = forw_value
         print(f"Después del forwarding: {instruction.regRF.data}")
 
     def _handle_forwarding_mix(self, instruction, forw_value, forw_reg):
-        """Maneja forwarding para instrucciones Mix"""
+        # Maneja forwarding para instrucciones Mix
         if forw_reg == 1:
             print(f"Forwarding al registro1")
             instruction.regRF.data[0] = forw_value
@@ -135,8 +141,9 @@ class ProcesadorFullHazard:
         second_hazard = False
         start_time = time.time()
         execute = True
+        max_cycles = 10000  # Límite para los ciclos inficitos
         
-        while execute:
+        while execute and self.total_cycles < max_cycles:
             self.total_cycles += 1
             execute = False
 
@@ -175,9 +182,11 @@ class ProcesadorFullHazard:
                 if needs_forwarding:
                     print(f"Recibiendo forwarding en EXECUTE - Valor: {self.Check}")
                     
+                    
                     if isinstance(self.regRF.instruccion, self.TWO_REG_INSTRUCTIONS):
                         self._handle_forwarding_two_registers(self, self.Check, self.forw_reg)
                     elif isinstance(self.regRF.instruccion, self.IMMEDIATE_INSTRUCTIONS):
+                        
                         if self.forw_reg == 1:
                             self._handle_forwarding_immediate(self, self.Check)
                     elif isinstance(self.regRF.instruccion, Mix):
@@ -193,7 +202,7 @@ class ProcesadorFullHazard:
                         if self.regRF.data is None:
                             self.regRF.data = [None, None]
                         self._handle_forwarding_two_registers(self, self.second_check, self.forw_reg2)
-                    elif isinstance(self.regRF.instruccion, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+                    elif isinstance(self.regRF.instruccion, self.IMMEDIATE_INSTRUCTIONS):
                         if self.regRF.data is None:
                             self.regRF.data = None
                         if self.forw_reg2 == 1:
@@ -224,14 +233,11 @@ class ProcesadorFullHazard:
                     needs_forwarding = self.hazard_control.exex_fw(self.regIM.instruccion)
                     print(f"Hazard EX: {'Detectado - Forwarding necesario' if needs_forwarding else 'No detectado'}")
 
-                    # Hazard MEM-EX (excluir Crg)
-                    if not isinstance(self.regIM.instruccion, Crg):
-                        second_hazard = self.hazard_control.memreg_forw(self.regIM.instruccion)
-                        print(f"Hazard MEM: {'Detectado - Forwarding necesario' if second_hazard else 'No detectado'}")
-                        if second_hazard:
-                            print(f"Valor MEM: {self.second_check}")
-                    else:
-                        second_hazard = False
+                    
+                    second_hazard = self.hazard_control.memreg_forw(self.regIM.instruccion)
+                    print(f"Hazard MEM: {'Detectado - Forwarding necesario' if second_hazard else 'No detectado'}")
+                    if second_hazard:
+                        print(f"Valor MEM: {self.second_check}")
                 
                 # Inserción de NOP por dependencia con load (Crg)
                 if isinstance(self.regALU.instruccion, Crg) and (needs_forwarding or second_hazard):
@@ -298,9 +304,7 @@ class ProcesadorFullHazard:
             # Fin de ciclo y métricas
             print("___________________________________________")
             print("_________________FIN CICLO_________________")
-            
-            
-            
+               
             elapsed_time = self.time
             if elapsed_time > 0:
                 clock_rate = self.total_cycles / (elapsed_time * 1e9)
@@ -315,9 +319,16 @@ class ProcesadorFullHazard:
             if self.print_registers:
                 print(f"Registros: {self.RF.registros}")
                 print(f"Vault: {self.vault.secure_regs}")
+                print(f"First 64 memory blocks: {self.DM.datos[:64]}")
                 
             if self.step_by_step:
                 input("Presiona Enter para continuar al siguiente ciclo...")
+        
+        # Verificar si se alcanzó el límite de ciclos
+        if self.total_cycles >= max_cycles:
+            print(f"Se alcanzó el límite máximo de ciclos ({max_cycles})")
+            print(f"El programa puede estar en un ciclo infinito o necesita más ciclos para completar.")
+            print(f"Instrucciones completadas: {self.instructions_completed}")
 
     def manejar_branch(self, branch_instruction):
         branch_instruction.ejecutar()

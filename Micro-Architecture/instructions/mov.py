@@ -11,11 +11,11 @@ class Mov:
         self.ejecucion = [self.decode, self.execute, self.memory, self.writeback]
     
     def _load_immediate_value(self):
-        """Carga el valor inmediato en regRF"""
+        # Carga el valor inmediato en regRF
         self.procesador.regRF.data = self.inmediato
     
     def _get_operand_value(self):
-        """Obtiene el valor del operando (inmediato)"""
+        # Obtiene el valor del operando (inmediato)
         return self.procesador.regRF.data
     
     def decode(self):
@@ -35,10 +35,10 @@ class Mov:
         print(f"Valor: {self.procesador.regDM.data}")
         
     def writeback(self):
-        print(f"Escribiendo valor en R{self.destino}")
+        print(f"Escribiendo valor en L{self.destino}")
         self.procesador.RF.registros[self.destino] = self.procesador.regDM.data
-        print(f"R{self.destino} = {self.procesador.RF.registros[self.destino]}")
-    
+        print(f"L{self.destino} = {self.procesador.RF.registros[self.destino]}")
+
     def ejecutar(self):
         if self.ejecucion:
             fase = self.ejecucion.pop(0)

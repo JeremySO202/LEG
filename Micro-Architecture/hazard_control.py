@@ -7,6 +7,7 @@ from instructions.y import Y
 from instructions.o import O
 from instructions.oex import Oex
 from instructions.mov import Mov
+from instructions.chkf import Chkf
 
 #immediate
 from instructions.smai import Smai
@@ -18,6 +19,7 @@ from instructions.no import No
 from instructions.rol import Rol
 from instructions.modp import Modp
 from instructions.mula import Mula
+from instructions.frm import Frm
 
 #branch
 from instructions.rig import Rig
@@ -31,13 +33,17 @@ from instructions.mix import Mix
 from instructions.crg import Crg
 from instructions.grd import Grd
 
+#vault
+from instructions.grdh import Grdh
+from instructions.grdk import Grdk
+
 class HazardControl:
     
     def __init__(self, procesador):
         self.procesador = procesador
     
     def _initialize_regrf_data(self, current_instruction):
-        """Inicializa la estructura de datos regRF según el tipo de instrucción"""
+        # Inicializa la estructura de datos regRF según el tipo de instrucción
         if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
             if current_instruction.procesador.regRF.data is None:
                 current_instruction.procesador.regRF.data = [None, None]
@@ -46,7 +52,7 @@ class HazardControl:
                 current_instruction.procesador.regRF.data = [None, None, None]
     
     def _check_two_register_hazard(self, current_instruction, source_inst, forwarding_data, is_mem_stage=False):
-        """Verifica hazards para instrucciones de dos registros"""
+        # Verifica hazards para instrucciones de dos registros
         if not hasattr(source_inst, 'destino'):
             return False
             
@@ -80,8 +86,8 @@ class HazardControl:
         """Verifica hazards para instrucciones de un registro"""
         if not hasattr(source_inst, 'destino'):
             return False
-            
-        if source_inst.destino == current_instruction.registro1 and current_instruction.boveda == 0:
+
+        if source_inst.destino == current_instruction.registro1 and (not hasattr(current_instruction, 'boveda') or current_instruction.boveda == 0):
             if is_mem_stage:
                 current_instruction.procesador.second_check = forwarding_data
                 current_instruction.procesador.forw_reg2 = 1
@@ -94,7 +100,7 @@ class HazardControl:
         return False
     
     def _check_mix_hazard(self, current_instruction, source_inst, forwarding_data, is_mem_stage=False):
-        """Verifica hazards para instrucciones Mix (3 registros)"""
+        # Verifica hazards para instrucciones Mix (3 registros)
         if not hasattr(source_inst, 'destino'):
             return False
             
@@ -118,7 +124,7 @@ class HazardControl:
         return False
 
     def handle_misprediction(self, instruction):
-        """Maneja las mispredictions de branch de forma centralizada"""
+        # Maneja las mispredictions de branch de forma centralizada
         print("Predicción incorrecta detectada. Penalización aplicada.")
         
         if not instruction.prediction_made:
@@ -137,7 +143,7 @@ class HazardControl:
         self.procesador.clear_pipeline()
 
     def exex_fw(self, current_instruction):
-        """Detecta y aplica forwarding EX-EX"""
+        # Detecta y aplica forwarding EX-EX
         self._initialize_regrf_data(current_instruction)
         
         alu_inst = self.procesador.regALU.instruccion
@@ -148,15 +154,15 @@ class HazardControl:
         forwarding_data = self.procesador.regALU.data
         
         # Instrucciones con dos registros fuente
-        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
+        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Chkf)):
             return self._check_two_register_hazard(current_instruction, alu_inst, forwarding_data)
             
         # Instrucciones con un registro fuente
-        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Frm)):
             return self._check_single_register_hazard(current_instruction, alu_inst, forwarding_data)
             
         # Instrucciones de crg
-        elif isinstance(current_instruction, Crg):
+        elif isinstance(current_instruction, (Crg, Grdh, Grdk)):
             if hasattr(alu_inst, 'destino') and alu_inst.destino == current_instruction.fuente:
                 current_instruction.procesador.Check = forwarding_data
                 current_instruction.procesador.forw_reg = 1
@@ -172,7 +178,7 @@ class HazardControl:
     
 
     def memreg_forw(self, current_instruction):
-        """Detecta y aplica forwarding MEM-EX"""
+        # Detecta y aplica forwarding MEM-EX
         self._initialize_regrf_data(current_instruction)
         
         dm_inst = self.procesador.regDM.instruccion
@@ -183,12 +189,19 @@ class HazardControl:
         forwarding_data = self.procesador.regDM.data
         
         # Instrucciones con dos registros fuente
-        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim)):
+        if isinstance(current_instruction, (Sma, Rta, Mul, Y, O, Oex, Rig, Rip, Rim, Chkf)):
             return self._check_two_register_hazard(current_instruction, dm_inst, forwarding_data, is_mem_stage=True)
             
         # Instrucciones con un registro fuente
-        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula)):
+        elif isinstance(current_instruction, (Smai, Rtai, Muli, Roti, Rotd, No, Rol, Modp, Mula, Frm)):
             return self._check_single_register_hazard(current_instruction, dm_inst, forwarding_data, is_mem_stage=True)
+        
+        elif isinstance(current_instruction, (Crg, Grd, Grdh, Grdk)):
+            if hasattr(dm_inst, 'destino') and dm_inst.destino == current_instruction.fuente:
+                current_instruction.procesador.second_check = forwarding_data
+                current_instruction.procesador.forw_reg2 = 1
+                print(f"Hazard detectado: L{dm_inst.destino} -> fuente (L{current_instruction.fuente})")
+                return True
                 
         # Instrucciones con tres registros fuente
         elif isinstance(current_instruction, Mix):
@@ -208,14 +221,14 @@ class BranchPredictor:
         self.default_prediction = default_prediction
 
     def predict(self, instruction_id):
-        """Devuelve la predicción para una instrucción específica."""
+        # Devuelve la predicción para una instrucción específica.
         return self.history.get(instruction_id, self.default_prediction)
 
     def update(self, instruction_id, actual_outcome):
-        """Actualiza el historial dinámico basado en el resultado real."""
+        # Actualiza el historial dinámico basado en el resultado real.
         self.history[instruction_id] = actual_outcome
         print(f"Historial actualizado para instrucción {instruction_id}: {actual_outcome}")
 
     def reset(self):
-        """Resetea el historial dinámico."""
+        # Resetea el historial dinámico.
         self.history = {}
