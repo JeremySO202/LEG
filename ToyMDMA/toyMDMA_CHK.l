@@ -1,3 +1,6 @@
+# Autenticación de la bóveda
+AUT 12345
+
 MOV L14 0 #Direccion de inicio de archivo
 CRG L15 L14 0 #Carga tamano de archivo
 RTAI L15 L15 2 # Para ignorar la firma

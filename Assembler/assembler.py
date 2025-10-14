@@ -37,9 +37,8 @@ opcodes = {
     'GRDH': ["010111", "V"],
     'GRDK': ["011000", "V"],
     'FRM': ["011001", "I"],
-    'CHKF': ["011010", "R"]
-    
-    
+    'CHKF': ["011010", "R"],
+    'AUT' : ["011011", "A"]
 }
 
 regs = {
@@ -260,6 +259,31 @@ def extract_bytes(line):
         index_bits = _validate_immediate_unsigned(data[2], bits=2)
         
         return "0" * 20 + index_bits + opcode + rs
+    
+    if instr_type == 'A':
+        # AUT instruction - Authentication with numeric password
+        # Format: AUT <numeric_password>
+        # Instruction format (32 bits): XX(2) + PASSWORD(16) + XX(4) + OPC(6) + XXXX(4)
+        if len(data) != 2:
+            raise ValueError("Invalid number of parameters for A-type instruction (expected: AUT <password>): " + line)
+        
+        # Get numeric password
+        password_str = data[1]
+        
+        # Validate it's a number
+        if not password_str.isdigit():
+            raise ValueError(f"Password must be numeric: {password_str}")
+        
+        password_int = int(password_str)
+        
+        # Limit to 16 bits (0-65535)
+        if not 0 <= password_int <= 0xFFFF:
+            raise ValueError(f"Password must be between 0 and 65535: {password_int}")
+        
+        password_bits = format(password_int, '016b')  # 16 bits for password
+        
+        # Format: 2 bits unused + 16 bits password + 4 bits unused + 6 bits opcode + 4 bits unused
+        return "00" + password_bits + "0000" + opcode + "0000"
     
     raise ValueError(f"Unknown instruction type: {instr_type}")
 

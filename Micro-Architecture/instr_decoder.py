@@ -38,6 +38,9 @@ from instructions.grd import Grd
 from instructions.grdh import Grdh
 from instructions.grdk import Grdk
 
+#authentication
+from instructions.Aut import Aut
+
 
 
 class Inst_Decoder:
@@ -105,6 +108,10 @@ class Inst_Decoder:
             "011000": "Grdk"
         }
         
+        self.A_instructions = {
+            "011011": "Aut"
+        }
+        
         
         self.instructions  = {
             "R": self.R_instructions,
@@ -112,7 +119,8 @@ class Inst_Decoder:
             "B": self.B_instructions,
             "H": self.H_instructions,
             "V": self.V_instructions,
-            "M": self.M_instructions
+            "M": self.M_instructions,
+            "A": self.A_instructions
         }
         
     def load_code(self, assembled_code, processor):
@@ -222,6 +230,12 @@ class Inst_Decoder:
             rs = int(code_line[31-3:32],2)        # Bits 3-0
             print(f"{mnemonic} R{rs} #{index}")
             return cls(rs, index, processor)
+            
+        elif instruction_type == "A":
+           #| A | XX(2) | PASSWORD(16) | XX(4) | OPC(6) | XX(4) |
+            password_int = int(code_line[31-29:31-13],2)  # Bits 29-14 (16 bits)
+            print(f"{mnemonic} #{password_int}")
+            return cls(password_int, processor)
             
         return 0
     

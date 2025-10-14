@@ -1,6 +1,5 @@
 from instr_decoder import Inst_Decoder
 from processor_fh import ProcesadorFullHazard
-from vault_login_gui import show_login_gui
 
 import sys
 from pathlib import Path

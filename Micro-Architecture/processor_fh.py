@@ -141,8 +141,9 @@ class ProcesadorFullHazard:
         second_hazard = False
         start_time = time.time()
         execute = True
+        max_cycles = 10000  # Límite de seguridad para evitar ciclos infinitos
         
-        while execute:
+        while execute and self.total_cycles < max_cycles:
             self.total_cycles += 1
             execute = False
 
@@ -324,6 +325,12 @@ class ProcesadorFullHazard:
                 
             if self.step_by_step:
                 input("Presiona Enter para continuar al siguiente ciclo...")
+        
+        # Verificar si se alcanzó el límite de ciclos
+        if self.total_cycles >= max_cycles:
+            print(f"\n⚠️  ADVERTENCIA: Se alcanzó el límite máximo de ciclos ({max_cycles})")
+            print(f"El programa puede estar en un ciclo infinito o necesita más ciclos para completar.")
+            print(f"Instrucciones completadas: {self.instructions_completed}")
 
     def manejar_branch(self, branch_instruction):
         branch_instruction.ejecutar()
