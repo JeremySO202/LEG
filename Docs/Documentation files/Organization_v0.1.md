@@ -6,7 +6,7 @@ El procesador simulado implementa un **pipeline de 5 etapas** (**FETCH → DECOD
 - **Banco de registros (RF)**: `archivoRegistros` (`components/register_file.py`).
 - **ALU / Unidades funcionales**: `ALU` (`components/alu.py`) y operaciones especiales usadas por las clases de instrucción.
 - **Memoria de datos (DM)**: `memoriaDatos` (`components/data_memory.py`).
-- **Bóveda / Root of Trust (VAULT)**: `vault` (`components/vault.py`) con puerto dedicado (no direccionable por MEM).
+- **Bóveda / Root of Trust (VAULT)**: `vault` (`components/vault.py`) con puerto dedicado (no direccionable por MEM). Incluye control de acceso mediante autenticación con la instrucción AUT (tipo A).
 - **Control de riesgos y branch predictor**: `HazardControl`, `BranchPredictor` (`hazard_control.py`).
 - **Registros de pipeline**: `regIM`, `regRF`, `regALU`, `regDM` (instancias de `components/register.Registro`).
 
@@ -44,14 +44,17 @@ flowchart TB
       IMM_OP[Immediate Ops<br/>SMAI, RTAI, MULI, ROTI, etc.]
       BRANCH_OP[Branch Ops<br/>RIG]
       MIX_OP[Security Ops<br/>MIX - VAULT Access]
+      AUTH_OP[Authentication<br/>AUT - Password Verify]
       EXHUB --> ALU_OP
       EXHUB --> IMM_OP
       EXHUB --> BRANCH_OP
       EXHUB --> MIX_OP
+      EXHUB --> AUTH_OP
       ALU_OP --> EXHUB
       IMM_OP --> EXHUB
       BRANCH_OP --> EXHUB
       MIX_OP --> EXHUB
+      AUTH_OP --> EXHUB
     end
     
     %% Pipeline Register EX/MEM
@@ -122,6 +125,7 @@ flowchart TB
   
   %% Vault Security Connection
   MIX_OP <--> VAULT
+  AUTH_OP <--> VAULT
   
   %% ALU Connection
   EXHUB <--> ALU_UNIT
@@ -148,6 +152,8 @@ flowchart TB
     B_TYPE[B-Type<br/>RIG]
     H_TYPE[H-Type<br/>MIX]
     M_TYPE[M-Type<br/>CRG, GRD]
+    V_TYPE[V-Type<br/>GRDK, GRDH]
+    A_TYPE[A-Type<br/>AUT - Authentication]
   end
 
 

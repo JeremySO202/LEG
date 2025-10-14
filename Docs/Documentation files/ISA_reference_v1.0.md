@@ -54,7 +54,12 @@
 |---|---|---|---|
 | GDRH - <small>guardar hash | 010111 | V | rs ← vault_hash_reg[index]
 | GDRK - <small>guardar clave | 011000 | V | rs ← vault_key_reg[index]
-| AUT - <small>iniciar sesión segura | 011001 | V | rd ← check_credential[rs]
+
+### AUTHENTICATION INSTRUCTIONS
+
+| MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION 
+|---|---|---|---|
+| AUT - <small>autenticación de bóveda | 011011 | A | vault_access ← (password == master_password)
 
 ### SIGNATURE INSTRUCTIONS
 | MNEMONIC, NAME | OP-CODE|  FORMAT | OPERATION
@@ -75,8 +80,10 @@
 | I | VRS |X|||IMM(16)  |RS(4) | OPC(6) | RD(4)
 | H |VRS||X(9) | RS3(4) | RS2(4) | RS1(4) | OPC(6) | RD(4) 
 | V |||||X(20)|INDEX(2)|OPC(6)|RS(4)|
+| A |X|X|||PASSWORD(16)|X(4)|OPC(6)|X(4)|
 
 V(2): Vault register specifier (00: no vault, 01 for rs1 vault register, 10 for rs2 vault register, 11 for rs1 and rs2 vault register)
+A: Authentication type - PASSWORD(16) holds the numeric password (0-65535) for vault authentication
 
 
 <hr style="margin:0; border:3px solid white;">
