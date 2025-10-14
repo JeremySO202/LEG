@@ -25,6 +25,7 @@ class vault:
         """Lectura de registros de la bóveda (requiere autenticación)."""
         if self.secure_user:
             if 0 <= index < 8:
+                print(f"Accediendo a registro seguro K{index} con valor {self.secure_regs[index]}")
                 return self.secure_regs[index]
         return 0
     

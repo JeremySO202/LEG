@@ -1,3 +1,4 @@
+AUT 12345
 MOV L14 0 #Direccion de inicio de archivo
 CRG L15 L14 0 #Carga tamano de archivo
 SMAI L15 L15 2 #Resta 1 al tamano por que la primera posicion es el tamano
